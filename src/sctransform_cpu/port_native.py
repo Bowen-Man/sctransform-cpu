@@ -67,14 +67,17 @@ def _ensure_r_fpu(library: ctypes.CDLL) -> None:
 
 
 def _candidate_library_paths() -> list[Path]:
-    override = os.environ.get("SCT_PORT_R45_DLL")
+    override = (os.environ.get("SCT_PORT_NATIVE_LIBRARY")
+                or os.environ.get("SCT_PORT_R45_DLL"))
     package = Path(__file__).resolve().parent
+    native_name = ("sct_port_r45.dll" if os.name == "nt"
+                   else "libsct_port_r45.so")
     candidates = []
     if override:
         candidates.append(Path(override))
     candidates.extend([
-        package / "native" / "sct_port_r45.dll",
-        package.parent / "build" / "sct_port_r45.dll",
+        package / "native" / native_name,
+        package.parents[1] / "build" / "native-linux" / native_name,
     ])
     return candidates
 
@@ -149,6 +152,23 @@ def _load_library() -> ctypes.CDLL:
         double_pointer, ctypes.c_int, double_pointer,
     ]
     library.sct_count_mean_variance.restype = None
+    if os.name != "nt":
+        library.sct_log10_array.argtypes = [
+            double_pointer, ctypes.c_int, double_pointer,
+        ]
+        library.sct_log10_array.restype = None
+        library.sct_reciprocal_array.argtypes = [
+            double_pointer, ctypes.c_int, double_pointer,
+        ]
+        library.sct_reciprocal_array.restype = None
+        library.sct_regularization_dispersion.argtypes = [
+            double_pointer, double_pointer, ctypes.c_int, double_pointer,
+        ]
+        library.sct_regularization_dispersion.restype = None
+        library.sct_regularization_theta.argtypes = [
+            double_pointer, double_pointer, ctypes.c_int, double_pointer,
+        ]
+        library.sct_regularization_theta.restype = None
     library.sct_ksmooth_normal.argtypes = [
         double_pointer, double_pointer, ctypes.c_int,
         double_pointer, ctypes.c_int, ctypes.c_double, double_pointer,
@@ -190,6 +210,69 @@ def r45_exp_native(value: float) -> float:
     return float(_load_library().sct_r45_exp(float(value)))
 
 
+def platform_log10_native(values) -> np.ndarray:
+    """Evaluate scalar log10 with the pinned platform C runtime."""
+    array = np.ascontiguousarray(values, dtype=np.float64)
+    if array.ndim != 1 or np.any(array <= 0.0):
+        raise ValueError("log10 input must be a positive one-dimensional vector")
+    if os.name == "nt":
+        return np.log10(array)
+    result = np.empty_like(array)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    _load_library().sct_log10_array(
+        array.ctypes.data_as(pointer), len(array),
+        result.ctypes.data_as(pointer))
+    return result
+
+
+def reciprocal_native(values) -> np.ndarray:
+    """Evaluate the scalar R/C reciprocal loop without NumPy reassociation."""
+    array = np.ascontiguousarray(values, dtype=np.float64)
+    if array.ndim != 1:
+        raise ValueError("reciprocal input must be a one-dimensional vector")
+    if os.name == "nt":
+        return np.divide(
+            1.0, array, out=np.full_like(array, np.inf), where=array > 0)
+    result = np.empty_like(array)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    _load_library().sct_reciprocal_array(
+        array.ctypes.data_as(pointer), len(array),
+        result.ctypes.data_as(pointer))
+    return result
+
+
+def regularization_dispersion_native(log_gmean, theta) -> np.ndarray:
+    """Match R's ``log10(1 + 10^x / theta)`` scalar evaluation."""
+    x = np.ascontiguousarray(log_gmean, dtype=np.float64)
+    theta_array = np.ascontiguousarray(theta, dtype=np.float64)
+    if x.ndim != 1 or theta_array.shape != x.shape:
+        raise ValueError("regularization inputs must be aligned vectors")
+    if os.name == "nt":
+        return np.log10(1.0 + np.power(10.0, x) / theta_array)
+    result = np.empty_like(x)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    _load_library().sct_regularization_dispersion(
+        x.ctypes.data_as(pointer), theta_array.ctypes.data_as(pointer), len(x),
+        result.ctypes.data_as(pointer))
+    return result
+
+
+def regularization_theta_native(log_gmean, dispersion) -> np.ndarray:
+    """Match R's ``10^x / (10^dispersion - 1)`` scalar evaluation."""
+    x = np.ascontiguousarray(log_gmean, dtype=np.float64)
+    dispersion_array = np.ascontiguousarray(dispersion, dtype=np.float64)
+    if x.ndim != 1 or dispersion_array.shape != x.shape:
+        raise ValueError("regularization inputs must be aligned vectors")
+    if os.name == "nt":
+        return np.power(10.0, x) / (np.power(10.0, dispersion_array) - 1.0)
+    result = np.empty_like(x)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    _load_library().sct_regularization_theta(
+        x.ctypes.data_as(pointer), dispersion_array.ctypes.data_as(pointer),
+        len(x), result.ctypes.data_as(pointer))
+    return result
+
+
 def row_gmean_native(counts) -> tuple[np.ndarray, np.ndarray]:
     """Return pinned row geometric means and their R-style base-10 logs."""
     from scipy import sparse
@@ -216,6 +299,8 @@ def row_gmean_native(counts) -> tuple[np.ndarray, np.ndarray]:
         gmean.ctypes.data_as(double_pointer),
         log_gmean.ctypes.data_as(double_pointer),
     )
+    if os.name != "nt":
+        log_gmean = platform_log10_native(gmean)
     return gmean, log_gmean
 
 
@@ -334,7 +419,7 @@ def pearson_residuals_native(
             or slope_array.shape != intercept_array.shape
             or theta_array.shape != intercept_array.shape):
         raise ValueError("invalid residual tile shapes")
-    log_umi = np.ascontiguousarray(np.log10(library_array), dtype=np.float64)
+    log_umi = platform_log10_native(library_array)
     result = np.empty_like(matrix)
     pointer = ctypes.POINTER(ctypes.c_double)
     mu = np.empty_like(matrix) if return_components else None

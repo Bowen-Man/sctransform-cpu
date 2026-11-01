@@ -111,9 +111,10 @@ def main():
             for name, rows in runs.items()
         },
         "runs": runs,
-        "quality_report": "results/quality.json",
+        "quality_report": str(quality_path),
         "interpretation_limit": (
-            "Small fixed Windows benchmark; sampled RSS includes interpreter/runtime and may miss sub-10ms peaks."
+            "Small fixed benchmark; sampled RSS includes interpreter/runtime "
+            "and may miss sub-10ms peaks."
         ),
     }
     output = args.output_dir / "benchmark.json"

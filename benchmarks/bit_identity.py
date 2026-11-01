@@ -11,6 +11,7 @@ from sctransform_cpu import SCTConfig, sctransform
 from sctransform_cpu.model import r45_offset_from_library
 from sctransform_cpu.port_native import (
     count_dispersion_start_native, count_mean_variance_native,
+    platform_log10_native, regularization_dispersion_native,
     row_gmean_native,
 )
 from sctransform_cpu.r_compat_stats import row_statistics_r45
@@ -130,7 +131,8 @@ def compare_oracle(data: Path, oracle: Path) -> dict[str, object]:
         "library": _compare_float("library", library, oracle),
         "offset": _compare_float(
             "offset", r45_offset_from_library(library), oracle),
-        "log_umi": _compare_float("log_umi", np.log10(library), oracle),
+        "log_umi": _compare_float(
+            "log_umi", platform_log10_native(library), oracle),
         "amean": _compare_float("amean", means, oracle),
         "variance": _compare_float("variance", variances, oracle),
         "gmean": _compare_float("gmean", gmean, oracle),
@@ -140,8 +142,8 @@ def compare_oracle(data: Path, oracle: Path) -> dict[str, object]:
         "fit_slope": _compare_float("fit_slope", np.full(len(result.fit_theta), np.log(10.0)), oracle),
         "fit_dispersion_par": _compare_float(
             "fit_dispersion_par",
-            np.log10(1 + np.power(10.0, log_gmean[result.fit_gene_indices])
-                     / result.fit_theta), oracle),
+            regularization_dispersion_native(
+                log_gmean[result.fit_gene_indices], result.fit_theta), oracle),
         "fit_start_log": _compare_float(
             "fit_start_log", np.asarray(fit_start_log), oracle),
         "fit_start_alpha": _compare_float(
@@ -156,7 +158,7 @@ def compare_oracle(data: Path, oracle: Path) -> dict[str, object]:
             "bandwidth", np.asarray([result.bandwidth]), oracle),
         "regularized_dispersion_par": _compare_float(
             "regularized_dispersion_par",
-            np.log10(1 + np.power(10.0, log_gmean) / result.theta), oracle),
+            regularization_dispersion_native(log_gmean, result.theta), oracle),
         "slope": _compare_float("slope", result.slope, oracle),
         "residual_mean": _compare_float("residual_mean", result.residual_mean, oracle),
         "residual_variance": _compare_float("residual_variance", result.residual_variance, oracle),

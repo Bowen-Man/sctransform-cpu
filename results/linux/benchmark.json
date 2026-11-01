@@ -1,0 +1,249 @@
+{
+  "method": "one warm-up, fresh subprocesses, alternating implementation order",
+  "repeats": 5,
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "physical_cores": 16,
+  "logical_cores": 32,
+  "input": {
+    "genes": 800,
+    "cells": 240,
+    "nnz": 22131
+  },
+  "summary": {
+    "python": {
+      "compute_wall_seconds": {
+        "median": 0.20622342603746802,
+        "min": 0.19462078192736953,
+        "max": 0.20654580497648567,
+        "standard_deviation": 0.005131601230103402
+      },
+      "compute_cpu_seconds": {
+        "median": 0.20619898000000003,
+        "min": 0.19459725700000002,
+        "max": 0.20653614499999998,
+        "standard_deviation": 0.005132896234709659
+      },
+      "process_wall_seconds": {
+        "median": 0.36464422894641757,
+        "min": 0.3530834880657494,
+        "max": 0.37001969292759895,
+        "standard_deviation": 0.007016868485989406
+      },
+      "sampled_peak_rss_bytes": {
+        "median": 67850240,
+        "min": 67780608,
+        "max": 68947968,
+        "standard_deviation": 500025.81621672295
+      }
+    },
+    "r": {
+      "compute_wall_seconds": {
+        "median": 3.185,
+        "min": 3.107,
+        "max": 3.241,
+        "standard_deviation": 0.05706312294293047
+      },
+      "compute_cpu_seconds": {
+        "median": 3.18,
+        "min": 3.107,
+        "max": 3.241,
+        "standard_deviation": 0.05665068402058354
+      },
+      "process_wall_seconds": {
+        "median": 4.216317229089327,
+        "min": 4.128369722981006,
+        "max": 4.331160919042304,
+        "standard_deviation": 0.07857580254945981
+      },
+      "sampled_peak_rss_bytes": {
+        "median": 712937472,
+        "min": 712749056,
+        "max": 713072640,
+        "standard_deviation": 132111.08130963126
+      }
+    }
+  },
+  "runs": {
+    "python": [
+      {
+        "implementation": "sctransform-cpu",
+        "compute_wall_seconds": 0.2062832280062139,
+        "compute_cpu_seconds": 0.206259426,
+        "stage_seconds": {
+          "input_statistics": 0.003724060021340847,
+          "selection": 0.00016366993077099323,
+          "fit": 0.19001459295395762,
+          "regularization": 0.00424937205389142,
+          "residual_statistics": 0.008007455966435373,
+          "selection_output": 3.715197090059519e-05
+        },
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "python": "3.12.15",
+        "numpy": "2.5.4",
+        "scipy": "1.18.1",
+        "process_wall_seconds": 0.36464422894641757,
+        "sampled_peak_rss_bytes": 67850240
+      },
+      {
+        "implementation": "sctransform-cpu",
+        "compute_wall_seconds": 0.20654580497648567,
+        "compute_cpu_seconds": 0.20653614499999998,
+        "stage_seconds": {
+          "input_statistics": 0.0035835850285366178,
+          "selection": 0.0004106319975107908,
+          "fit": 0.19058027095161378,
+          "regularization": 0.0042112169321626425,
+          "residual_statistics": 0.00762973097153008,
+          "selection_output": 3.936304710805416e-05
+        },
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "python": "3.12.15",
+        "numpy": "2.5.4",
+        "scipy": "1.18.1",
+        "process_wall_seconds": 0.36620160401798785,
+        "sampled_peak_rss_bytes": 67821568
+      },
+      {
+        "implementation": "sctransform-cpu",
+        "compute_wall_seconds": 0.20622342603746802,
+        "compute_cpu_seconds": 0.20619898000000003,
+        "stage_seconds": {
+          "input_statistics": 0.005080034025013447,
+          "selection": 0.00019466294907033443,
+          "fit": 0.18969676992855966,
+          "regularization": 0.0039383480325341225,
+          "residual_statistics": 0.007190652075223625,
+          "selection_output": 3.736198414117098e-05
+        },
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "python": "3.12.15",
+        "numpy": "2.5.4",
+        "scipy": "1.18.1",
+        "process_wall_seconds": 0.37001969292759895,
+        "sampled_peak_rss_bytes": 68947968
+      },
+      {
+        "implementation": "sctransform-cpu",
+        "compute_wall_seconds": 0.20180618099402636,
+        "compute_cpu_seconds": 0.201796306,
+        "stage_seconds": {
+          "input_statistics": 0.0037464199122041464,
+          "selection": 0.00015497999265789986,
+          "fit": 0.18654664501082152,
+          "regularization": 0.003916390938684344,
+          "residual_statistics": 0.007319527096115053,
+          "selection_output": 3.68230976164341e-05
+        },
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "python": "3.12.15",
+        "numpy": "2.5.4",
+        "scipy": "1.18.1",
+        "process_wall_seconds": 0.3530834880657494,
+        "sampled_peak_rss_bytes": 67780608
+      },
+      {
+        "implementation": "sctransform-cpu",
+        "compute_wall_seconds": 0.19462078192736953,
+        "compute_cpu_seconds": 0.19459725700000002,
+        "stage_seconds": {
+          "input_statistics": 0.0036934660747647285,
+          "selection": 0.00016014103312045336,
+          "fit": 0.17941643006633967,
+          "regularization": 0.004007637035101652,
+          "residual_statistics": 0.007212260039523244,
+          "selection_output": 3.68430046364665e-05
+        },
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "python": "3.12.15",
+        "numpy": "2.5.4",
+        "scipy": "1.18.1",
+        "process_wall_seconds": 0.356656405958347,
+        "sampled_peak_rss_bytes": 67878912
+      }
+    ],
+    "r": [
+      {
+        "implementation": "sctransform::vst",
+        "compute_wall_seconds": 3.203,
+        "compute_cpu_seconds": 3.195,
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "r_version": "4.5.2",
+        "sctransform_version": "0.4.3",
+        "glmgampoi_version": "1.22.0",
+        "process_wall_seconds": 4.216317229089327,
+        "sampled_peak_rss_bytes": 712826880
+      },
+      {
+        "implementation": "sctransform::vst",
+        "compute_wall_seconds": 3.107,
+        "compute_cpu_seconds": 3.107,
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "r_version": "4.5.2",
+        "sctransform_version": "0.4.3",
+        "glmgampoi_version": "1.22.0",
+        "process_wall_seconds": 4.128369722981006,
+        "sampled_peak_rss_bytes": 712749056
+      },
+      {
+        "implementation": "sctransform::vst",
+        "compute_wall_seconds": 3.185,
+        "compute_cpu_seconds": 3.18,
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "r_version": "4.5.2",
+        "sctransform_version": "0.4.3",
+        "glmgampoi_version": "1.22.0",
+        "process_wall_seconds": 4.254102732986212,
+        "sampled_peak_rss_bytes": 712937472
+      },
+      {
+        "implementation": "sctransform::vst",
+        "compute_wall_seconds": 3.241,
+        "compute_cpu_seconds": 3.241,
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "r_version": "4.5.2",
+        "sctransform_version": "0.4.3",
+        "glmgampoi_version": "1.22.0",
+        "process_wall_seconds": 4.331160919042304,
+        "sampled_peak_rss_bytes": 713011200
+      },
+      {
+        "implementation": "sctransform::vst",
+        "compute_wall_seconds": 3.118,
+        "compute_cpu_seconds": 3.114,
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "r_version": "4.5.2",
+        "sctransform_version": "0.4.3",
+        "glmgampoi_version": "1.22.0",
+        "process_wall_seconds": 4.167382198967971,
+        "sampled_peak_rss_bytes": 713072640
+      }
+    ]
+  },
+  "quality_report": "results/linux/quality.json",
+  "interpretation_limit": "Small fixed Linux benchmark; sampled RSS includes interpreter/runtime and may miss sub-10ms peaks."
+}

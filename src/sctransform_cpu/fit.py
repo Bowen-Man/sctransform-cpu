@@ -11,7 +11,7 @@ from .model import (
     r45_offset_from_library,
 )
 from .r_glmgampoi import fit_dispersion_port_native
-from .port_native import make_mu_native
+from .port_native import make_mu_native, reciprocal_native
 
 
 def _local_dispersion_trend(expression: np.ndarray, alpha: np.ndarray) -> np.ndarray:
@@ -74,7 +74,7 @@ def fit_batch(counts: np.ndarray, library: np.ndarray,
         intercept_at_overdispersion_r45(row, offset, dispersion, start)
         for row, dispersion, start in zip(counts, trend, initial_beta)
     ])
-    theta = np.divide(1.0, alpha, out=np.full_like(alpha, np.inf), where=alpha > 0)
+    theta = reciprocal_native(alpha)
     naive_theta = all_cell_means ** 2 / (all_cell_variances - all_cell_means)
     theta[naive_theta / theta < 1e-3] = np.inf
     return beta, theta

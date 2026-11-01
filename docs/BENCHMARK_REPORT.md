@@ -56,3 +56,20 @@ profiling)—as the first optimization target for this fixture.
 Machine-readable evidence is in `results/benchmark.json`,
 `results/quality.json`, `results/python_profile_top.json` and
 `results/environment.json`.
+
+## Linux replication
+
+The same fixture and benchmark protocol were run in Ubuntu 26.04 WSL2 on an
+AMD Ryzen 9 9950X3D, Python 3.12.15 and the pinned Linux R stack. All thread
+environment variables remained one.
+
+| implementation | compute wall median [min, max] | process wall median | CPU median | sampled peak RSS median |
+|---|---:|---:|---:|---:|
+| Python | 0.206 [0.195, 0.207] s | 0.365 s | 0.206 s | 64.7 MiB |
+| R reference | 3.185 [3.107, 3.241] s | 4.216 s | 3.180 s | 680.0 MiB |
+
+The Linux quality and raw-binary gates had zero differences. The stage timer
+attributed 0.177 s to fitting and 0.0073 s to residual statistics in its one
+quality run. These values reinforce the small-fixture hotspot observation but
+do not establish scaling behavior. Evidence is under `results/linux/`; see
+`docs/LINUX_VALIDATION.md` for the exact native and wheel contract.

@@ -1,0 +1,259 @@
+{
+  "contract": "exact IEEE-754 binary64 / int32 / ordered-title identity",
+  "metadata": {
+    "byte_order": "little",
+    "float_format": "IEEE-754 binary64",
+    "retained_genes": 800,
+    "fitted_genes": 441,
+    "fitted_cells": 240,
+    "cells": 240,
+    "r_version": "4.5.2",
+    "sctransform_version": "0.4.3",
+    "glmgampoi_version": "1.22.0",
+    "matrixstats_version": "1.5.0",
+    "r_platform": "x86_64-pc-linux-gnu",
+    "r_arch": "x86_64"
+  },
+  "name_checks": {
+    "genes": true,
+    "cells": true,
+    "fit_genes": true,
+    "fit_cells": true,
+    "hvg_order": true
+  },
+  "float_checks": {
+    "library": {
+      "elements": 240,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "offset": {
+      "elements": 240,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "log_umi": {
+      "elements": 240,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "amean": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "variance": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "gmean": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "log_gmean": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_intercept": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_theta": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_slope": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_dispersion_par": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_start_log": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_start_alpha": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_count_mean": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_count_variance": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "intercept": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "theta": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "bandwidth": {
+      "elements": 1,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "regularized_dispersion_par": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "slope": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "residual_mean": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "residual_variance": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "residual": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "mu": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "model_variance": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "residual_numerator": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "residual_denominator": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    }
+  },
+  "integer_checks": {
+    "fit_outlier": {
+      "actual_elements": 441,
+      "expected_elements": 441,
+      "mismatches": 0,
+      "first_mismatch_indices": [],
+      "passed": true
+    },
+    "corrected_umi": {
+      "actual_elements": 192000,
+      "expected_elements": 192000,
+      "mismatches": 0,
+      "first_mismatch_indices": [],
+      "passed": true
+    }
+  },
+  "passed": true
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "pinned Linux bit-identity and small-fixture benchmark environment",
+  "os": "Ubuntu 26.04 LTS under WSL2",
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "architecture": "x86_64",
+  "libc": "glibc 2.43",
+  "cpu": "AMD Ryzen 9 9950X3D 16-Core Processor",
+  "physical_cores": 16,
+  "logical_cores": 32,
+  "wsl_visible_ram_bytes": 49265954816,
+  "python": "3.12.15",
+  "numpy": "2.5.4",
+  "scipy": "1.18.1",
+  "psutil": "7.2.2",
+  "gcc": "15.2.0",
+  "gfortran": "15.2.0",
+  "r": "4.5.2",
+  "sctransform": "0.4.3",
+  "glmGamPoi": "1.22.0",
+  "matrixStats": "1.5.0",
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "native_library": "src/sctransform_cpu/native/libsct_port_r45.so",
+  "native_sha256": "40d4789bc22465c5d87aa2755d179cf62fcb459f9c95d5c800ae1a1b4d890031",
+  "native_dynamic_dependencies": ["libm.so.6", "libc.so.6"]
+}

@@ -8,10 +8,11 @@ checked-in run in `results/bit_identity.json` passes with zero mismatches.
 A live integration test also creates a new oracle with R and compares it in a
 temporary directory, so the gate is not limited to a stored result.
 
-The exact guarantee is pinned to Windows x64, R 4.5.2, sctransform 0.4.3,
-glmGamPoi 1.22.0, matrixStats 1.5.0 and the Rtools45 floating-point behavior.
-Cross-platform builds retain the numerical acceptance contract below until
-they have their own binary oracles.
+The exact guarantee has two separate platform contracts. Both pin R 4.5.2,
+sctransform 0.4.3, glmGamPoi 1.22.0 and matrixStats 1.5.0. Windows pins the
+Rtools45 floating-point behavior; Linux pins Ubuntu 26.04 x86_64, glibc 2.43
+and GCC/GFortran 15.2. The Linux gate generates its own oracle and does not
+compare against Windows bytes.
 
 The acceptance tolerances are explicit engineering gates, not universal
 biological error bounds:
@@ -25,9 +26,10 @@ biological error bounds:
 | fixed slope | 1e-13 | 0 |
 | corrected UMI | 0 | 0 |
 
-The stored 128-case fixed-mean solver suite must have zero tolerance failures
-and identical zero/nonzero alpha classification. End-to-end comparison also
-requires identical outlier masks and Top-100/200/300 feature sets.
+The Windows-pinned stored 128-case fixed-mean solver suite must have zero
+tolerance failures and identical zero/nonzero alpha classification. It is not
+reused as a Linux oracle. Each platform's end-to-end comparison requires
+identical outlier masks and Top-100/200/300 feature sets.
 
 The public benchmark fixture is an 800-gene by 240-cell raw UMI subset derived
 from the public 10x PBMC3K dataset. It is a computational regression fixture,
@@ -35,8 +37,8 @@ not a biological validation dataset.
 
 Limitations remain explicit: only the direct unbatched path is covered;
 implicit cross-language sampling, additional covariates, complete Seurat
-post-processing, other R/package versions and non-Windows builds require
-separate gates.
+post-processing, other R/package versions, macOS and other Linux runtimes
+require separate gates.
 
 Run the stored oracle and then regenerate it live:
 
@@ -48,3 +50,19 @@ python benchmarks/bit_identity.py benchmark_data build/bit_oracle `
 $env:SCT_TEST_RSCRIPT = 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe'
 python -m pytest -q tests/test_r_bit_identity.py
 ```
+
+Linux equivalent:
+
+```bash
+./scripts/build_native.sh
+export SCT_TEST_RSCRIPT=/usr/bin/Rscript
+python -m pytest -q tests/test_r_bit_identity.py
+Rscript benchmarks/bit_reference.R benchmark_data build/bit_oracle_linux
+python benchmarks/bit_identity.py benchmark_data build/bit_oracle_linux \
+  results/linux/bit_identity.json --enforce
+```
+
+The oracle exports the raw `genes_log_gmean` expression used inside `vst()`.
+It intentionally does not apply `log10(10^genes_log_gmean)` through the public
+`gene_attr$gmean` field, because that extra reporting round trip can introduce
+one unused ULP and is not the value consumed by fitting or regularization.

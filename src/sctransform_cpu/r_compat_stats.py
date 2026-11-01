@@ -10,7 +10,13 @@ import math
 import numpy as np
 from scipy import sparse
 
-from .port_native import bw_sj_native, ksmooth_normal_native, row_gmean_native
+from .port_native import (
+    bw_sj_native,
+    ksmooth_normal_native,
+    regularization_dispersion_native,
+    regularization_theta_native,
+    row_gmean_native,
+)
 
 
 def row_statistics_r45(counts):
@@ -91,7 +97,7 @@ def regularize_v2_r45(log_gmean, fit_indices, intercept, theta, means, variances
     fit_indices = np.asarray(fit_indices, dtype=int)
     intercept, theta = (np.asarray(v, dtype=np.float64) for v in (intercept, theta))
     x = log_gmean[fit_indices]
-    dispersion = np.log10(1 + np.power(10., x)/theta)
+    dispersion = regularization_dispersion_native(x, theta)
     outliers = (outlier_r45(x, dispersion) | outlier_r45(x, intercept)
                 | ~np.isfinite(theta))
     poisson = (variances <= means) | (means < 1e-3)
@@ -105,7 +111,7 @@ def regularize_v2_r45(log_gmean, fit_indices, intercept, theta, means, variances
     slope = ksmooth_normal_r45(
         x[keep], np.full(keep.sum(), math.log(10.0)), query, bandwidth)
     with np.errstate(divide='ignore', invalid='ignore'):
-        fitted_theta = np.power(10., log_gmean)/(np.power(10., od)-1)
+        fitted_theta = regularization_theta_native(log_gmean, od)
     fitted_theta[poisson] = np.inf
     b0[poisson] = np.log(means[poisson])-np.log(mean_filtered_library)
     slope[poisson] = math.log(10.0)

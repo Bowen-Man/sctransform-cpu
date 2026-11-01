@@ -17,6 +17,7 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Operating System :: Microsoft :: Windows :: Windows 10",
   "Operating System :: Microsoft :: Windows :: Windows 11",
+  "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
@@ -30,9 +31,6 @@ where = ["src"]
 
 [tool.setuptools]
 include-package-data = false
-
-[tool.setuptools.package-data]
-sctransform_cpu = ["native/*.dll"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

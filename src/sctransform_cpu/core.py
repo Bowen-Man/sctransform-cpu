@@ -48,7 +48,8 @@ class SCTResult:
     diagnostics: dict[str, object] = field(default_factory=dict)
     corrected_umi: sparse.csr_matrix | None = None
     semantics: str = (
-        "bit-pinned Windows x64 R 4.5.2 / sctransform 0.4.3 / "
+        "platform-pinned Windows x64 or Linux x86_64 R 4.5.2 / "
+        "sctransform 0.4.3 / "
         "glmGamPoi 1.22.0 / matrixStats 1.5.0; direct unbatched v2 path only"
     )
 
