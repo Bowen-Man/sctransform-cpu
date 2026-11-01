@@ -26,7 +26,7 @@ GCC/GFortran 14.3.0. Its SHA-256 is
 
 The bundled `sctransform_cpu/native/libsct_port_r45.so` was built on Ubuntu
 26.04 x86_64 with GCC/GFortran 15.2.0 and glibc 2.43. Its SHA-256 is
-`40d4789bc22465c5d87aa2755d179cf62fcb459f9c95d5c800ae1a1b4d890031`.
+`7ed38d800dbf70e97ff964b6b98795053cce5eef8f06990dd33f3e711a6570b1`.
 
 The original copyright notices, license identifiers, and source-level
 attribution are retained in `sctransform_cpu/native/`. See `LICENSE` for the
