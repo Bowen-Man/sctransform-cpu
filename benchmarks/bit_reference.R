@@ -66,15 +66,20 @@ write_f64('offset', log(10^log10(Matrix::colSums(counts))))
 write_f64('log_umi', log10(Matrix::colSums(counts)))
 write_f64('amean', result$gene_attr$amean)
 write_f64('variance', result$gene_attr$variance)
-write_f64(
-  'gmean',
-  sctransform:::row_gmean(counts[rownames(result$model_pars_fit), , drop=FALSE], eps=1)
+gene_gmean_raw <- sctransform:::row_gmean(
+  counts[rownames(result$model_pars_fit), , drop=FALSE], eps=1
 )
-write_f64('log_gmean', log10(result$gene_attr$gmean))
+# Compare the value that vst() actually feeds into fitting and regularization.
+# result$gene_attr$gmean is reconstructed later as 10^genes_log_gmean, so taking
+# log10() of that public field introduces an extra pow/log round trip and can
+# move an otherwise unused diagnostic by one ULP.
+genes_log_gmean <- log10(gene_gmean_raw)
+write_f64('gmean', gene_gmean_raw)
+write_f64('log_gmean', genes_log_gmean)
 write_f64('fit_intercept', result$model_pars[, '(Intercept)'])
 write_f64('fit_theta', result$model_pars[, 'theta'])
 write_f64('fit_slope', result$model_pars[, 'log_umi'])
-fit_log_gmean <- log10(result$gene_attr$gmean)[match(
+fit_log_gmean <- genes_log_gmean[match(
   rownames(result$model_pars), rownames(result$model_pars_fit))]
 fit_dispersion_par <- log10(1 + 10^fit_log_gmean / result$model_pars[, 'theta'])
 write_f64('fit_dispersion_par', fit_dispersion_par)
@@ -97,7 +102,7 @@ write_f64('intercept', result$model_pars_fit[, '(Intercept)'])
 write_f64('theta', result$model_pars_fit[, 'theta'])
 write_f64(
   'regularized_dispersion_par',
-  log10(1 + 10^log10(result$gene_attr$gmean) / result$model_pars_fit[, 'theta'])
+  log10(1 + 10^genes_log_gmean / result$model_pars_fit[, 'theta'])
 )
 write_f64('slope', result$model_pars_fit[, 'log_umi'])
 regressor <- cbind('(Intercept)'=1, 'log_umi'=log10(Matrix::colSums(counts)))

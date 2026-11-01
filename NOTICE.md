@@ -1,7 +1,7 @@
 # Third-party provenance
 
-The strict Windows backend is distributed under **GPL-3.0-or-later** and
-contains or derives from the following free-software components:
+The strict native backends are distributed under **GPL-3.0-or-later** and
+contain or derive from the following free-software components:
 
 - R 4.5.2 `src/library/stats/src/portsrc.f` and small utilities derived from
   `port.c`, R Core Team, GPL-2.0-or-later.
@@ -20,6 +20,10 @@ contains or derives from the following free-software components:
 The bundled `sctransform_cpu/native/sct_port_r45.dll` was built with Rtools45
 GCC/GFortran 14.3.0. Its SHA-256 is
 `22396be5857c7aa81b90eb9b7bf52843f522323f6c2a39ca262831ce5823d257`.
+
+The bundled `sctransform_cpu/native/libsct_port_r45.so` was built on Ubuntu
+26.04 x86_64 with GCC/GFortran 15.2.0 and glibc 2.43. Its SHA-256 is
+`40d4789bc22465c5d87aa2755d179cf62fcb459f9c95d5c800ae1a1b4d890031`.
 
 The original copyright notices, license identifiers, and source-level
 attribution are retained in `sctransform_cpu/native/`. See `LICENSE` for the

@@ -9,6 +9,7 @@ references for auditing the native path.
 from __future__ import annotations
 
 import math
+import os
 import numpy as np
 from scipy.special import digamma, gammaln, polygamma
 
@@ -16,6 +17,14 @@ from scipy.special import digamma, gammaln, polygamma
 _CR = 0.99
 _LOWER = math.log(1e-16)
 _UPPER = math.log(1e16)
+
+
+def _strict_exp():
+    """Return the scalar exponential used by the pinned platform build."""
+    if os.name != "nt":
+        return math.exp
+    from .r45_mathlib import exp
+    return exp
 
 
 def _table_if_small(y: np.ndarray):
@@ -282,8 +291,8 @@ def fit_dispersion_newton(y, mu, *, max_iter=200, relative_tolerance=1e-10,
     table = _table_if_small(y)
     if use_r45_mathlib:
         from .r45_mathlib import (digamma as digamma_function,
-                                  trigamma as trigamma_function,
-                                  exp as exp_function)
+                                  trigamma as trigamma_function)
+        exp_function = _strict_exp()
         # On the pinned Windows build SciPy gammaln, not the literal Python
         # lgamma source translation, matches initialized R 4.5.2 at every
         # traced objective callback (81/81 bitwise). Keep the default here.
@@ -370,8 +379,8 @@ def fit_dispersion_trust_region(y, mu, *, max_iter=200, return_diagnostics=False
     mu=np.where(mu==0,1e-6,mu);table=_table_if_small(y)
     if use_r45_mathlib:
         from .r45_mathlib import (digamma as digamma_function,
-                                  trigamma as trigamma_function,
-                                  exp as exp_function)
+                                  trigamma as trigamma_function)
+        exp_function = _strict_exp()
         lgamma_function = None
     else:
         digamma_function = trigamma_function = lgamma_function = exp_function = None
@@ -480,8 +489,8 @@ def fit_dispersion_port_bfgs(y, mu, *, max_iter=200,
     mu = np.where(mu == 0, 1e-6, mu)
     table = _table_if_small(y)
     if use_r45_mathlib:
-        from .r45_mathlib import (digamma as digamma_function,
-                                  exp as exp_function)
+        from .r45_mathlib import digamma as digamma_function
+        exp_function = _strict_exp()
         lgamma_function = None
     else:
         digamma_function = lgamma_function = exp_function = None
@@ -542,7 +551,8 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
     if necessary, once more without the Cox--Reid adjustment, matching
     ``conventional_overdispersion_mle``.
     """
-    from .port_native import (glmgampoi_score_derivative_native,
+    from .port_native import (glmgampoi_loglikelihood_native,
+                              glmgampoi_score_derivative_native,
                               glmgampoi_score_native,
                               minimize_port_native_1d,
                               native_library_path)
@@ -569,8 +579,8 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
     table = _table_if_small(y)
     if use_r45_mathlib:
         from .r45_mathlib import (digamma as digamma_function,
-                                  trigamma as trigamma_function,
-                                  exp as exp_function)
+                                  trigamma as trigamma_function)
+        exp_function = _strict_exp()
         lgamma_function = None
     else:
         digamma_function = trigamma_function = lgamma_function = None
@@ -623,8 +633,12 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
     )
     for name, cox_reid, analytic_hessian in attempts:
         objective_options, score_options, derivative_options = options(cox_reid)
-        def objective(value, opts=objective_options, stage=name):
-            result = -loglikelihood(y, mu, value, **opts)
+        def objective(value, opts=objective_options, stage=name, cr=cox_reid):
+            if os.name == "nt":
+                result = -loglikelihood(y, mu, value, **opts)
+            else:
+                result = -glmgampoi_loglikelihood_native(
+                    y, mu, value, cox_reid=cr, table=table)
             if callback_trace is not None:
                 callback_trace.append((stage, "objective", value, result))
             return result
@@ -639,7 +653,8 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
             return result
         hessian = None
         if analytic_hessian:
-            def hessian(value, cr=cox_reid, opts=derivative_options):
+            def hessian(value, cr=cox_reid, opts=derivative_options,
+                        stage=name):
                 result = -glmgampoi_score_derivative_native(
                     y,
                     mu,
@@ -649,7 +664,7 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
                     table=table,
                 )
                 if callback_trace is not None:
-                    callback_trace.append((name, "hessian", value, result))
+                    callback_trace.append((stage, "hessian", value, result))
                 return result
         result = minimize_port_native_1d(
             objective,

@@ -1,11 +1,11 @@
-/* Scalar glmGamPoi 1.22 dispersion callbacks for the strict Windows path.
+/* Scalar glmGamPoi 1.22 dispersion callbacks for strict platform paths.
  *
  * The formulas and operation order are derived from glmGamPoi's
  * src/overdispersion.cpp (GPL-3; portions adapted there from DESeq2 under
  * LGPL-3-or-later).  This narrow adapter supports the intercept-only design
  * used by sctransform v2. Python owns the high-level data flow; these routines
- * prevent MSVC/Rtools arithmetic differences from changing PORT control flow
- * or the pinned residual/statistics outputs.
+ * preserve the platform-specific arithmetic that controls PORT decisions and
+ * the pinned residual/statistics outputs.
  */
 #include <math.h>
 #include <stddef.h>
@@ -24,9 +24,9 @@ extern double sct_r45_lgamma(double x);
 
 static const double cr_correction_factor = 0.99;
 
-static double sct_r45_sqrt(double value)
+static double sct_platform_sqrt(double value)
 {
-#if defined(__GNUC__) && defined(__x86_64__)
+#if defined(_WIN32) && defined(__GNUC__) && defined(__x86_64__)
     double result;
     __asm__ __volatile__("fldl %1; fsqrt; fstpl %0"
                          : "=m" (result) : "m" (value) : "st");
@@ -34,6 +34,59 @@ static double sct_r45_sqrt(double value)
 #else
     return sqrt(value);
 #endif
+}
+
+static double sct_platform_pow(double base, double exponent)
+{
+#ifdef _WIN32
+    /* R's 64-bit Windows build defines USE_POWL_IN_R_POW. */
+    return (double)powl((long double)base, (long double)exponent);
+#else
+    return pow(base, exponent);
+#endif
+}
+
+static double sct_platform_lgamma(double value)
+{
+#ifdef _WIN32
+    return sct_r45_lgamma(value);
+#else
+    /* glmGamPoi's unqualified scalar lgamma resolves to glibc on Linux. */
+    return lgamma(value);
+#endif
+}
+
+SCT_EXPORT void sct_log10_array(
+    const double values[], int size, double out[])
+{
+    for (int i = 0; i < size; ++i) out[i] = log10(values[i]);
+}
+
+SCT_EXPORT void sct_reciprocal_array(
+    const double values[], int size, double out[])
+{
+    for (int i = 0; i < size; ++i)
+        out[i] = values[i] > 0.0 ? 1.0 / values[i] : INFINITY;
+}
+
+SCT_EXPORT void sct_regularization_dispersion(
+    const double log_gmean[], const double theta[], int size, double out[])
+{
+    for (int i = 0; i < size; ++i) {
+        double expression = sct_platform_pow(10.0, log_gmean[i]);
+        out[i] = log10(1.0 + expression / theta[i]);
+    }
+}
+
+SCT_EXPORT void sct_regularization_theta(
+    const double log_gmean[], const double dispersion[], int size,
+    double out[])
+{
+    for (int i = 0; i < size; ++i) {
+        double expression = sct_platform_pow(10.0, log_gmean[i]);
+        double denominator = sct_platform_pow(10.0, dispersion[i]) - 1.0;
+        out[i] = expression / denominator;
+    }
 }
 
 /* stats::var's scalar arithmetic is compiled as C in R itself.  Keeping this
@@ -261,7 +314,7 @@ SCT_EXPORT void sct_pearson_residuals(
              * before division.  Volatile stores preserve those binary64
              * boundaries instead of retaining an x87 extended numerator. */
             volatile double numerator = counts[index] - mu;
-            volatile double denominator = sct_r45_sqrt(model_variance);
+            volatile double denominator = sct_platform_sqrt(model_variance);
             double residual = numerator / denominator;
             if (residual < -clip) residual = -clip;
             if (residual > clip) residual = clip;
@@ -484,14 +537,14 @@ SCT_EXPORT double sct_glmgampoi_loglikelihood(
     if (table_size > 0) {
         for (int i = 0; i < table_size; ++i) {
             lgamma_term += count_frequencies[i]
-                           * sct_r45_lgamma(unique_counts[i] + theta_neg1);
+                           * sct_platform_lgamma(unique_counts[i] + theta_neg1);
         }
     } else {
         for (int i = 0; i < n; ++i) {
-            lgamma_term += sct_r45_lgamma(y[i] + theta_neg1);
+            lgamma_term += sct_platform_lgamma(y[i] + theta_neg1);
         }
     }
-    lgamma_term -= n * sct_r45_lgamma(theta_neg1);
+    lgamma_term -= n * sct_platform_lgamma(theta_neg1);
     double ll_part = 0.0;
     for (int i = 0; i < n; ++i) {
         ll_part += (-y[i] - theta_neg1) * log(mu[i] + theta_neg1);

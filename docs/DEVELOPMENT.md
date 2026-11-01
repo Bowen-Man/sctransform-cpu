@@ -13,7 +13,7 @@
 | `r_compat_stats.py` | Sparse row statistics, bandwidth, outliers and kernel smoothing | Cross-gene order is part of the numerical contract |
 | `residuals.py` | Float64 Pearson residual tiles and sample moments | Sparse zeros have nonzero residuals; output is generally dense |
 | `corrected_counts.py` | Reverse unclipped residuals at the target depth | Integer rounding order is part of the contract |
-| `native/` | R PORT Fortran, compatibility callbacks and Windows DLL | Corresponding source and provenance must ship with releases |
+| `native/` | R PORT Fortran, compatibility callbacks, Windows DLL and Linux shared object | Corresponding source and provenance must ship with releases |
 
 The public package deliberately contains no GPU backend, async executor,
 alternative solver switch or hidden approximate fallback.
@@ -57,8 +57,9 @@ alternative solver switch or hidden approximate fallback.
 
 ## Current bit-identity status
 
-The checked-in 800 x 240 PBMC fixture is green under the pinned Windows
-contract. Every compared value has zero mismatches:
+The checked-in 800 x 240 PBMC fixture is green under the pinned Windows and
+Linux contracts. Each platform is compared with its own fresh R oracle, and
+every compared value has zero mismatches:
 
 - library size, offsets and `log_umi`;
 - arithmetic/geometric means and sample variance;
@@ -70,8 +71,9 @@ contract. Every compared value has zero mismatches:
   UMI integers;
 - retained genes/cells and ordered fit-gene/fit-cell manifests.
 
-The machine-readable evidence is `results/bit_identity.json`. A passing live
-test also regenerated the oracle with R 4.5.2 rather than reusing that file.
+The machine-readable evidence is `results/bit_identity.json` on Windows and
+`results/linux/bit_identity.json` on Linux. Passing live tests regenerated the
+oracles with R 4.5.2 rather than reusing stored output.
 
 Run the hard gate locally:
 
@@ -83,23 +85,28 @@ python -m pytest -q tests/test_r_bit_identity.py
 The test is intentionally an ordinary assertion, not an `xfail`. It is the
 required Windows release gate and fails on the first mismatched bit or title.
 
+On Linux use `SCT_TEST_RSCRIPT=/usr/bin/Rscript python -m pytest -q`. The
+Windows-only stored 128-case solver oracle remains explicitly skipped there;
+it is not valid evidence for a different libc/compiler contract. The Linux
+end-to-end live gate is strict, not skipped or tolerance-based.
+
 ## Remaining work, in order
 
-### P0: harden the pinned Windows guarantee
+### P0: harden both pinned guarantees
 
 1. Add independent binary oracles covering low-count, Poisson-boundary,
    clipping and extreme-library cases; one PBMC fixture is a regression gate,
    not a universal proof.
-2. Build and test Windows wheels for Python 3.10, 3.11, 3.12 and 3.13.
+2. Build and test Windows and Linux wheels for Python 3.10 through 3.13.
 3. Record compiler, DLL and oracle hashes as release metadata and reproduce
    the native build in CI.
 4. Exercise different tile sizes and requested output modes against the same
    full R result.
 
-This guarantee can only be version/platform pinned. Cross-platform bit
-identity is not a reasonable default contract because libm, compiler and
-extended-precision behavior differ; cross-platform releases should retain a
-separate numerical-tolerance contract.
+The guarantee can only be version/platform pinned. The Linux implementation
+uses platform `exp`, `pow`, `lgamma`, `sqrt` and `log10` where the official
+Linux packages do; Windows retains Rtools-specific arithmetic. One universal
+cross-platform byte stream is not the contract.
 
 ### P1: statistical feature coverage
 
@@ -111,7 +118,7 @@ separate numerical-tolerance contract.
 ### P2: packaging and scale
 
 - Python 3.10, 3.11 and 3.13 Windows wheels;
-- Linux/macOS native builds with their own numerical gates;
+- macOS and additional Linux distribution builds with their own gates;
 - PBMC10K/30K and controlled larger scaling, peak allocation timelines and
   thread-scaling measurements;
 - AnnData/Scanpy integration without changing the core matrix contract.

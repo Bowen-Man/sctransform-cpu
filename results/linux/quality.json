@@ -1,0 +1,140 @@
+{
+  "scope": "PBMC3K-derived 800 gene x 240 cell direct unbatched v2 path",
+  "reference": "R 4.5.2, sctransform 0.4.3, glmGamPoi 1.22.0, matrixStats 1.5.0",
+  "retained_genes": 800,
+  "fitted_genes": 441,
+  "fitted_cells": 240,
+  "checks": {
+    "step1_intercept": {
+      "atol": 1e-07,
+      "rtol": 1e-07,
+      "finite_pairs": 441,
+      "nonfinite_mismatch": 0,
+      "tolerance_failures": 0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
+      "passed": true
+    },
+    "step1_theta": {
+      "atol": 1e-08,
+      "rtol": 1e-05,
+      "finite_pairs": 421,
+      "nonfinite_mismatch": 0,
+      "tolerance_failures": 0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
+      "passed": true
+    },
+    "step1_slope": {
+      "atol": 1e-13,
+      "rtol": 0.0,
+      "finite_pairs": 441,
+      "nonfinite_mismatch": 0,
+      "tolerance_failures": 0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
+      "passed": true
+    },
+    "regularized_intercept": {
+      "atol": 1e-07,
+      "rtol": 1e-07,
+      "finite_pairs": 800,
+      "nonfinite_mismatch": 0,
+      "tolerance_failures": 0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
+      "passed": true
+    },
+    "regularized_theta": {
+      "atol": 1e-08,
+      "rtol": 1e-05,
+      "finite_pairs": 441,
+      "nonfinite_mismatch": 0,
+      "tolerance_failures": 0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
+      "passed": true
+    },
+    "regularized_slope": {
+      "atol": 1e-13,
+      "rtol": 0.0,
+      "finite_pairs": 800,
+      "nonfinite_mismatch": 0,
+      "tolerance_failures": 0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
+      "passed": true
+    },
+    "residual": {
+      "atol": 1e-06,
+      "rtol": 1e-05,
+      "finite_pairs": 192000,
+      "nonfinite_mismatch": 0,
+      "tolerance_failures": 0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
+      "passed": true
+    },
+    "residual_variance": {
+      "atol": 1e-07,
+      "rtol": 1e-05,
+      "finite_pairs": 800,
+      "nonfinite_mismatch": 0,
+      "tolerance_failures": 0,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
+      "passed": true
+    }
+  },
+  "outlier_mismatch": 0,
+  "corrected_umi_exact": true,
+  "residual_variance_spearman": 1.0,
+  "hvg": {
+    "100": {
+      "intersection": 100,
+      "jaccard": 1.0,
+      "passed": true
+    },
+    "200": {
+      "intersection": 200,
+      "jaccard": 1.0,
+      "passed": true
+    },
+    "300": {
+      "intersection": 300,
+      "jaccard": 1.0,
+      "passed": true
+    }
+  },
+  "python_stage_seconds_single_quality_run": {
+    "input_statistics": 0.0035925040720030665,
+    "selection": 0.00017052097246050835,
+    "fit": 0.17692011501640081,
+    "regularization": 0.003947747056372464,
+    "residual_statistics": 0.007332717999815941,
+    "selection_output": 6.953405681997538e-05
+  },
+  "passed": true,
+  "not_proven": [
+    "other inputs and numerical boundaries",
+    "implicit cross-language sampling",
+    "batch/covariates and complete Seurat workflow",
+    "other operating systems and package versions"
+  ]
+}

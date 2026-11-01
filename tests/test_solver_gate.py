@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from sctransform_cpu.port_native import minimize_port_native_1d, native_library_path
 from sctransform_cpu.r_glmgampoi import fit_dispersion_port_native
@@ -13,7 +15,9 @@ DATA = Path(__file__).parent / "data"
 
 
 def test_bundled_native_library_and_quadratic():
-    assert native_library_path().name == "sct_port_r45.dll"
+    expected_name = ("sct_port_r45.dll" if os.name == "nt"
+                     else "libsct_port_r45.so")
+    assert native_library_path().name == expected_name
     result = minimize_port_native_1d(
         lambda value: (value - 2.0) ** 2,
         lambda value: 2.0 * (value - 2.0),
@@ -26,7 +30,11 @@ def test_bundled_native_library_and_quadratic():
     assert abs(result.x - 2.0) <= 1e-14
 
 
-def test_stored_r452_solver_gate():
+@pytest.mark.skipif(
+    os.name != "nt",
+    reason="the stored 128-case solver oracle is pinned to Windows R 4.5.2",
+)
+def test_stored_windows_r452_solver_gate():
     fixture = np.load(DATA / "solver_stress.npz", allow_pickle=False)
     rows = json.loads((DATA / "solver_stress_r452.json").read_text(encoding="utf-8"))["rows"]
     expected = np.asarray([row["r_alpha"] for row in rows])
