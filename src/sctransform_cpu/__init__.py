@@ -1,4 +1,11 @@
 """CPU reference implementation of the validated unbatched SCT v2 path."""
+from importlib.metadata import PackageNotFoundError, version
+
 from .core import SCTConfig, SCTResult, sctransform
 
-__all__ = ["SCTConfig", "SCTResult", "sctransform"]
+try:
+    __version__ = version("sctransform-cpu")
+except PackageNotFoundError:  # direct source-tree imports before installation
+    __version__ = "0+unknown"
+
+__all__ = ["SCTConfig", "SCTResult", "__version__", "sctransform"]

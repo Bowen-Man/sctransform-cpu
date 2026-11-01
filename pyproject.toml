@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sctransform-cpu"
-version = "0.2.0"
+version = "0.3.0"
 description = "CPU reference implementation of the unbatched SCTransform v2 path"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,12 +19,24 @@ classifiers = [
   "Operating System :: Microsoft :: Windows :: Windows 11",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: Implementation :: CPython",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Bowen-Man/sctransform-cpu"
+Source = "https://github.com/Bowen-Man/sctransform-cpu"
+Issues = "https://github.com/Bowen-Man/sctransform-cpu/issues"
+Changelog = "https://github.com/Bowen-Man/sctransform-cpu/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
 benchmark = ["psutil>=5.9"]
+release = ["build>=1.2", "twine>=6"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

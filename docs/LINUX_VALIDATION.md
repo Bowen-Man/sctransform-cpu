@@ -39,9 +39,9 @@ take platform-specific scalar paths.
 ```bash
 ./scripts/build_native.sh
 SCT_TEST_RSCRIPT=/usr/bin/Rscript python -m pytest -q
-uv build --sdist --out-dir release_dist
-uv build release_dist/sctransform_cpu-0.2.0.tar.gz \
-  --wheel --out-dir release_dist
+python -m pip install ".[release]"
+python -m build --sdist --wheel --outdir release_dist
+python scripts/smoke_wheel.py release_dist
 ```
 
 The clean wheel is tagged `py3-none-linux_x86_64`, contains the `.so` but not

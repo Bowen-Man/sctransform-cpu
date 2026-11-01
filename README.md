@@ -36,18 +36,33 @@ deliberately narrow platform/version guarantee, not a claim that arbitrary
 R/package/platform combinations are bit-identical. See [Linux validation](docs/LINUX_VALIDATION.md)
 and [development rules](docs/DEVELOPMENT.md).
 
-## Install and run
+## Install
 
-Validated wheels support Windows x64 and Linux x86_64. The strict release gate
-currently uses Python 3.12; the runtime does not invoke R.
+Release wheels support Windows x64 and Linux x86_64. Install the wheel for
+your platform directly from the versioned GitHub release:
 
 ```powershell
-python -m pip install .
+python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/download/v0.3.0/sctransform_cpu-0.3.0-py3-none-win_amd64.whl"
 ```
 
 ```bash
-python -m pip install ./sctransform_cpu-0.2.0-py3-none-linux_x86_64.whl
+python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/download/v0.3.0/sctransform_cpu-0.3.0-py3-none-linux_x86_64.whl"
 ```
+
+For development, clone the repository and run `python -m pip install -e .`.
+The project is not yet published on PyPI, so `pip install sctransform-cpu` is
+not currently a supported command. R is needed only to regenerate the
+correctness oracle; it is never imported or invoked at runtime.
+
+| Platform | functional CI | strict bit-identity environment |
+|---|---|---|
+| Windows x64 | Python 3.10-3.13 | Python 3.12, Windows/Rtools45 contract |
+| Linux x86_64 | Python 3.10-3.13 on Ubuntu 24.04 | Python 3.12, Ubuntu 26.04 contract |
+
+Functional CI verifies installation and tests. The narrower Python 3.12 rows
+are the environments in which a fresh R oracle has been compared bit-for-bit.
+
+## Quick start
 
 ```python
 from scipy import sparse
@@ -61,12 +76,33 @@ result = sctransform(
     cell_names=cell_names,
     config=SCTConfig(output="hvg", features=3000),
 )
+
+# Genes returned as rows of result.residuals
+residual_genes = result.genes[result.residual_gene_indices]
 ```
 
 The default fits all eligible genes and cells. If subsampling is requested,
 the package deliberately requires explicit ordered `fit_cell_indices` and
 `fit_gene_names`; equal random seeds do not make R and Python sampling
 identical on every input.
+
+The main result fields are:
+
+| Field | Shape / type | Meaning |
+|---|---|---|
+| `genes`, `cells` | `(G,)`, `(C,)` strings | retained names in computation order |
+| `intercept`, `theta`, `slope` | `(G,)` float64 | regularized v2 model parameters |
+| `residual_mean`, `residual_variance` | `(G,)` float64 | per-gene Pearson residual statistics |
+| `hvg_indices` | `(min(features, G),)` integers | stable residual-variance ranking |
+| `residuals` | `(features, C)` or `(G, C)` float64 | dense clipped Pearson residuals |
+| `residual_gene_indices` | one row index per residual row | maps residual rows back to `genes` |
+| `corrected_umi` | optional CSR matrix | populated when `return_corrected_umi=True` |
+| `timing`, `diagnostics` | dictionaries | stage timings and fit-outlier metadata |
+
+Input must be a raw, non-negative integer UMI count matrix in **genes x
+cells** orientation. Do not pass log-normalized expression. `output="hvg"`
+avoids retaining all-gene residuals; `output="full"` returns the full dense
+residual matrix and can require `8 * G * C` bytes before other temporaries.
 
 ## Reproduce correctness and performance
 
@@ -106,3 +142,7 @@ measurements, not general speedup or memory claims. See the full
 
 GPL-3.0-or-later. The source distribution contains the corresponding native
 sources and build instructions. See [NOTICE.md](NOTICE.md).
+
+Contributors should follow the [development rules](docs/DEVELOPMENT.md) and
+[release checklist](docs/RELEASING.md). Release artifacts include source and
+SHA-256 checksums.
