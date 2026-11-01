@@ -1,0 +1,27 @@
+{
+  "version": "0.1.0",
+  "wheel": {
+    "name": "sctransform_cpu-0.1.0-cp312-cp312-win_amd64.whl",
+    "bytes": 154895,
+    "sha256": "5ff78cc214a4703b4b74b62e66fb0fab009916b5949ab01636504254bbbccaff"
+  },
+  "source_distribution": {
+    "name": "sctransform_cpu-0.1.0.tar.gz",
+    "bytes": 900773,
+    "sha256": "e758470f988be5569f7193cfa88e743050a331fe0fb8e7ff73c87e2ab9e484e2",
+    "contains_native_corresponding_source": true
+  },
+  "bundled_dll_sha256": "995220936f5c09fd3b072b0f19b19ac4f84cb94e0e51b91cc17e3e7456e9133a",
+  "clean_install": {
+    "python": "3.12.13",
+    "loaded_from_site_packages": true,
+    "dll_loaded_from_site_packages": true,
+    "solver_cases": 128,
+    "solver_tolerance_failures": 0,
+    "zero_nonzero_equal": true,
+    "pipeline_fixture_shape": [800, 240],
+    "pipeline_fitted_genes": 441,
+    "pipeline_corrected_umi_shape": [800, 240],
+    "passed": true
+  }
+}

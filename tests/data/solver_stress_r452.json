@@ -1,0 +1,1254 @@
+{
+  "source": "synthetic NB and edge cases, not biological validation",
+  "cases": 128,
+  "alpha_zero_vs_nonzero_mismatches": 22,
+  "note": "alpha-zero mismatch is a solver-boundary diagnostic, not final SCT gene classification",
+  "max_abs_error": 0.14526600587578287,
+  "max_relative_error_nonzero": 1.0,
+  "worst_absolute": [
+    {
+      "case": 3,
+      "r_alpha": 8108.30911278373,
+      "python_alpha": 8108.4543787896055,
+      "abs_error": 0.14526600587578287,
+      "relative_error": 1.7915696584230297e-05,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 89,
+      "r_alpha": 4.49570078449583e-06,
+      "python_alpha": 0.0,
+      "abs_error": 4.49570078449583e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 60,
+      "r_alpha": 3.95628225773279e-06,
+      "python_alpha": 0.0,
+      "abs_error": 3.95628225773279e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "false convergence (8)"
+    },
+    {
+      "case": 90,
+      "r_alpha": 0.322407511396445,
+      "python_alpha": 0.32240531193434196,
+      "abs_error": 2.199462103058547e-06,
+      "relative_error": 6.8219939837381815e-06,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 121,
+      "r_alpha": 2.11742261425189e-06,
+      "python_alpha": 0.0,
+      "abs_error": 2.11742261425189e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 8,
+      "r_alpha": 1.80898614514725e-06,
+      "python_alpha": 0.0,
+      "abs_error": 1.80898614514725e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 5,
+      "r_alpha": 11.6156856092421,
+      "python_alpha": 11.615687338455315,
+      "abs_error": 1.7292132152846307e-06,
+      "relative_error": 1.4886880322490568e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 27,
+      "r_alpha": 1.10501869644995e-06,
+      "python_alpha": 0.0,
+      "abs_error": 1.10501869644995e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "false convergence (8)"
+    },
+    {
+      "case": 18,
+      "r_alpha": 1.00864051468837e-06,
+      "python_alpha": 0.0,
+      "abs_error": 1.00864051468837e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 61,
+      "r_alpha": 9.6522032618278,
+      "python_alpha": 9.652204240462387,
+      "abs_error": 9.786345867013324e-07,
+      "relative_error": 1.013897615036354e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    }
+  ],
+  "rows": [
+    {
+      "case": 0,
+      "r_alpha": 0.0,
+      "python_alpha": 0.0,
+      "abs_error": 0.0,
+      "relative_error": null,
+      "classification_mismatch": false,
+      "r_message": "All counts y are 0."
+    },
+    {
+      "case": 1,
+      "r_alpha": 0.0,
+      "python_alpha": 0.0,
+      "abs_error": 0.0,
+      "relative_error": null,
+      "classification_mismatch": false,
+      "r_message": "Even for very small theta, no maximum identified"
+    },
+    {
+      "case": 2,
+      "r_alpha": 4.16638226718093e-07,
+      "python_alpha": 0.0,
+      "abs_error": 4.16638226718093e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "false convergence (8)"
+    },
+    {
+      "case": 3,
+      "r_alpha": 8108.30911278373,
+      "python_alpha": 8108.4543787896055,
+      "abs_error": 0.14526600587578287,
+      "relative_error": 1.7915696584230297e-05,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 4,
+      "r_alpha": 0.864409446557695,
+      "python_alpha": 0.8644094467851281,
+      "abs_error": 2.274330723750495e-10,
+      "relative_error": 2.631080366841751e-10,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 5,
+      "r_alpha": 11.6156856092421,
+      "python_alpha": 11.615687338455315,
+      "abs_error": 1.7292132152846307e-06,
+      "relative_error": 1.4886880322490568e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 6,
+      "r_alpha": 0.114390266785023,
+      "python_alpha": 0.11439018369637816,
+      "abs_error": 8.308864483941303e-08,
+      "relative_error": 7.263611422077017e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 7,
+      "r_alpha": 0.337465495802427,
+      "python_alpha": 0.33746552999448887,
+      "abs_error": 3.4192061848514754e-08,
+      "relative_error": 1.0132017131770082e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 8,
+      "r_alpha": 1.80898614514725e-06,
+      "python_alpha": 0.0,
+      "abs_error": 1.80898614514725e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 9,
+      "r_alpha": 2.91247499688404e-07,
+      "python_alpha": 0.0,
+      "abs_error": 2.91247499688404e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 10,
+      "r_alpha": 0.0288209187836461,
+      "python_alpha": 0.028820918738081718,
+      "abs_error": 4.556438212843794e-11,
+      "relative_error": 1.580948285184184e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 11,
+      "r_alpha": 0.129374385495312,
+      "python_alpha": 0.12937437910156263,
+      "abs_error": 6.393749363287071e-09,
+      "relative_error": 4.942051967094178e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 12,
+      "r_alpha": 0.773066082351432,
+      "python_alpha": 0.7730660683585728,
+      "abs_error": 1.3992859204670083e-08,
+      "relative_error": 1.810046970642931e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 13,
+      "r_alpha": 9.98686424152304,
+      "python_alpha": 9.986864149259905,
+      "abs_error": 9.226313579802081e-08,
+      "relative_error": 9.238448983256659e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 14,
+      "r_alpha": 0.0356033345070186,
+      "python_alpha": 0.03560326074851519,
+      "abs_error": 7.375850340912704e-08,
+      "relative_error": 2.0716740280207966e-06,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 15,
+      "r_alpha": 0.306012089209582,
+      "python_alpha": 0.30601214910389957,
+      "abs_error": 5.989431756114882e-08,
+      "relative_error": 1.957253313614297e-07,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 16,
+      "r_alpha": 5.27889379530093e-07,
+      "python_alpha": 0.0,
+      "abs_error": 5.27889379530093e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 17,
+      "r_alpha": 1.27087207674359,
+      "python_alpha": 1.2708718928530633,
+      "abs_error": 1.8389052658385197e-07,
+      "relative_error": 1.4469633092816276e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 18,
+      "r_alpha": 1.00864051468837e-06,
+      "python_alpha": 0.0,
+      "abs_error": 1.00864051468837e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 19,
+      "r_alpha": 0.116243964108501,
+      "python_alpha": 0.11624395730829211,
+      "abs_error": 6.800208895985094e-09,
+      "relative_error": 5.849945799885011e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 20,
+      "r_alpha": 0.947561123948592,
+      "python_alpha": 0.94756113022317,
+      "abs_error": 6.274577968312656e-09,
+      "relative_error": 6.621818698265917e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 21,
+      "r_alpha": 8.6389437982753,
+      "python_alpha": 8.63894372439797,
+      "abs_error": 7.387732914310163e-08,
+      "relative_error": 8.551662201790303e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 22,
+      "r_alpha": 0.030373784694069,
+      "python_alpha": 0.030373763572481005,
+      "abs_error": 2.1121587995970303e-08,
+      "relative_error": 6.95388744231622e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 23,
+      "r_alpha": 0.286494378022129,
+      "python_alpha": 0.2864943760862255,
+      "abs_error": 1.935903493066604e-09,
+      "relative_error": 6.757212851545288e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 24,
+      "r_alpha": 0.00541661417437612,
+      "python_alpha": 0.005416616041300788,
+      "abs_error": 1.866924668678105e-09,
+      "relative_error": 3.446663558777722e-07,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 25,
+      "r_alpha": 7.39656938538337e-07,
+      "python_alpha": 0.0,
+      "abs_error": 7.39656938538337e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 26,
+      "r_alpha": 0.00117502288993262,
+      "python_alpha": 0.0011750218065049384,
+      "abs_error": 1.0834276815540472e-09,
+      "relative_error": 9.220481497310872e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 27,
+      "r_alpha": 1.10501869644995e-06,
+      "python_alpha": 0.0,
+      "abs_error": 1.10501869644995e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "false convergence (8)"
+    },
+    {
+      "case": 28,
+      "r_alpha": 1.37462603000355,
+      "python_alpha": 1.3746260295726775,
+      "abs_error": 4.3087244883111e-10,
+      "relative_error": 3.134470317210545e-10,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 29,
+      "r_alpha": 8.93598826549172,
+      "python_alpha": 8.93598780453023,
+      "abs_error": 4.609614894235392e-07,
+      "relative_error": 5.158483602800187e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 30,
+      "r_alpha": 0.0440879942978987,
+      "python_alpha": 0.04408797460399953,
+      "abs_error": 1.9693899164230366e-08,
+      "relative_error": 4.4669528468817207e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 31,
+      "r_alpha": 0.280441007006072,
+      "python_alpha": 0.2804409763812354,
+      "abs_error": 3.062483661109283e-08,
+      "relative_error": 1.0920241992437916e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 32,
+      "r_alpha": 0.142410923461625,
+      "python_alpha": 0.14241092747700962,
+      "abs_error": 4.015384608146988e-09,
+      "relative_error": 2.819576273044111e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 33,
+      "r_alpha": 8.96061731492493e-07,
+      "python_alpha": 0.0,
+      "abs_error": 8.96061731492493e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 34,
+      "r_alpha": 0.329188468993591,
+      "python_alpha": 0.3291884755146291,
+      "abs_error": 6.521038098394882e-09,
+      "relative_error": 1.9809436576959327e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 35,
+      "r_alpha": 9.20496950142036e-07,
+      "python_alpha": 0.0,
+      "abs_error": 9.20496950142036e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 36,
+      "r_alpha": 1.04477635274544,
+      "python_alpha": 1.0447763630573503,
+      "abs_error": 1.031191043665558e-08,
+      "relative_error": 9.869969213562475e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 37,
+      "r_alpha": 9.34287879654247,
+      "python_alpha": 9.342879704715143,
+      "abs_error": 9.081726730642004e-07,
+      "relative_error": 9.720480088003377e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 38,
+      "r_alpha": 0.778329427590028,
+      "python_alpha": 0.7783294322104681,
+      "abs_error": 4.620440141600568e-09,
+      "relative_error": 5.9363554528665565e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 39,
+      "r_alpha": 0.222104027698669,
+      "python_alpha": 0.2221040154396641,
+      "abs_error": 1.2259004894543679e-08,
+      "relative_error": 5.5194878821268415e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 40,
+      "r_alpha": 1.06666016417231,
+      "python_alpha": 1.066660158445642,
+      "abs_error": 5.726667806627006e-09,
+      "relative_error": 5.368783797293766e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 41,
+      "r_alpha": 0.00818579396933869,
+      "python_alpha": 0.00818579216155567,
+      "abs_error": 1.8077830187673838e-09,
+      "relative_error": 2.2084394324347138e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 42,
+      "r_alpha": 0.0628615736671841,
+      "python_alpha": 0.06286157127298622,
+      "abs_error": 2.3941978816166554e-09,
+      "relative_error": 3.80868270064723e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 43,
+      "r_alpha": 0.0652462894424419,
+      "python_alpha": 0.06524629257831976,
+      "abs_error": 3.1358778629364537e-09,
+      "relative_error": 4.806216399022692e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 44,
+      "r_alpha": 1.03410117373339,
+      "python_alpha": 1.0341011731098602,
+      "abs_error": 6.235298943835232e-10,
+      "relative_error": 6.029679785899561e-10,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 45,
+      "r_alpha": 7.92653079022799,
+      "python_alpha": 7.926530237240839,
+      "abs_error": 5.52987151181128e-07,
+      "relative_error": 6.976408290280829e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 46,
+      "r_alpha": 0.114839968486398,
+      "python_alpha": 0.11483994160719138,
+      "abs_error": 2.6879206624363938e-08,
+      "relative_error": 2.3405794148704936e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 47,
+      "r_alpha": 0.259983231091869,
+      "python_alpha": 0.2599832192350696,
+      "abs_error": 1.1856799375653537e-08,
+      "relative_error": 4.560601591824882e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 48,
+      "r_alpha": 1.3673469323985e-07,
+      "python_alpha": 0.0,
+      "abs_error": 1.3673469323985e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 49,
+      "r_alpha": 0.140181994996255,
+      "python_alpha": 0.14018198975814875,
+      "abs_error": 5.2381062543016554e-09,
+      "relative_error": 3.736646959862137e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 50,
+      "r_alpha": 0.356222239190441,
+      "python_alpha": 0.35622222565659256,
+      "abs_error": 1.3533848430835604e-08,
+      "relative_error": 3.799271056628285e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 51,
+      "r_alpha": 0.121514214531446,
+      "python_alpha": 0.1215142104706259,
+      "abs_error": 4.060820096851714e-09,
+      "relative_error": 3.3418477932891024e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 52,
+      "r_alpha": 2.14229587885627,
+      "python_alpha": 2.1422958864272843,
+      "abs_error": 7.571014482010696e-09,
+      "relative_error": 3.534065745415481e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 53,
+      "r_alpha": 8.575812397195,
+      "python_alpha": 8.575812468007443,
+      "abs_error": 7.081244390860775e-08,
+      "relative_error": 8.257228659965705e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 54,
+      "r_alpha": 5.9939221248424e-07,
+      "python_alpha": 0.0,
+      "abs_error": 5.9939221248424e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "false convergence (8)"
+    },
+    {
+      "case": 55,
+      "r_alpha": 0.346137817454461,
+      "python_alpha": 0.34613782490000367,
+      "abs_error": 7.445542682393835e-09,
+      "relative_error": 2.1510341566111583e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 56,
+      "r_alpha": 0.122702218390989,
+      "python_alpha": 0.12270221855374326,
+      "abs_error": 1.6275425451794945e-10,
+      "relative_error": 1.3264165607775335e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 57,
+      "r_alpha": 2.04518951599105e-07,
+      "python_alpha": 0.0,
+      "abs_error": 2.04518951599105e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 58,
+      "r_alpha": 0.15523752530715,
+      "python_alpha": 0.15523752124084308,
+      "abs_error": 4.066306902306138e-09,
+      "relative_error": 2.6194097685212524e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 59,
+      "r_alpha": 0.167208451757208,
+      "python_alpha": 0.1672084577665125,
+      "abs_error": 6.009304498455492e-09,
+      "relative_error": 3.5938999705476574e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 60,
+      "r_alpha": 3.95628225773279e-06,
+      "python_alpha": 0.0,
+      "abs_error": 3.95628225773279e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "false convergence (8)"
+    },
+    {
+      "case": 61,
+      "r_alpha": 9.6522032618278,
+      "python_alpha": 9.652204240462387,
+      "abs_error": 9.786345867013324e-07,
+      "relative_error": 1.013897615036354e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 62,
+      "r_alpha": 0.0195447388318164,
+      "python_alpha": 0.019544738808163688,
+      "abs_error": 2.3652711733657128e-11,
+      "relative_error": 1.2101830542321426e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 63,
+      "r_alpha": 0.824889915207821,
+      "python_alpha": 0.8248898459563639,
+      "abs_error": 6.925145701330848e-08,
+      "relative_error": 8.39523622929266e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 64,
+      "r_alpha": 0.116296830735292,
+      "python_alpha": 0.11629682734820293,
+      "abs_error": 3.3870890675524734e-09,
+      "relative_error": 2.9124517376247048e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 65,
+      "r_alpha": 0.0,
+      "python_alpha": 0.0,
+      "abs_error": 0.0,
+      "relative_error": null,
+      "classification_mismatch": false,
+      "r_message": "Even for very small theta, no maximum identified"
+    },
+    {
+      "case": 66,
+      "r_alpha": 0.0411641848376069,
+      "python_alpha": 0.041164184820744826,
+      "abs_error": 1.686207423690078e-11,
+      "relative_error": 4.096297376814778e-10,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 67,
+      "r_alpha": 0.237245276301752,
+      "python_alpha": 0.23724527528249575,
+      "abs_error": 1.0192562349686796e-09,
+      "relative_error": 4.2962129777972425e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 68,
+      "r_alpha": 0.631832457780645,
+      "python_alpha": 0.631832459414872,
+      "abs_error": 1.6342269759661576e-09,
+      "relative_error": 2.5864878510776298e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 69,
+      "r_alpha": 9.68297456567718,
+      "python_alpha": 9.682974927974488,
+      "abs_error": 3.6229730859815845e-07,
+      "relative_error": 3.7415910383817184e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 70,
+      "r_alpha": 0.0982900905102626,
+      "python_alpha": 0.0982898994300143,
+      "abs_error": 1.9108024830460923e-07,
+      "relative_error": 1.9440438737276193e-06,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 71,
+      "r_alpha": 0.304238342475069,
+      "python_alpha": 0.30423834236561115,
+      "abs_error": 1.0945783168736511e-10,
+      "relative_error": 3.597765843611073e-10,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 72,
+      "r_alpha": 0.00105303820534958,
+      "python_alpha": 0.0010530271867379498,
+      "abs_error": 1.1018611630313896e-08,
+      "relative_error": 1.0463638996512968e-05,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 73,
+      "r_alpha": 6.70518617675375e-10,
+      "python_alpha": 0.0,
+      "abs_error": 6.70518617675375e-10,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 74,
+      "r_alpha": 0.0113496284520784,
+      "python_alpha": 0.011349176734767133,
+      "abs_error": 4.517173112662115e-07,
+      "relative_error": 3.980018492882829e-05,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 75,
+      "r_alpha": 0.201569143424434,
+      "python_alpha": 0.2015691472554133,
+      "abs_error": 3.830979311558735e-09,
+      "relative_error": 1.9005782564110197e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 76,
+      "r_alpha": 1.01831484485808,
+      "python_alpha": 1.0183148929831949,
+      "abs_error": 4.812511478213821e-08,
+      "relative_error": 4.725956321381653e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 77,
+      "r_alpha": 13.1239239094719,
+      "python_alpha": 13.123923805153762,
+      "abs_error": 1.0431813812772361e-07,
+      "relative_error": 7.948700316102436e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 78,
+      "r_alpha": 0.0815837595712412,
+      "python_alpha": 0.08158376149555775,
+      "abs_error": 1.924316553325589e-09,
+      "relative_error": 2.358700510296075e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 79,
+      "r_alpha": 0.291543866933728,
+      "python_alpha": 0.2915438732750373,
+      "abs_error": 6.34130925547538e-09,
+      "relative_error": 2.1750789416938233e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 80,
+      "r_alpha": 0.018664273709636,
+      "python_alpha": 0.01866427275380284,
+      "abs_error": 9.558331626191574e-10,
+      "relative_error": 5.1211913063923794e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 81,
+      "r_alpha": 0.0069446290448204,
+      "python_alpha": 0.00694462799625041,
+      "abs_error": 1.0485699895174116e-09,
+      "relative_error": 1.509900648040344e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 82,
+      "r_alpha": 3.72103417605231e-09,
+      "python_alpha": 0.0,
+      "abs_error": 3.72103417605231e-09,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 83,
+      "r_alpha": 0.092258575138978,
+      "python_alpha": 0.09225857540817023,
+      "abs_error": 2.691922240671829e-10,
+      "relative_error": 2.91780166409109e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 84,
+      "r_alpha": 1.01951153241833,
+      "python_alpha": 1.0195117055531604,
+      "abs_error": 1.7313483047232126e-07,
+      "relative_error": 1.6982135558745196e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 85,
+      "r_alpha": 6.63798125220995,
+      "python_alpha": 6.637981419089904,
+      "abs_error": 1.66879954299759e-07,
+      "relative_error": 2.5140166559554606e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 86,
+      "r_alpha": 0.0,
+      "python_alpha": 0.0,
+      "abs_error": 0.0,
+      "relative_error": null,
+      "classification_mismatch": false,
+      "r_message": "Even for very small theta, no maximum identified"
+    },
+    {
+      "case": 87,
+      "r_alpha": 0.323572781731608,
+      "python_alpha": 0.3235727814362272,
+      "abs_error": 2.9538077539470464e-10,
+      "relative_error": 9.128727509587392e-10,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 88,
+      "r_alpha": 0.20652064145673,
+      "python_alpha": 0.206520646208486,
+      "abs_error": 4.751756016441178e-09,
+      "relative_error": 2.300862510848225e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 89,
+      "r_alpha": 4.49570078449583e-06,
+      "python_alpha": 0.0,
+      "abs_error": 4.49570078449583e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 90,
+      "r_alpha": 0.322407511396445,
+      "python_alpha": 0.32240531193434196,
+      "abs_error": 2.199462103058547e-06,
+      "relative_error": 6.8219939837381815e-06,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 91,
+      "r_alpha": 0.110609479308836,
+      "python_alpha": 0.11060947473939357,
+      "abs_error": 4.569442421664682e-09,
+      "relative_error": 4.131149021058319e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 92,
+      "r_alpha": 0.933219481822003,
+      "python_alpha": 0.9332194776355814,
+      "abs_error": 4.186421542762275e-09,
+      "relative_error": 4.485998871978939e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 93,
+      "r_alpha": 12.7366245722243,
+      "python_alpha": 12.736624585802224,
+      "abs_error": 1.357792278611214e-08,
+      "relative_error": 1.0660534672367215e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 94,
+      "r_alpha": 0.0342012510898061,
+      "python_alpha": 0.03420122680300185,
+      "abs_error": 2.4286804255202465e-08,
+      "relative_error": 7.101144981927664e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 95,
+      "r_alpha": 0.309030343010944,
+      "python_alpha": 0.3090303475185832,
+      "abs_error": 4.507639206341452e-09,
+      "relative_error": 1.4586396799817868e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 96,
+      "r_alpha": 0.0423388846524903,
+      "python_alpha": 0.04233888780610235,
+      "abs_error": 3.153612052053667e-09,
+      "relative_error": 7.44850054019592e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 97,
+      "r_alpha": 9.6440365017797e-07,
+      "python_alpha": 0.0,
+      "abs_error": 9.6440365017797e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 98,
+      "r_alpha": 0.958718447049334,
+      "python_alpha": 0.9587184481969447,
+      "abs_error": 1.1476107841801308e-09,
+      "relative_error": 1.1970258710595947e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 99,
+      "r_alpha": 2.033763369623,
+      "python_alpha": 2.033763330259971,
+      "abs_error": 3.936302928053692e-08,
+      "relative_error": 1.9354773455199788e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 100,
+      "r_alpha": 0.917983112502502,
+      "python_alpha": 0.9179831091544879,
+      "abs_error": 3.3480140881891884e-09,
+      "relative_error": 3.647141262830217e-09,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 101,
+      "r_alpha": 11.2266344663972,
+      "python_alpha": 11.226633958031925,
+      "abs_error": 5.083652752091439e-07,
+      "relative_error": 4.528207244394999e-08,
+      "classification_mismatch": false,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 102,
+      "r_alpha": 0.035501554429952,
+      "python_alpha": 0.0355015529738001,
+      "abs_error": 1.4561519004474555e-09,
+      "relative_error": 4.10165674103252e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 103,
+      "r_alpha": 0.263975864379497,
+      "python_alpha": 0.2639757556934469,
+      "abs_error": 1.0868605010427856e-07,
+      "relative_error": 4.1172722498610446e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 104,
+      "r_alpha": 0.0851699592923029,
+      "python_alpha": 0.08516996133252266,
+      "abs_error": 2.0402197709046277e-09,
+      "relative_error": 2.3954687637017687e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 105,
+      "r_alpha": 0.000997802199510337,
+      "python_alpha": 0.0009978019854726592,
+      "abs_error": 2.1403767777247729e-10,
+      "relative_error": 2.1450912603471357e-07,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 106,
+      "r_alpha": 0.00538235722060758,
+      "python_alpha": 0.005382087746556891,
+      "abs_error": 2.694740506891183e-07,
+      "relative_error": 5.0066177261028967e-05,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 107,
+      "r_alpha": 0.101539854408198,
+      "python_alpha": 0.1015398546439625,
+      "abs_error": 2.3576449126316845e-10,
+      "relative_error": 2.321891169110575e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 108,
+      "r_alpha": 1.46788901051664,
+      "python_alpha": 1.467888970056166,
+      "abs_error": 4.046047408223785e-08,
+      "relative_error": 2.7563714826093925e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 109,
+      "r_alpha": 10.2513515421325,
+      "python_alpha": 10.251351528098297,
+      "abs_error": 1.4034203132951006e-08,
+      "relative_error": 1.3690100349472156e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 110,
+      "r_alpha": 0.0285360132625705,
+      "python_alpha": 0.02853601042226088,
+      "abs_error": 2.840309619445147e-09,
+      "relative_error": 9.953421290179533e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 111,
+      "r_alpha": 0.262896329804278,
+      "python_alpha": 0.2628963288910766,
+      "abs_error": 9.132014033852442e-10,
+      "relative_error": 3.473617924088585e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 112,
+      "r_alpha": 1.26263465551968e-07,
+      "python_alpha": 0.0,
+      "abs_error": 1.26263465551968e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 113,
+      "r_alpha": 0.00610022246690104,
+      "python_alpha": 0.006100222168568512,
+      "abs_error": 2.9833252795236076e-10,
+      "relative_error": 4.890518822404783e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 114,
+      "r_alpha": 1.22599961732341e-07,
+      "python_alpha": 0.0,
+      "abs_error": 1.22599961732341e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 115,
+      "r_alpha": 8.09734925899919e-07,
+      "python_alpha": 0.0,
+      "abs_error": 8.09734925899919e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "false convergence (8)"
+    },
+    {
+      "case": 116,
+      "r_alpha": 1.77330455209602,
+      "python_alpha": 1.7733045619578651,
+      "abs_error": 9.861845118308565e-09,
+      "relative_error": 5.561281115898568e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 117,
+      "r_alpha": 10.5548316964291,
+      "python_alpha": 10.554831453215794,
+      "abs_error": 2.432133054952601e-07,
+      "relative_error": 2.304284070939225e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 118,
+      "r_alpha": 0.315305999599634,
+      "python_alpha": 0.3153060038007587,
+      "abs_error": 4.201124670366596e-09,
+      "relative_error": 1.3323960456512266e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 119,
+      "r_alpha": 0.337760722230327,
+      "python_alpha": 0.337760729284174,
+      "abs_error": 7.053847006499581e-09,
+      "relative_error": 2.0884154202185166e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 120,
+      "r_alpha": 0.0842005034572609,
+      "python_alpha": 0.08420050150638457,
+      "abs_error": 1.95087633547697e-09,
+      "relative_error": 2.3169414140940496e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 121,
+      "r_alpha": 2.11742261425189e-06,
+      "python_alpha": 0.0,
+      "abs_error": 2.11742261425189e-06,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 122,
+      "r_alpha": 0.0,
+      "python_alpha": 0.0,
+      "abs_error": 0.0,
+      "relative_error": null,
+      "classification_mismatch": false,
+      "r_message": "Even for very small theta, no maximum identified"
+    },
+    {
+      "case": 123,
+      "r_alpha": 7.0694332139327e-07,
+      "python_alpha": 0.0,
+      "abs_error": 7.0694332139327e-07,
+      "relative_error": 1.0,
+      "classification_mismatch": true,
+      "r_message": "both X-convergence and relative convergence (5)"
+    },
+    {
+      "case": 124,
+      "r_alpha": 0.90129480538535,
+      "python_alpha": 0.9012947979570162,
+      "abs_error": 7.428333836934087e-09,
+      "relative_error": 8.24184694347383e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 125,
+      "r_alpha": 10.2676894267957,
+      "python_alpha": 10.267689341838745,
+      "abs_error": 8.495695524857183e-08,
+      "relative_error": 8.274203836635216e-09,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 126,
+      "r_alpha": 0.0331457393823708,
+      "python_alpha": 0.03314569930035801,
+      "abs_error": 4.0082012792153066e-08,
+      "relative_error": 1.2092659128754103e-06,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    },
+    {
+      "case": 127,
+      "r_alpha": 0.567279519893103,
+      "python_alpha": 0.5672795029423439,
+      "abs_error": 1.6950759129663595e-08,
+      "relative_error": 2.9880788103998116e-08,
+      "classification_mismatch": false,
+      "r_message": "relative convergence (4)"
+    }
+  ]
+}

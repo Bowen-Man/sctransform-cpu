@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-01",
+  "operating_system": "Microsoft Windows 11 Education 10.0.26200",
+  "cpu": "AMD Ryzen 9 9950X3D 16-Core Processor",
+  "physical_cores": 16,
+  "logical_cores": 32,
+  "ram_bytes": 100552253440,
+  "python": "3.12.13",
+  "numpy": "2.5.4",
+  "scipy": "1.18.1",
+  "r": "4.5.2",
+  "sctransform": "0.4.3",
+  "glmGamPoi": "1.22.0",
+  "blas_threads": 1
+}

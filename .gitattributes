@@ -1,0 +1,12 @@
+* text=auto
+*.py text eol=lf
+*.R text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.ps1 text eol=crlf
+*.c text eol=lf
+*.npz binary
+*.dll binary
+src/sctransform_cpu/native/portsrc.f -text

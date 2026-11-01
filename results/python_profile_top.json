@@ -1,0 +1,232 @@
+{
+  "warning": "cProfile perturbs runtime; cumulative rows are nested and must not be added",
+  "profiled_total_calls": 7921140,
+  "profiled_total_seconds": 2.854760599999999,
+  "top_project_functions": [
+    {
+      "file": "core.py",
+      "line": 65,
+      "function": "sctransform",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0013800000000000002,
+      "cumulative_seconds": 2.0306232
+    },
+    {
+      "file": "fit.py",
+      "line": 44,
+      "function": "fit_batch",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0037241,
+      "cumulative_seconds": 1.9848218000000002
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 632,
+      "function": "fit_dispersion_port_native",
+      "primitive_calls": 441,
+      "total_calls": 441,
+      "self_seconds": 0.010686000000000001,
+      "cumulative_seconds": 1.495614
+    },
+    {
+      "file": "port_native.py",
+      "line": 176,
+      "function": "minimize_port_native_1d",
+      "primitive_calls": 464,
+      "total_calls": 464,
+      "self_seconds": 0.0261304,
+      "cumulative_seconds": 0.8191495000000001
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 727,
+      "function": "<lambda>",
+      "primitive_calls": 3748,
+      "total_calls": 3748,
+      "self_seconds": 0.0029597,
+      "cumulative_seconds": 0.5462606
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 241,
+      "function": "loglikelihood",
+      "primitive_calls": 3748,
+      "total_calls": 3748,
+      "self_seconds": 0.019743,
+      "cumulative_seconds": 0.5433009000000001
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 42,
+      "function": "_sequential_sum",
+      "primitive_calls": 13215,
+      "total_calls": 13215,
+      "self_seconds": 0.191285,
+      "cumulative_seconds": 0.4980852
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 158,
+      "function": "_r_count_mean_variance",
+      "primitive_calls": 440,
+      "total_calls": 440,
+      "self_seconds": 0.10752270000000001,
+      "cumulative_seconds": 0.4894504
+    },
+    {
+      "file": "core.py",
+      "line": 1,
+      "function": "<module>",
+      "primitive_calls": 2,
+      "total_calls": 2,
+      "self_seconds": 0.0002764,
+      "cumulative_seconds": 0.37209230000000004
+    },
+    {
+      "file": "fit.py",
+      "line": 1,
+      "function": "<module>",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 1.18e-05,
+      "cumulative_seconds": 0.36323930000000004
+    },
+    {
+      "file": "model.py",
+      "line": 1,
+      "function": "<module>",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 9.4e-06,
+      "cumulative_seconds": 0.361821
+    },
+    {
+      "file": "model.py",
+      "line": 68,
+      "function": "intercept_at_overdispersion_r45",
+      "primitive_calls": 882,
+      "total_calls": 882,
+      "self_seconds": 0.2920783,
+      "cumulative_seconds": 0.33805080000000004
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 261,
+      "function": "<genexpr>",
+      "primitive_calls": 903268,
+      "total_calls": 903268,
+      "self_seconds": 0.21747840000000002,
+      "cumulative_seconds": 0.2705556
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 83,
+      "function": "_round_binary_significand",
+      "primitive_calls": 245532,
+      "total_calls": 245532,
+      "self_seconds": 0.1282039,
+      "cumulative_seconds": 0.1923844
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 104,
+      "function": "_extended_add",
+      "primitive_calls": 316800,
+      "total_calls": 316800,
+      "self_seconds": 0.0600943,
+      "cumulative_seconds": 0.1775205
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 738,
+      "function": "hessian",
+      "primitive_calls": 2512,
+      "total_calls": 2512,
+      "self_seconds": 0.0015502,
+      "cumulative_seconds": 0.1733618
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 267,
+      "function": "score",
+      "primitive_calls": 441,
+      "total_calls": 441,
+      "self_seconds": 0.056472800000000004,
+      "cumulative_seconds": 0.1286874
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 305,
+      "function": "score_derivative",
+      "primitive_calls": 463,
+      "total_calls": 463,
+      "self_seconds": 0.0353303,
+      "cumulative_seconds": 0.12163510000000001
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 115,
+      "function": "_extended_multiply",
+      "primitive_calls": 105600,
+      "total_calls": 105600,
+      "self_seconds": 0.022800200000000003,
+      "cumulative_seconds": 0.11247620000000001
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 147,
+      "function": "_extended_from_float",
+      "primitive_calls": 211200,
+      "total_calls": 211200,
+      "self_seconds": 0.0564327,
+      "cumulative_seconds": 0.0885978
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 729,
+      "function": "<lambda>",
+      "primitive_calls": 2994,
+      "total_calls": 2994,
+      "self_seconds": 0.0017920000000000002,
+      "cumulative_seconds": 0.06371070000000001
+    },
+    {
+      "file": "port_native.py",
+      "line": 154,
+      "function": "glmgampoi_score_native",
+      "primitive_calls": 2994,
+      "total_calls": 2994,
+      "self_seconds": 0.0297005,
+      "cumulative_seconds": 0.06191870000000001
+    },
+    {
+      "file": "model.py",
+      "line": 43,
+      "function": "initial_overdispersion_r45",
+      "primitive_calls": 441,
+      "total_calls": 441,
+      "self_seconds": 0.0094955,
+      "cumulative_seconds": 0.05407820000000001
+    },
+    {
+      "file": "port_native.py",
+      "line": 124,
+      "function": "_native_callback_arguments",
+      "primitive_calls": 5043,
+      "total_calls": 5043,
+      "self_seconds": 0.023348900000000002,
+      "cumulative_seconds": 0.052155200000000006
+    },
+    {
+      "file": "port_native.py",
+      "line": 164,
+      "function": "glmgampoi_score_derivative_native",
+      "primitive_calls": 2049,
+      "total_calls": 2049,
+      "self_seconds": 0.029842800000000003,
+      "cumulative_seconds": 0.050176500000000006
+    }
+  ]
+}
