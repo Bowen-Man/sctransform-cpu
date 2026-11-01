@@ -1,5 +1,14 @@
 # Validation contract
 
+## Bit identity versus numerical acceptance
+
+Version 0.1.0 passed the numerical gates below; it did **not** pass exact
+IEEE-754 bit identity. A new binary oracle avoids CSV round-tripping and
+compares every float as `uint64`, corrected counts/outliers as `int32`, and
+all ordered titles. The first run is recorded in `results/bit_identity.json`
+and currently fails. See `DEVELOPMENT.md` for the mismatch breakdown and
+remediation order.
+
 The acceptance tolerances are explicit engineering gates, not universal
 biological error bounds:
 

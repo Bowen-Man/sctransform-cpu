@@ -25,6 +25,10 @@ for every SCT/Seurat workflow. Cross-language implicit sampling,
 batch/covariates, other operating systems and the complete Seurat output
 contract are not yet covered.
 
+Version 0.1.0 satisfies the documented numerical tolerances but is **not yet
+bit-identical** to R. The strict binary oracle is now a separate red gate; see
+[development rules and remaining work](docs/DEVELOPMENT.md).
+
 ## Install and run
 
 The first release supports Windows x64 and Python 3.12.
