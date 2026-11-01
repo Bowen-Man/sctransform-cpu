@@ -11,8 +11,9 @@ Releases are built from immutable `vX.Y.Z` tags. The tag must equal the
 3. Pass the Python 3.12 live R bit-identity gate in each platform's pinned
    reference environment. Functional CI on other Python versions is not a
    bit-identity claim.
-4. Build and install each wheel in a new virtual environment. Confirm the
-   native library loads from `site-packages` without an override variable.
+4. Build and install each wheel in a temporary virtual environment after its
+   runtime dependencies pass `pip check`. Confirm the native library loads
+   from `site-packages` without an override variable.
 5. Merge the reviewed pull request, create the matching annotated tag and push
    it. The release workflow builds two platform wheels plus one source archive,
    runs `twine check`, writes `SHA256SUMS` and publishes a GitHub Release.
