@@ -3,6 +3,13 @@
 All notable changes are recorded here. The project follows semantic versioning
 while its validated statistical contract remains explicitly version-pinned.
 
+## Unreleased
+
+- Clarify the project mission: complete the R-aligned Python CPU reference and
+  evidence-based CPU optimization before designing a RAPIDS-compatible GPU
+  backend.
+- Add explicit phase gates and a compatibility roadmap.
+
 ## 0.3.0 - 2026-11-02
 
 - Ship the bit-pinned Linux x86_64 backend alongside Windows x64 support.
