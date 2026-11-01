@@ -1,7 +1,14 @@
 # sctransform-cpu
 
-A compact, CPU-only Python implementation of the directly validated,
-unbatched SCTransform v2 `vst` path.
+An R-free, Python-first implementation of SCTransform v2, built around a
+strictly validated CPU reference. The long-term goal is a complete Python SCT
+v2 implementation with an optional GPU backend that interoperates naturally
+with AnnData, CuPy and the RAPIDS single-cell ecosystem.
+
+The current release is the correctness-first CPU foundation. It does **not**
+yet contain a GPU backend, and it covers a narrower contract than the complete
+official R workflow. Correctness coverage and CPU performance must be closed
+and measured before a GPU execution design is selected.
 
 The public API and pipeline orchestration are Python/NumPy/SciPy. Bundled
 Windows x64 (`.dll`) and Linux x86_64 (`.so`) compatibility libraries
@@ -9,6 +16,22 @@ reproduce the platform-pinned R/Rcpp, glmGamPoi, matrixStats and PORT
 arithmetic where ordinary NumPy/SciPy evaluation differs by a few bits.
 **R is not a runtime dependency.** The package is a native-backed Python
 implementation, not an all-Python numerical reimplementation.
+
+## Project direction
+
+Development follows three gated phases:
+
+1. **R alignment:** reproduce the targeted `sctransform::vst` v2 statistical
+   paths, sampling decisions, outputs and edge cases against pinned live R
+   oracles.
+2. **CPU implementation and optimization:** establish scaling profiles, then
+   optimize only measured hotspots while preserving the reference gates.
+3. **RAPIDS-compatible GPU backend:** design the backend and dataflow from the
+   completed CPU evidence, including transfer, sparse/dense and VRAM costs.
+
+The GPU phase will not assume that CuPy, Triton, CUDA C++ or whole-pipeline GPU
+execution is automatically best. See the explicit [project roadmap](docs/ROADMAP.md)
+and current [development rules](docs/DEVELOPMENT.md).
 
 ## Validated scope
 
@@ -24,7 +47,7 @@ Windows x64/Rtools45 and Ubuntu 26.04 x86_64/glibc 2.43/GCC 15.2.
 - corrected UMI counts;
 - a Windows-pinned 128-case fixed-mean dispersion stress suite.
 
-This is a version- and contract-pinned alpha release, not a claim of parity
+This is a version- and contract-pinned alpha release, not yet a claim of parity
 for every SCT/Seurat workflow. Cross-language implicit sampling,
 batch/covariates, macOS, other Linux distributions/libm versions and the
 complete Seurat output contract are not yet covered.
