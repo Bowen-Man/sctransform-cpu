@@ -19,6 +19,14 @@ _LOWER = math.log(1e-16)
 _UPPER = math.log(1e16)
 
 
+def _strict_exp():
+    """Return the scalar exponential used by the pinned platform build."""
+    if os.name != "nt":
+        return math.exp
+    from .r45_mathlib import exp
+    return exp
+
+
 def _table_if_small(y: np.ndarray):
     """Return count/frequency arrays when distinct values occupy at most n/2.
 
@@ -284,12 +292,7 @@ def fit_dispersion_newton(y, mu, *, max_iter=200, relative_tolerance=1e-10,
     if use_r45_mathlib:
         from .r45_mathlib import (digamma as digamma_function,
                                   trigamma as trigamma_function)
-        if os.name == "nt":
-            from .r45_mathlib import exp as exp_function
-        else:
-            # Linux R and glmGamPoi use the platform libm exponential.  The
-            # Windows compatibility exponential is intentionally Rtools-only.
-            exp_function = math.exp
+        exp_function = _strict_exp()
         # On the pinned Windows build SciPy gammaln, not the literal Python
         # lgamma source translation, matches initialized R 4.5.2 at every
         # traced objective callback (81/81 bitwise). Keep the default here.
@@ -377,11 +380,7 @@ def fit_dispersion_trust_region(y, mu, *, max_iter=200, return_diagnostics=False
     if use_r45_mathlib:
         from .r45_mathlib import (digamma as digamma_function,
                                   trigamma as trigamma_function)
-        if os.name == "nt":
-            from .r45_mathlib import exp as exp_function
-        else:
-            # Linux glmGamPoi resolves scalar exp through the platform libm.
-            exp_function = math.exp
+        exp_function = _strict_exp()
         lgamma_function = None
     else:
         digamma_function = trigamma_function = lgamma_function = exp_function = None
@@ -490,8 +489,8 @@ def fit_dispersion_port_bfgs(y, mu, *, max_iter=200,
     mu = np.where(mu == 0, 1e-6, mu)
     table = _table_if_small(y)
     if use_r45_mathlib:
-        from .r45_mathlib import (digamma as digamma_function,
-                                  exp as exp_function)
+        from .r45_mathlib import digamma as digamma_function
+        exp_function = _strict_exp()
         lgamma_function = None
     else:
         digamma_function = lgamma_function = exp_function = None
@@ -581,11 +580,7 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
     if use_r45_mathlib:
         from .r45_mathlib import (digamma as digamma_function,
                                   trigamma as trigamma_function)
-        if os.name == "nt":
-            from .r45_mathlib import exp as exp_function
-        else:
-            # Linux glmGamPoi resolves scalar exp through the platform libm.
-            exp_function = math.exp
+        exp_function = _strict_exp()
         lgamma_function = None
     else:
         digamma_function = trigamma_function = lgamma_function = None
