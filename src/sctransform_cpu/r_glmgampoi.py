@@ -28,24 +28,10 @@ def _strict_exp():
 
 
 def _table_if_small(y: np.ndarray):
-    """Return count/frequency arrays when distinct values occupy at most n/2.
+    """Return glmGamPoi's native ordered count/frequency table when small."""
+    from .port_native import count_table_native
 
-    glmGamPoi 1.22 builds this table with libstdc++ ``unordered_map`` and then
-    iterates it directly.  For collision-free integer keys after its reserve,
-    the observed GCC order is reverse first-insertion order.  Keeping that
-    order matters because large digamma terms nearly cancel.  Collision-heavy
-    tables still require broader conformance tests before this is promoted.
-    """
-    counts: dict[int, int] = {}
-    limit = len(y) // 2
-    for value in y:
-        key = int(value)
-        counts[key] = counts.get(key, 0) + 1
-        if len(counts) > limit:
-            return None
-    items = list(counts.items())[::-1]
-    return (np.fromiter((item[0] for item in items), dtype=np.float64),
-            np.fromiter((item[1] for item in items), dtype=np.float64))
+    return count_table_native(y, len(y) // 2)
 
 
 def _sequential_sum(values) -> float:

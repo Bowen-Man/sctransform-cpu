@@ -39,7 +39,7 @@ done
     "$build_dir/r45_mathlib_subset.o" \
     "$build_dir/glmgampoi_compat.o" \
     "$build_dir/rcpp_compat.o" \
-    -static-libgfortran -static-libgcc -lm \
+    -static-libgfortran -static-libgcc -static-libstdc++ -lstdc++ -lm \
     -Wl,-z,relro,-z,now
 
 file "$output"

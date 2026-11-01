@@ -10,6 +10,9 @@ contain or derive from the following free-software components:
 - glmGamPoi 1.22.0 dispersion formulas and operation order, Bioconductor
   commit `908cde9d595259b4a317343ddfbcf20036ef0895`, GPL-3.0; portions are
   identified upstream as adapted from DESeq2 under LGPL-3.0-or-later.
+- glmGamPoi's ordered count-frequency table is reproduced with the platform
+  C++ standard library because its `unordered_map` traversal order affects
+  cancellation-sensitive dispersion estimates.
 - sctransform 0.4.3 scalar Rcpp expressions and pipeline operation order,
   Satija Lab, GPL-3.0-or-later.
 - matrixStats 1.5.0 `rowVars` reduction and refinement order, Henrik Bengtsson,
@@ -19,7 +22,7 @@ contain or derive from the following free-software components:
 
 The bundled `sctransform_cpu/native/sct_port_r45.dll` was built with Rtools45
 GCC/GFortran 14.3.0. Its SHA-256 is
-`22396be5857c7aa81b90eb9b7bf52843f522323f6c2a39ca262831ce5823d257`.
+`d62310f070a70891952eec610f95803a089e5a9cb38b2938a48cced38f74f04f`.
 
 The bundled `sctransform_cpu/native/libsct_port_r45.so` was built on Ubuntu
 26.04 x86_64 with GCC/GFortran 15.2.0 and glibc 2.43. Its SHA-256 is

@@ -6,6 +6,8 @@
  * contract.
  */
 #include "math.h"
+#include <cstddef>
+#include <unordered_map>
 
 #ifdef _WIN32
 # define SCT_EXPORT __declspec(dllexport)
@@ -84,5 +86,28 @@ extern "C" SCT_EXPORT void sct_make_mu(
 extern "C" SCT_EXPORT double sct_cpp_exp(double value)
 {
     return exp(value);
+}
+
+/* Preserve glmGamPoi 1.22's libstdc++ unordered_map traversal order.
+ * The order of this count table changes floating-point cancellation in its
+ * dispersion score and cannot be reconstructed by a Python dict when hash
+ * buckets collide. */
+extern "C" SCT_EXPORT int sct_make_count_table(
+    const double counts[], int samples, int stop_if_larger,
+    double keys_out[], double frequencies_out[])
+{
+    std::unordered_map<long, std::size_t> frequencies;
+    frequencies.reserve((std::size_t)stop_if_larger);
+    for (int sample = 0; sample < samples; ++sample) {
+        ++frequencies[(long)counts[sample]];
+        if ((int)frequencies.size() > stop_if_larger) return 0;
+    }
+    int offset = 0;
+    for (const auto& pair : frequencies) {
+        keys_out[offset] = (double)pair.first;
+        frequencies_out[offset] = (double)pair.second;
+        ++offset;
+    }
+    return offset;
 }
 

@@ -11,13 +11,19 @@ from .corrected_counts import corrected_counts_tile
 from .fit import fit_batch
 from .r_compat_stats import regularize_v2_r45, row_statistics_r45
 from .residuals import cpu_tile
+from .sampling import (
+    RMersenneTwister,
+    SelectionManifest,
+    r_nrd_density_weights,
+)
 
 
 @dataclass(frozen=True)
 class SCTConfig:
     min_cells: int = 5
-    fit_cells: int | None = None
-    fit_genes: int | None = None
+    fit_cells: int | None = 2000
+    fit_genes: int | None = 2000
+    random_seed: int | None = None
     features: int = 3000
     output: str = "hvg"
     tile_genes: int = 256
@@ -42,6 +48,11 @@ class SCTResult:
     fit_cell_indices: np.ndarray
     fit_intercept: np.ndarray
     fit_theta: np.ndarray
+    library_size: np.ndarray
+    log_gmean: np.ndarray
+    amean: np.ndarray
+    variance: np.ndarray
+    detection_rate: np.ndarray
     min_variance: float
     bandwidth: float
     timing: dict[str, float] = field(default_factory=dict)
@@ -52,6 +63,70 @@ class SCTResult:
         "sctransform 0.4.3 / "
         "glmGamPoi 1.22.0 / matrixStats 1.5.0; direct unbatched v2 path only"
     )
+
+    def selection_manifest(self, seed: int) -> SelectionManifest:
+        """Return ordered fit titles that can be reused across implementations."""
+        return SelectionManifest(
+            int(seed),
+            tuple(self.cells[self.fit_cell_indices]),
+            tuple(self.genes[self.fit_gene_indices]),
+        )
+
+    @staticmethod
+    def _named_matrix(rows, columns, values) -> dict[str, np.ndarray]:
+        return {
+            "row_names": np.asarray(rows, dtype=str),
+            "column_names": np.asarray(columns, dtype=str),
+            "values": np.asarray(values),
+        }
+
+    def to_vst_dict(self) -> dict[str, object]:
+        """Expose the targeted R ``vst`` return contract with Python containers.
+
+        R matrices are represented by ``row_names``, ``column_names`` and
+        ``values``.  A full R-like ``y`` requires ``output='full'``; compact
+        HVG output remains available through the dataclass itself.
+        """
+        if len(self.residual_gene_indices) != len(self.genes):
+            raise ValueError("to_vst_dict requires SCTConfig(output='full')")
+        fitted = np.column_stack((self.fit_theta, self.fit_intercept,
+                                  np.full(len(self.fit_theta), np.log(10.0))))
+        regularized = np.column_stack((self.theta, self.intercept, self.slope))
+        result: dict[str, object] = {
+            "y": self._named_matrix(self.genes, self.cells, self.residuals),
+            "model_str": "y ~ log_umi",
+            "model_pars": self._named_matrix(
+                self.genes[self.fit_gene_indices],
+                ("theta", "(Intercept)", "log_umi"),
+                fitted,
+            ),
+            "model_pars_outliers": np.asarray(
+                self.diagnostics["fit_outliers"], dtype=bool),
+            "model_pars_fit": self._named_matrix(
+                self.genes,
+                ("theta", "(Intercept)", "log_umi"),
+                regularized,
+            ),
+            "model_str_nonreg": "",
+            "model_pars_nonreg": None,
+            "arguments": dict(self.diagnostics["arguments"]),
+            "genes_log_gmean_step1": self.log_gmean[self.fit_gene_indices].copy(),
+            "cells_step1": self.cells[self.fit_cell_indices].copy(),
+            "cell_attr": None,
+            "gene_attr": {
+                "row_names": self.genes.copy(),
+                "detection_rate": self.detection_rate.copy(),
+                "gmean": np.power(10.0, self.log_gmean),
+                "amean": self.amean.copy(),
+                "variance": self.variance.copy(),
+                "residual_mean": self.residual_mean.copy(),
+                "residual_variance": self.residual_variance.copy(),
+            },
+            "times": dict(self.timing),
+        }
+        if self.corrected_umi is not None:
+            result["umi_corrected"] = self.corrected_umi
+        return result
 
 
 def _names(values, size: int, prefix: str) -> np.ndarray:
@@ -66,12 +141,12 @@ def _names(values, size: int, prefix: str) -> np.ndarray:
 
 def sctransform(counts, *, gene_names=None, cell_names=None,
                 config: SCTConfig | None = None,
-                fit_cell_indices=None, fit_gene_names=None) -> SCTResult:
+                fit_cell_indices=None, fit_gene_names=None,
+                selection_manifest: SelectionManifest | None = None) -> SCTResult:
     """Transform raw UMI counts in gene x cell orientation.
 
-    Exact comparison with R requires the same ordered fit cells and genes.
-    This release deliberately refuses implicit subsampling; pass a shared R
-    selection through ``fit_cell_indices`` and ``fit_gene_names``.
+    Exact comparison can either reuse an ordered ``SelectionManifest`` or use
+    ``random_seed`` to reproduce R 4.5's default sampling stream.
     """
     cfg = config or SCTConfig()
     if cfg.min_cells < 1 or cfg.features < 1 or cfg.tile_genes < 1:
@@ -100,14 +175,30 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         raise ValueError("too few retained genes or a zero-library cell")
     retained_mean_library = float(np.asarray(matrix.sum(axis=0)).mean())
     means, variances, log_gmean = row_statistics_r45(matrix)
+    detection_rate = np.asarray(matrix.getnnz(axis=1)).ravel() / matrix.shape[1]
     timing = {"input_statistics": time.perf_counter() - started}
 
     started = time.perf_counter()
+    if selection_manifest is not None:
+        if fit_cell_indices is not None or fit_gene_names is not None:
+            raise ValueError("selection_manifest cannot be combined with explicit selections")
+        cell_lookup = {name: index for index, name in enumerate(cells)}
+        if any(name not in cell_lookup for name in selection_manifest.cells):
+            raise ValueError("selection manifest contains an unknown cell")
+        fit_cell_indices = np.asarray(
+            [cell_lookup[name] for name in selection_manifest.cells], dtype=int)
+        fit_gene_names = np.asarray(selection_manifest.genes, dtype=str)
+
+    sampler = None
     if fit_cell_indices is None:
         requested_cells = matrix.shape[1] if cfg.fit_cells is None else cfg.fit_cells
         if requested_cells < matrix.shape[1]:
-            raise ValueError("implicit cell subsampling is disabled; provide fit_cell_indices")
-        selected_cells = np.arange(matrix.shape[1])
+            if cfg.random_seed is None:
+                raise ValueError("implicit sampling requires SCTConfig(random_seed=...)")
+            sampler = RMersenneTwister(cfg.random_seed)
+            selected_cells = sampler.sample_uniform(matrix.shape[1], requested_cells)
+        else:
+            selected_cells = np.arange(matrix.shape[1])
     else:
         selected_cells = np.asarray(fit_cell_indices)
         if (selected_cells.ndim != 1
@@ -133,7 +224,13 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
             raise ValueError("fit_gene_names must satisfy v2 fitting eligibility")
         eligible = chosen
     elif cfg.fit_genes is not None and cfg.fit_genes < len(eligible):
-        raise ValueError("implicit gene subsampling is disabled; provide fit_gene_names")
+        if cfg.random_seed is None:
+            raise ValueError("implicit sampling requires SCTConfig(random_seed=...)")
+        if sampler is None:
+            sampler = RMersenneTwister(cfg.random_seed)
+        selected = sampler.sample_weighted(
+            r_nrd_density_weights(log_gmean[eligible]), cfg.fit_genes)
+        eligible = eligible[selected]
     if len(eligible) < 2:
         raise ValueError("fewer than two overdispersed genes are available for fitting")
     timing["selection"] = time.perf_counter() - started
@@ -230,10 +327,30 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         fit_cell_indices=selected_cells,
         fit_intercept=fit_intercept,
         fit_theta=fit_theta,
+        library_size=library,
+        log_gmean=log_gmean,
+        amean=means,
+        variance=variances,
+        detection_rate=detection_rate,
         min_variance=min_variance,
         bandwidth=bandwidth,
         timing=timing,
-        diagnostics={"fit_outliers": outliers},
+        diagnostics={
+            "fit_outliers": outliers,
+            "arguments": {
+                "vst.flavor": "v2",
+                "method": "glmGamPoi_offset",
+                "n_cells": cfg.fit_cells,
+                "n_genes": cfg.fit_genes,
+                "min_cells": cfg.min_cells,
+                "residual_type": "pearson",
+                "min_variance": "umi_median",
+                "set_min_var": min_variance,
+                "bw_adjust": cfg.bandwidth_adjust,
+                "exclude_poisson": True,
+                "return_corrected_umi": cfg.return_corrected_umi,
+            },
+        },
     )
     if corrected is not None:
         result.corrected_umi = sparse.vstack(corrected, format="csr")

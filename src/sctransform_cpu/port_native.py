@@ -148,6 +148,11 @@ def _load_library() -> ctypes.CDLL:
     library.sct_make_mu.restype = None
     library.sct_cpp_exp.argtypes = [ctypes.c_double]
     library.sct_cpp_exp.restype = ctypes.c_double
+    library.sct_make_count_table.argtypes = [
+        double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, double_pointer,
+    ]
+    library.sct_make_count_table.restype = ctypes.c_int
     library.sct_count_mean_variance.argtypes = [
         double_pointer, ctypes.c_int, double_pointer,
     ]
@@ -208,6 +213,26 @@ def native_library_path() -> Path:
 def r45_exp_native(value: float) -> float:
     """Return the pinned Rtools45 scalar exponential."""
     return float(_load_library().sct_r45_exp(float(value)))
+
+
+def count_table_native(values, stop_if_larger: int):
+    """Build glmGamPoi's count table in native unordered-map order."""
+    array = np.ascontiguousarray(values, dtype=np.float64)
+    if array.ndim != 1 or stop_if_larger < 1:
+        raise ValueError("count table input must be a vector with a positive limit")
+    keys = np.empty(stop_if_larger + 1, dtype=np.float64)
+    frequencies = np.empty(stop_if_larger + 1, dtype=np.float64)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    size = int(_load_library().sct_make_count_table(
+        array.ctypes.data_as(pointer),
+        len(array),
+        stop_if_larger,
+        keys.ctypes.data_as(pointer),
+        frequencies.ctypes.data_as(pointer),
+    ))
+    if size == 0:
+        return None
+    return keys[:size].copy(), frequencies[:size].copy()
 
 
 def platform_log10_native(values) -> np.ndarray:
