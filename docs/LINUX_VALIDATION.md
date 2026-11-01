@@ -15,9 +15,9 @@ execution order. It does not embed, link to or invoke an R runtime.
 - R 4.5.2, sctransform 0.4.3, glmGamPoi 1.22.0, matrixStats 1.5.0;
 - `OMP_NUM_THREADS=MKL_NUM_THREADS=OPENBLAS_NUM_THREADS=1` for benchmarks.
 
-The `.so` depends only on `libm.so.6` and `libc.so.6`; libgfortran and libgcc
-are statically linked. Its SHA-256 is
-`40d4789bc22465c5d87aa2755d179cf62fcb459f9c95d5c800ae1a1b4d890031`.
+The `.so` depends only on `libm.so.6` and `libc.so.6`; libgfortran, libgcc and
+libstdc++ are statically linked. Its SHA-256 is
+`7ed38d800dbf70e97ff964b6b98795053cce5eef8f06990dd33f3e711a6570b1`.
 
 ## Exact gate
 

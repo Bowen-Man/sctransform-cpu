@@ -25,11 +25,11 @@ separate integration concern and must not be confused with statistical parity.
 | Model parameters, Pearson residuals and residual variance | validated in current contract | zero mismatches on the pinned 800 x 240 fixture |
 | Corrected UMI counts | validated in current contract | integer-exact comparison on the pinned fixture |
 | Explicit shared fit-cell and fit-gene selections | validated | ordered manifests are compared with R |
-| R-compatible implicit sampling | missing | equal integer seeds are not treated as equivalent sampling |
+| R-compatible implicit sampling | validated in pinned contract | live R selection gates compare complete ordered cell/gene titles |
 | Additional covariates and batch paths | missing | current public API is deliberately unbatched |
-| Complete v2 flavor/method option coverage | incomplete | each official branch still needs source mapping and an oracle fixture |
-| Poisson-boundary, clipping, rare-count and extreme-library suites | incomplete | current PBMC-derived regression fixture is not a proof over the input space |
-| Complete `vst` return-schema compatibility | incomplete | current result is a compact Python dataclass |
+| Complete v2 flavor/method option coverage | incomplete | source map exists; covariate/batch and alternative method/residual branches remain outside the contract |
+| Poisson-boundary, clipping, rare-count and extreme-library suites | validated for current path | adversarial live-R fixture is bit-identical; broader property coverage remains ongoing |
+| Targeted `vst` return schema | implemented | `to_vst_dict()` exposes official names with explicit matrix titles; unsupported branches remain absent |
 | Broad real-data and scaling evidence | incomplete | current benchmark is intentionally small |
 | AnnData/CuPy/RAPIDS interface | not implemented | deferred until CPU gates are complete |
 | GPU backend | not implemented | no GPU speedup claim is currently made |

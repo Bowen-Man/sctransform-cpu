@@ -43,14 +43,17 @@ Windows x64/Rtools45 and Ubuntu 26.04 x86_64/glibc 2.43/GCC 15.2.
 - fixed `log_umi` slope and no additional covariates;
 - initial and regularized model parameters;
 - Pearson residuals and residual variance;
+- R 4.5-compatible implicit cell/gene sampling and reusable title manifests;
+- Poisson-boundary, rare-gene, clipping and extreme-library adversarial cases;
 - Top-100/200/300 residual-variance feature sets;
 - corrected UMI counts;
+- a Python-native adapter for the targeted official `vst` return names;
 - a Windows-pinned 128-case fixed-mean dispersion stress suite.
 
 This is a version- and contract-pinned alpha release, not yet a claim of parity
-for every SCT/Seurat workflow. Cross-language implicit sampling,
-batch/covariates, macOS, other Linux distributions/libm versions and the
-complete Seurat output contract are not yet covered.
+for every SCT/Seurat workflow. Batch/covariates, alternative residual and
+fitting methods, macOS, other Linux distributions/libm versions and the
+complete Seurat object lifecycle are not yet covered.
 
 The pinned 800 x 240 regression fixture passes the strict binary gate on both
 validated platforms: every compared binary64 value, integer output and
@@ -97,17 +100,42 @@ result = sctransform(
     counts,
     gene_names=gene_names,
     cell_names=cell_names,
-    config=SCTConfig(output="hvg", features=3000),
+    config=SCTConfig(output="hvg", features=3000, random_seed=42),
 )
 
 # Genes returned as rows of result.residuals
 residual_genes = result.genes[result.residual_gene_indices]
 ```
 
-The default fits all eligible genes and cells. If subsampling is requested,
-the package deliberately requires explicit ordered `fit_cell_indices` and
-`fit_gene_names`; equal random seeds do not make R and Python sampling
-identical on every input.
+The v2 defaults use at most 2,000 fit cells and 2,000 fit genes, matching the
+official flavor rewrite. When the input exceeds either limit, pass
+`random_seed` to reproduce R 4.5's default sampling stream, or reuse an
+explicit ordered selection manifest:
+
+```python
+from sctransform_cpu import SCTConfig, make_selection_manifest, sctransform
+
+manifest = make_selection_manifest(
+    counts,
+    gene_names=gene_names,
+    cell_names=cell_names,
+    seed=42,
+)
+manifest.write("fit-selection.json")
+
+result = sctransform(
+    counts,
+    gene_names=gene_names,
+    cell_names=cell_names,
+    config=SCTConfig(random_seed=42),
+    selection_manifest=manifest,
+)
+```
+
+The standalone `scripts/make_selection_manifest.py` command writes the same
+ordered cell/gene titles without running GLM fitting. See the pinned
+[v2 source map](docs/SCT_V2_SOURCE_MAP.md) for the exact filtering and RNG
+contract.
 
 The main result fields are:
 

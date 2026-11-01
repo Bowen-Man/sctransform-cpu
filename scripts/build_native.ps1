@@ -40,7 +40,7 @@ try {
         (Join-Path $build 'r45_mathlib_subset.o') `
         (Join-Path $build 'glmgampoi_compat.o') `
         (Join-Path $build 'rcpp_compat.o') `
-        -static-libgfortran -static-libgcc
+        -static-libgfortran -static-libgcc -static-libstdc++ -lstdc++
     if ($LASTEXITCODE) { throw 'link failed' }
 } finally {
     $env:PATH = $oldPath
