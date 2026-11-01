@@ -43,14 +43,17 @@ Windows x64/Rtools45 and Ubuntu 26.04 x86_64/glibc 2.43/GCC 15.2.
 - fixed `log_umi` slope and no additional covariates;
 - initial and regularized model parameters;
 - Pearson residuals and residual variance;
+- R 4.5-compatible implicit cell/gene sampling and reusable title manifests;
+- Poisson-boundary, rare-gene, clipping and extreme-library adversarial cases;
 - Top-100/200/300 residual-variance feature sets;
 - corrected UMI counts;
+- a Python-native adapter for the targeted official `vst` return names;
 - a Windows-pinned 128-case fixed-mean dispersion stress suite.
 
 This is a version- and contract-pinned alpha release, not yet a claim of parity
-for every SCT/Seurat workflow. Cross-language implicit sampling,
-batch/covariates, macOS, other Linux distributions/libm versions and the
-complete Seurat output contract are not yet covered.
+for every SCT/Seurat workflow. Batch/covariates, alternative residual and
+fitting methods, macOS, other Linux distributions/libm versions and the
+complete Seurat object lifecycle are not yet covered.
 
 The pinned 800 x 240 regression fixture passes the strict binary gate on both
 validated platforms: every compared binary64 value, integer output and

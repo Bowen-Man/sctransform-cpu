@@ -231,9 +231,9 @@ of an R list or Seurat assay.
 |---|---|---|
 | pinned unbatched no-sampling fixture | binary64/int32/title identity | green |
 | R 4.5 uniform RNG and ordered sample | exact values/titles | green |
-| inverse-density gene selection | ordered titles against live R | new gate |
-| Poisson equality, low-mean, clipping, rare genes, zero filtering | branch/output identity | new adversarial suite |
-| return names, shapes, titles and optional fields | structural identity | new contract tests |
+| inverse-density gene selection | ordered titles against live R | green on Windows and Linux |
+| Poisson equality, clipping, rare genes, zero filtering, extreme library | branch/output identity | green adversarial live-R fixture |
+| return names, shapes, titles and optional fields | structural identity | green for targeted path |
 | numeric covariate | model matrix, coefficients, residuals | missing |
 | categorical batch | factor levels, coefficients, regularization, residuals | missing |
 | non-regularized variables | appended design and coefficients | missing |

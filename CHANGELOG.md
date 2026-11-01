@@ -9,6 +9,13 @@ while its validated statistical contract remains explicitly version-pinned.
   evidence-based CPU optimization before designing a RAPIDS-compatible GPU
   backend.
 - Add explicit phase gates and a compatibility roadmap.
+- Add an R 4.5-compatible Mersenne-Twister/rejection sampler, inverse-density
+  gene sampling, and reusable ordered selection manifests.
+- Add the pinned source/option map and Python-native `vst` return adapter.
+- Add live-R implicit-sampling and adversarial Poisson/clipping/extreme-count
+  gates on Windows and Linux.
+- Preserve glmGamPoi's native unordered count-table order, closing a
+  collision-dependent dispersion mismatch found by the adversarial suite.
 
 ## 0.3.0 - 2026-11-02
 
