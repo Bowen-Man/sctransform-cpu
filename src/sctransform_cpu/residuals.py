@@ -3,10 +3,12 @@ from __future__ import annotations
 
 import numpy as np
 
+from .port_native import pearson_residuals_native, residual_statistics_native
 
-def cpu_tile(counts, library, intercept, theta, min_variance, clip, *, dtype=np.float32):
-    mu = np.exp(intercept[:, None]) * library[None, :]
-    variance = np.maximum(mu + mu * mu / theta[:, None], min_variance)
-    residual = np.clip((counts - mu) / np.sqrt(variance), -clip, clip).astype(dtype)
-    residual64 = residual.astype(np.float64)
-    return residual, residual64.mean(axis=1), residual64.var(axis=1, ddof=1)
+
+def cpu_tile(counts, library, intercept, slope, theta, min_variance, clip, *, dtype=np.float32):
+    residual = pearson_residuals_native(
+        counts, library, intercept, slope, theta, min_variance, clip
+    ).astype(dtype, copy=False)
+    mean, variance = residual_statistics_native(residual)
+    return residual, mean, variance

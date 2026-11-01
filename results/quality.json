@@ -1,6 +1,6 @@
 {
   "scope": "PBMC3K-derived 800 gene x 240 cell direct unbatched v2 path",
-  "reference": "R 4.5.2, sctransform 0.4.3, glmGamPoi 1.22.0",
+  "reference": "R 4.5.2, sctransform 0.4.3, glmGamPoi 1.22.0, matrixStats 1.5.0",
   "retained_genes": 800,
   "fitted_genes": 441,
   "fitted_cells": 240,
@@ -11,10 +11,10 @@
       "finite_pairs": 441,
       "nonfinite_mismatch": 0,
       "tolerance_failures": 0,
-      "mae": 6.042030065987246e-18,
-      "rmse": 7.325572138604053e-17,
-      "max_abs": 8.881784197001252e-16,
-      "max_scaled_error": 1.0559037112724828e-09,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
       "passed": true
     },
     "step1_theta": {
@@ -23,10 +23,10 @@
       "finite_pairs": 421,
       "nonfinite_mismatch": 0,
       "tolerance_failures": 0,
-      "mae": 3.3854058623542145e-07,
-      "rmse": 5.012332095234723e-06,
-      "max_abs": 8.631312285700687e-05,
-      "max_scaled_error": 0.5316436741457224,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
       "passed": true
     },
     "step1_slope": {
@@ -47,10 +47,10 @@
       "finite_pairs": 800,
       "nonfinite_mismatch": 0,
       "tolerance_failures": 0,
-      "mae": 2.48245868306185e-15,
-      "rmse": 4.568024743507094e-15,
-      "max_abs": 1.7763568394002505e-14,
-      "max_scaled_error": 1.9448386966779465e-08,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
       "passed": true
     },
     "regularized_theta": {
@@ -59,10 +59,10 @@
       "finite_pairs": 441,
       "nonfinite_mismatch": 0,
       "tolerance_failures": 0,
-      "mae": 1.5627284035659106e-09,
-      "rmse": 3.919954044046747e-09,
-      "max_abs": 1.4839354633977564e-08,
-      "max_scaled_error": 0.0014271637775501082,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
       "passed": true
     },
     "regularized_slope": {
@@ -71,10 +71,10 @@
       "finite_pairs": 800,
       "nonfinite_mismatch": 0,
       "tolerance_failures": 0,
-      "mae": 8.62088178621434e-16,
-      "rmse": 1.558193169940924e-15,
-      "max_abs": 1.0658141036401503e-14,
-      "max_scaled_error": 0.10658141036401503,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
       "passed": true
     },
     "residual": {
@@ -83,10 +83,10 @@
       "finite_pairs": 192000,
       "nonfinite_mismatch": 0,
       "tolerance_failures": 0,
-      "mae": 8.894607181614185e-11,
-      "rmse": 4.2251592128181177e-10,
-      "max_abs": 3.463094166988867e-08,
-      "max_scaled_error": 0.00033716908058891706,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
       "passed": true
     },
     "residual_variance": {
@@ -95,16 +95,16 @@
       "finite_pairs": 800,
       "nonfinite_mismatch": 0,
       "tolerance_failures": 0,
-      "mae": 2.732202259575489e-10,
-      "rmse": 1.0621806668924487e-09,
-      "max_abs": 1.9605450596316132e-08,
-      "max_scaled_error": 0.00045869574595698115,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "max_abs": 0.0,
+      "max_scaled_error": 0.0,
       "passed": true
     }
   },
   "outlier_mismatch": 0,
   "corrected_umi_exact": true,
-  "residual_variance_spearman": 0.9999999941406159,
+  "residual_variance_spearman": 1.0,
   "hvg": {
     "100": {
       "intersection": 100,
@@ -123,12 +123,12 @@
     }
   },
   "python_stage_seconds_single_quality_run": {
-    "input_statistics": 0.011369000072591007,
-    "selection": 0.00021279999054968357,
-    "fit": 0.8150139999343082,
-    "regularization": 0.013086499995552003,
-    "residual_statistics": 0.005014399997889996,
-    "selection_output": 4.009995609521866e-05
+    "input_statistics": 0.004928100039251149,
+    "selection": 0.0001506999833509326,
+    "fit": 0.4524193999823183,
+    "regularization": 0.009670300059951842,
+    "residual_statistics": 0.006643099943175912,
+    "selection_output": 3.290001768618822e-05
   },
   "passed": true,
   "not_proven": [

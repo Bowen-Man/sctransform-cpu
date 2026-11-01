@@ -3,14 +3,16 @@
 A compact, CPU-only Python implementation of the directly validated,
 unbatched SCTransform v2 `vst` path.
 
-The statistical pipeline is Python/NumPy/SciPy. A bundled Windows x64 library
-reuses R 4.5.2's PORT state machine so flat Gamma–Poisson likelihoods follow
-the same optimizer path as the pinned R reference. **R is not a runtime
-dependency.**
+The public API and pipeline orchestration are Python/NumPy/SciPy. A bundled
+Windows x64 compatibility library reproduces the pinned R/Rcpp, glmGamPoi,
+matrixStats and PORT arithmetic where Python and R otherwise differ by a few
+bits. **R is not a runtime dependency.** The package is a native-backed Python
+implementation, not an all-Python numerical reimplementation.
 
 ## Validated scope
 
-Reference environment: R 4.5.2, sctransform 0.4.3 and glmGamPoi 1.22.0.
+Reference environment: Windows x64, R 4.5.2, sctransform 0.4.3,
+glmGamPoi 1.22.0, matrixStats 1.5.0 and Rtools45.
 
 - direct, one-batch v2 `vst` path;
 - fixed `log_umi` slope and no additional covariates;
@@ -25,8 +27,10 @@ for every SCT/Seurat workflow. Cross-language implicit sampling,
 batch/covariates, other operating systems and the complete Seurat output
 contract are not yet covered.
 
-Version 0.1.0 satisfies the documented numerical tolerances but is **not yet
-bit-identical** to R. The strict binary oracle is now a separate red gate; see
+The pinned 800 x 240 regression fixture passes the strict binary gate: every
+compared binary64 value, integer output and ordered title is identical to a
+fresh R oracle. This is a deliberately narrow platform/version guarantee, not
+a claim that arbitrary R/package/platform combinations are bit-identical. See
 [development rules and remaining work](docs/DEVELOPMENT.md).
 
 ## Install and run
@@ -76,11 +80,12 @@ On the checked-in 800 x 240 PBMC3K-derived fixture, the measured medians were:
 
 | implementation | compute wall | process wall | sampled peak RSS |
 |---|---:|---:|---:|
-| Python | 0.858 s | 1.686 s | 75.5 MiB |
-| R reference | 3.340 s | 4.451 s | 732.1 MiB |
+| Python | 0.491 s | 1.195 s | 63.2 MiB |
+| R reference | 3.380 s | 4.512 s | 731.3 MiB |
 
-All pointwise quality gates passed. These are small-fixture measurements, not
-general speedup or memory claims. See the full [benchmark report](docs/BENCHMARK_REPORT.md).
+The strict binary and pointwise quality gates passed. These are small-fixture
+measurements, not general speedup or memory claims. See the full
+[benchmark report](docs/BENCHMARK_REPORT.md).
 
 ## License and provenance
 

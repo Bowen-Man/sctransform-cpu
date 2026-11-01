@@ -1,5 +1,5 @@
 include LICENSE NOTICE.md README.md
-recursive-include src/sctransform_cpu/native *.c *.f *.dll
+recursive-include src/sctransform_cpu/native *.c *.cpp *.f *.dll
 recursive-include tests/data *.npz *.json
 recursive-include benchmark_data *.mtx *.npz *.tsv *.txt *.md
 recursive-include benchmarks *.py *.R

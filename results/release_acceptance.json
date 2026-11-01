@@ -1,17 +1,17 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "wheel": {
-    "name": "sctransform_cpu-0.1.0-cp312-cp312-win_amd64.whl",
-    "bytes": 154895,
-    "sha256": "5ff78cc214a4703b4b74b62e66fb0fab009916b5949ab01636504254bbbccaff"
+    "name": "sctransform_cpu-0.2.0-cp312-cp312-win_amd64.whl",
+    "bytes": 160101,
+    "sha256": "736479e7e3469db4bcc831f2974cbfbd5023f6ee45d3261dc418208cef382ee4"
   },
   "source_distribution": {
-    "name": "sctransform_cpu-0.1.0.tar.gz",
-    "bytes": 900773,
-    "sha256": "e758470f988be5569f7193cfa88e743050a331fe0fb8e7ff73c87e2ab9e484e2",
+    "name": "sctransform_cpu-0.2.0.tar.gz",
+    "bytes": 917188,
+    "sha256": "79fd0bd48eb7f20a9bddfad12c1ea8a9f5f7a03ec1ad9a48f36adea6fca13953",
     "contains_native_corresponding_source": true
   },
-  "bundled_dll_sha256": "995220936f5c09fd3b072b0f19b19ac4f84cb94e0e51b91cc17e3e7456e9133a",
+  "bundled_dll_sha256": "22396be5857c7aa81b90eb9b7bf52843f522323f6c2a39ca262831ce5823d257",
   "clean_install": {
     "python": "3.12.13",
     "loaded_from_site_packages": true,
@@ -22,6 +22,8 @@
     "pipeline_fixture_shape": [800, 240],
     "pipeline_fitted_genes": 441,
     "pipeline_corrected_umi_shape": [800, 240],
+    "bit_identity_passed": true,
+    "bit_mismatches": 0,
     "passed": true
   }
 }

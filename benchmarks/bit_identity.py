@@ -8,6 +8,11 @@ import numpy as np
 from scipy import sparse
 
 from sctransform_cpu import SCTConfig, sctransform
+from sctransform_cpu.model import r45_offset_from_library
+from sctransform_cpu.port_native import (
+    count_dispersion_start_native, count_mean_variance_native,
+    row_gmean_native,
+)
 from sctransform_cpu.r_compat_stats import row_statistics_r45
 
 
@@ -87,7 +92,32 @@ def compare_oracle(data: Path, oracle: Path) -> dict[str, object]:
     keep = np.asarray(counts.getnnz(axis=1)).ravel() >= 5
     retained = counts[keep].tocsr()
     means, variances, log_gmean = row_statistics_r45(retained)
+    gmean, native_log_gmean = row_gmean_native(retained)
+    if not np.array_equal(native_log_gmean.view(np.uint64),
+                          log_gmean.view(np.uint64)):
+        raise AssertionError("row statistic path did not use native log-gmean")
     library = np.asarray(counts.sum(axis=0)).ravel()
+    from sctransform_cpu.port_native import pearson_residuals_native
+    residual_components, mu, model_variance, residual_denominator = pearson_residuals_native(
+        retained.toarray(), library, result.intercept, result.slope,
+        result.theta, result.min_variance, np.sqrt(retained.shape[1]),
+        return_components=True)
+    if not np.array_equal(
+        residual_components.view(np.uint64), result.residuals.view(np.uint64)):
+        raise AssertionError("residual component trace differs from pipeline")
+    fit_dense = retained[result.fit_gene_indices][:, result.fit_cell_indices].toarray()
+    fit_start_alpha = []
+    fit_start_log = []
+    fit_count_mean = []
+    fit_count_variance = []
+    for row in fit_dense:
+        count_mean, count_variance = count_mean_variance_native(row)
+        start_alpha, start_log = count_dispersion_start_native(row)
+        fit_count_mean.append(count_mean)
+        fit_count_variance.append(count_variance)
+        fit_start_alpha.append(start_alpha)
+        fit_start_log.append(start_log)
+    fit_start_alpha = np.asarray(fit_start_alpha)
 
     name_checks = {
         "genes": list(result.genes) == _lines(oracle / "genes.txt"),
@@ -98,18 +128,46 @@ def compare_oracle(data: Path, oracle: Path) -> dict[str, object]:
     }
     floats = {
         "library": _compare_float("library", library, oracle),
+        "offset": _compare_float(
+            "offset", r45_offset_from_library(library), oracle),
+        "log_umi": _compare_float("log_umi", np.log10(library), oracle),
         "amean": _compare_float("amean", means, oracle),
         "variance": _compare_float("variance", variances, oracle),
+        "gmean": _compare_float("gmean", gmean, oracle),
         "log_gmean": _compare_float("log_gmean", log_gmean, oracle),
         "fit_intercept": _compare_float("fit_intercept", result.fit_intercept, oracle),
         "fit_theta": _compare_float("fit_theta", result.fit_theta, oracle),
         "fit_slope": _compare_float("fit_slope", np.full(len(result.fit_theta), np.log(10.0)), oracle),
+        "fit_dispersion_par": _compare_float(
+            "fit_dispersion_par",
+            np.log10(1 + np.power(10.0, log_gmean[result.fit_gene_indices])
+                     / result.fit_theta), oracle),
+        "fit_start_log": _compare_float(
+            "fit_start_log", np.asarray(fit_start_log), oracle),
+        "fit_start_alpha": _compare_float(
+            "fit_start_alpha", fit_start_alpha, oracle),
+        "fit_count_mean": _compare_float(
+            "fit_count_mean", np.asarray(fit_count_mean), oracle),
+        "fit_count_variance": _compare_float(
+            "fit_count_variance", np.asarray(fit_count_variance), oracle),
         "intercept": _compare_float("intercept", result.intercept, oracle),
         "theta": _compare_float("theta", result.theta, oracle),
-        "slope": _compare_float("slope", np.full(len(result.theta), np.log(10.0)), oracle),
+        "bandwidth": _compare_float(
+            "bandwidth", np.asarray([result.bandwidth]), oracle),
+        "regularized_dispersion_par": _compare_float(
+            "regularized_dispersion_par",
+            np.log10(1 + np.power(10.0, log_gmean) / result.theta), oracle),
+        "slope": _compare_float("slope", result.slope, oracle),
         "residual_mean": _compare_float("residual_mean", result.residual_mean, oracle),
         "residual_variance": _compare_float("residual_variance", result.residual_variance, oracle),
         "residual": _compare_float("residual", result.residuals, oracle),
+        "mu": _compare_float("mu", mu, oracle),
+        "model_variance": _compare_float(
+            "model_variance", model_variance, oracle),
+        "residual_numerator": _compare_float(
+            "residual_numerator", retained.toarray() - mu, oracle),
+        "residual_denominator": _compare_float(
+            "residual_denominator", residual_denominator, oracle),
     }
     integers = {
         "fit_outlier": _compare_i32("fit_outlier", result.diagnostics["fit_outliers"], oracle),

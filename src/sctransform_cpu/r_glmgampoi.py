@@ -80,115 +80,15 @@ def _resolve_cr_sum(cr_sum_function):
     raise ValueError(f"unknown Cox-Reid reduction: {cr_sum_function!r}")
 
 
-def _round_binary_significand(mantissa: int, exponent: int,
-                              precision: int = 64) -> tuple[int, int]:
-    """Round ``mantissa * 2**exponent`` to an x87-size significand."""
-    if mantissa == 0:
-        return 0, 0
-    sign = -1 if mantissa < 0 else 1
-    mantissa = abs(mantissa)
-    shift = mantissa.bit_length() - precision
-    if shift > 0:
-        quotient, remainder = divmod(mantissa, 1 << shift)
-        halfway = 1 << (shift - 1)
-        if remainder > halfway or (remainder == halfway and quotient & 1):
-            quotient += 1
-        mantissa = quotient
-        exponent += shift
-        if mantissa.bit_length() > precision:
-            mantissa >>= 1
-            exponent += 1
-    return sign * mantissa, exponent
-
-
-def _extended_add(left: tuple[int, int], right: tuple[int, int]) -> tuple[int, int]:
-    if left[0] == 0:
-        return right
-    if right[0] == 0:
-        return left
-    exponent = min(left[1], right[1])
-    mantissa = ((left[0] << (left[1] - exponent))
-                + (right[0] << (right[1] - exponent)))
-    return _round_binary_significand(mantissa, exponent)
-
-
-def _extended_multiply(left: tuple[int, int],
-                       right: tuple[int, int]) -> tuple[int, int]:
-    return _round_binary_significand(left[0] * right[0], left[1] + right[1])
-
-
-def _extended_divide_integer(value: tuple[int, int],
-                             divisor: int) -> tuple[int, int]:
-    """Round an extended binary value divided by a positive integer."""
-    mantissa, exponent = value
-    sign = -1 if mantissa < 0 else 1
-    mantissa = abs(mantissa)
-    shift = max(0, 64 + divisor.bit_length() - mantissa.bit_length() + 2)
-    quotient, remainder = divmod(mantissa << shift, divisor)
-    trim = max(0, quotient.bit_length() - 64)
-    if trim:
-        base = quotient >> trim
-        remainder_numerator = ((quotient - (base << trim)) * divisor
-                               + remainder)
-        halfway = divisor << (trim - 1)
-        if (remainder_numerator > halfway
-                or (remainder_numerator == halfway and base & 1)):
-            base += 1
-        quotient = base
-        exponent = exponent - shift + trim
-    else:
-        if 2 * remainder > divisor or (2 * remainder == divisor
-                                       and quotient & 1):
-            quotient += 1
-        exponent -= shift
-    return _round_binary_significand(sign * quotient, exponent)
-
-
-def _extended_from_float(value: float) -> tuple[int, int]:
-    numerator, denominator = float(value).as_integer_ratio()
-    return numerator, -(denominator.bit_length() - 1)
-
-
-def _extended_to_float(value: tuple[int, int]) -> float:
-    # Conversion of the integer significand to binary64 followed by ldexp
-    # reproduces the x87-extended -> binary64 store, including double rounding.
-    return math.ldexp(float(value[0]), value[1])
-
-
 def _r_count_mean_variance(y: np.ndarray) -> tuple[float, float]:
     """R 4.5/MinGW-compatible mean and sample variance for UMI counts.
 
-    ``stats::var`` accumulates its pairwise path in R's ``LDOUBLE``.  The
-    pinned Windows build uses the x87 64-bit significand, whereas NumPy's
-    Windows ``longdouble`` is binary64.  Exact rational variance is also not
-    equivalent because the final extended-to-double store can double-round.
-    This small integer representation performs the relevant positive x87
-    operations explicitly and is used only for the optimizer start value.
+    The native routine preserves R's x87 ``LDOUBLE`` accumulation and the
+    intermediate binary64 store used by the variance pass.
     """
-    size = len(y)
-    if size < 2:
-        raise ValueError("sample variance requires at least two counts")
-    extended_total = (0, 0)
-    integer_total = 0
-    for value in y:
-        integer = int(value)
-        if float(integer) != float(value):
-            raise ValueError("R compatibility path requires integer counts")
-        integer_total += integer
-        extended_total = _extended_add(
-            extended_total, _extended_from_float(float(integer)))
-    extended_mean = _extended_divide_integer(extended_total, size)
-    mean = integer_total / size
-    squared_total = (0, 0)
-    negative_mean = (-extended_mean[0], extended_mean[1])
-    for value in y:
-        difference = _extended_add(
-            _extended_from_float(float(value)), negative_mean)
-        squared_total = _extended_add(
-            squared_total, _extended_multiply(difference, difference))
-    variance = _extended_to_float(
-        _extended_divide_integer(squared_total, size - 1))
-    return mean, variance
+    from .port_native import count_mean_variance_native
+
+    return count_mean_variance_native(y)
 
 
 def _port_scaled_newton_step(gradient: float, hessian: float,
@@ -709,13 +609,12 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
         })
         return value if return_diagnostics else value[0]
 
-    average, variance = _r_count_mean_variance(y)
-    start_alpha = (variance - average) / (average * average)
-    if not math.isfinite(start_alpha) or start_alpha <= 0.0:
-        start_alpha = 0.5
-    start = min(max(math.log(start_alpha), _LOWER), _UPPER)
+    from .port_native import count_dispersion_start_native
+    start_alpha, start = count_dispersion_start_native(y)
+    start = min(max(start, _LOWER), _UPPER)
 
     stages = []
+    callback_trace = [] if return_diagnostics else None
     final = None
     attempts = (
         ("analytic_hessian_cox_reid", True, True),
@@ -724,34 +623,34 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
     )
     for name, cox_reid, analytic_hessian in attempts:
         objective_options, score_options, derivative_options = options(cox_reid)
-        objective = lambda value, opts=objective_options: -loglikelihood(
-            y, mu, value, **opts)
-        gradient = lambda value, cr=cox_reid: -glmgampoi_score_native(
-            y,
-            mu,
-            (math.exp if exp_function is None else exp_function)(value),
-            cox_reid=cr,
-            table=table,
-        )
+        def objective(value, opts=objective_options, stage=name):
+            result = -loglikelihood(y, mu, value, **opts)
+            if callback_trace is not None:
+                callback_trace.append((stage, "objective", value, result))
+            return result
+
+        def gradient(value, cr=cox_reid, stage=name):
+            result = -glmgampoi_score_native(
+                y, mu,
+                (math.exp if exp_function is None else exp_function)(value),
+                cox_reid=cr, table=table)
+            if callback_trace is not None:
+                callback_trace.append((stage, "gradient", value, result))
+            return result
         hessian = None
         if analytic_hessian:
             def hessian(value, cr=cox_reid, opts=derivative_options):
-                # The installed glmGamPoi binary evaluates its Rcpp scalar
-                # path at moderate alpha with Rtools arithmetic.  At very
-                # small alpha, its cancellation-sensitive Mathlib path is
-                # reproduced more closely by the audited Python ordering.
-                # This boundary is an isolated compatibility experiment and
-                # remains gated by callback traces plus the 128-case suite.
-                if value > -2.0:
-                    return -glmgampoi_score_derivative_native(
-                        y,
-                        mu,
-                        (math.exp if exp_function is None else exp_function)(
-                            value),
-                        cox_reid=cr,
-                        table=table,
-                    )
-                return -score_derivative(y, mu, value, **opts)
+                result = -glmgampoi_score_derivative_native(
+                    y,
+                    mu,
+                    (math.exp if exp_function is None else exp_function)(
+                        value),
+                    cox_reid=cr,
+                    table=table,
+                )
+                if callback_trace is not None:
+                    callback_trace.append((name, "hessian", value, result))
+                return result
         result = minimize_port_native_1d(
             objective,
             gradient,
@@ -788,5 +687,7 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
         "native_library": str(native_library_path()),
         "stages": stages,
     }
+    if callback_trace is not None:
+        diagnostics["callback_trace"] = callback_trace
     value = (alpha, diagnostics)
     return value if return_diagnostics else value[0]

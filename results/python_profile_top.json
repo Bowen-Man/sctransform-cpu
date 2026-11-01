@@ -1,232 +1,242 @@
 {
+  "method": "one unprofiled warm-up, then cProfile around sctransform only",
   "warning": "cProfile perturbs runtime; cumulative rows are nested and must not be added",
-  "profiled_total_calls": 7921140,
-  "profiled_total_seconds": 2.854760599999999,
+  "profiled_total_calls": 3279036,
+  "profiled_primitive_calls": 3278975,
+  "profiled_total_seconds": 0.9135092999999995,
+  "stage_seconds_under_profile": {
+    "input_statistics": 0.008738799951970577,
+    "selection": 0.00015279999934136868,
+    "fit": 0.8859922999981791,
+    "regularization": 0.010493800044059753,
+    "residual_statistics": 0.007912699948064983,
+    "selection_output": 3.990007098764181e-05
+  },
   "top_project_functions": [
     {
       "file": "core.py",
-      "line": 65,
+      "line": 66,
       "function": "sctransform",
       "primitive_calls": 1,
       "total_calls": 1,
-      "self_seconds": 0.0013800000000000002,
-      "cumulative_seconds": 2.0306232
+      "self_seconds": 0.0009083,
+      "cumulative_seconds": 0.9134637000000001
     },
     {
       "file": "fit.py",
-      "line": 44,
+      "line": 45,
       "function": "fit_batch",
       "primitive_calls": 1,
       "total_calls": 1,
-      "self_seconds": 0.0037241,
-      "cumulative_seconds": 1.9848218000000002
+      "self_seconds": 0.0022454000000000003,
+      "cumulative_seconds": 0.8857812
     },
     {
       "file": "r_glmgampoi.py",
-      "line": 632,
+      "line": 532,
       "function": "fit_dispersion_port_native",
       "primitive_calls": 441,
       "total_calls": 441,
-      "self_seconds": 0.010686000000000001,
-      "cumulative_seconds": 1.495614
+      "self_seconds": 0.0075941,
+      "cumulative_seconds": 0.7562804000000001
     },
     {
       "file": "port_native.py",
-      "line": 176,
+      "line": 456,
       "function": "minimize_port_native_1d",
-      "primitive_calls": 464,
-      "total_calls": 464,
-      "self_seconds": 0.0261304,
-      "cumulative_seconds": 0.8191495000000001
-    },
-    {
-      "file": "r_glmgampoi.py",
-      "line": 727,
-      "function": "<lambda>",
-      "primitive_calls": 3748,
-      "total_calls": 3748,
-      "self_seconds": 0.0029597,
-      "cumulative_seconds": 0.5462606
-    },
-    {
-      "file": "r_glmgampoi.py",
-      "line": 241,
-      "function": "loglikelihood",
-      "primitive_calls": 3748,
-      "total_calls": 3748,
-      "self_seconds": 0.019743,
-      "cumulative_seconds": 0.5433009000000001
+      "primitive_calls": 465,
+      "total_calls": 465,
+      "self_seconds": 0.0212477,
+      "cumulative_seconds": 0.5801199
     },
     {
       "file": "r_glmgampoi.py",
       "line": 42,
       "function": "_sequential_sum",
-      "primitive_calls": 13215,
-      "total_calls": 13215,
-      "self_seconds": 0.191285,
-      "cumulative_seconds": 0.4980852
+      "primitive_calls": 11897,
+      "total_calls": 11897,
+      "self_seconds": 0.16206130000000002,
+      "cumulative_seconds": 0.4465813
     },
     {
       "file": "r_glmgampoi.py",
-      "line": 158,
-      "function": "_r_count_mean_variance",
-      "primitive_calls": 440,
-      "total_calls": 440,
-      "self_seconds": 0.10752270000000001,
-      "cumulative_seconds": 0.4894504
-    },
-    {
-      "file": "core.py",
-      "line": 1,
-      "function": "<module>",
-      "primitive_calls": 2,
-      "total_calls": 2,
-      "self_seconds": 0.0002764,
-      "cumulative_seconds": 0.37209230000000004
-    },
-    {
-      "file": "fit.py",
-      "line": 1,
-      "function": "<module>",
-      "primitive_calls": 1,
-      "total_calls": 1,
-      "self_seconds": 1.18e-05,
-      "cumulative_seconds": 0.36323930000000004
-    },
-    {
-      "file": "model.py",
-      "line": 1,
-      "function": "<module>",
-      "primitive_calls": 1,
-      "total_calls": 1,
-      "self_seconds": 9.4e-06,
-      "cumulative_seconds": 0.361821
-    },
-    {
-      "file": "model.py",
-      "line": 68,
-      "function": "intercept_at_overdispersion_r45",
-      "primitive_calls": 882,
-      "total_calls": 882,
-      "self_seconds": 0.2920783,
-      "cumulative_seconds": 0.33805080000000004
+      "line": 626,
+      "function": "objective",
+      "primitive_calls": 3770,
+      "total_calls": 3770,
+      "self_seconds": 0.0022772,
+      "cumulative_seconds": 0.4417691
     },
     {
       "file": "r_glmgampoi.py",
-      "line": 261,
+      "line": 141,
+      "function": "loglikelihood",
+      "primitive_calls": 3770,
+      "total_calls": 3770,
+      "self_seconds": 0.015741,
+      "cumulative_seconds": 0.43949190000000005
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 161,
       "function": "<genexpr>",
-      "primitive_calls": 903268,
-      "total_calls": 903268,
-      "self_seconds": 0.21747840000000002,
-      "cumulative_seconds": 0.2705556
+      "primitive_calls": 908570,
+      "total_calls": 908570,
+      "self_seconds": 0.216038,
+      "cumulative_seconds": 0.2695156
     },
     {
       "file": "r_glmgampoi.py",
-      "line": 83,
-      "function": "_round_binary_significand",
-      "primitive_calls": 245532,
-      "total_calls": 245532,
-      "self_seconds": 0.1282039,
-      "cumulative_seconds": 0.1923844
-    },
-    {
-      "file": "r_glmgampoi.py",
-      "line": 104,
-      "function": "_extended_add",
-      "primitive_calls": 316800,
-      "total_calls": 316800,
-      "self_seconds": 0.0600943,
-      "cumulative_seconds": 0.1775205
-    },
-    {
-      "file": "r_glmgampoi.py",
-      "line": 738,
-      "function": "hessian",
-      "primitive_calls": 2512,
-      "total_calls": 2512,
-      "self_seconds": 0.0015502,
-      "cumulative_seconds": 0.1733618
-    },
-    {
-      "file": "r_glmgampoi.py",
-      "line": 267,
+      "line": 167,
       "function": "score",
       "primitive_calls": 441,
       "total_calls": 441,
-      "self_seconds": 0.056472800000000004,
-      "cumulative_seconds": 0.1286874
+      "self_seconds": 0.0539789,
+      "cumulative_seconds": 0.12282000000000001
     },
     {
       "file": "r_glmgampoi.py",
-      "line": 305,
-      "function": "score_derivative",
-      "primitive_calls": 463,
-      "total_calls": 463,
-      "self_seconds": 0.0353303,
-      "cumulative_seconds": 0.12163510000000001
-    },
-    {
-      "file": "r_glmgampoi.py",
-      "line": 115,
-      "function": "_extended_multiply",
-      "primitive_calls": 105600,
-      "total_calls": 105600,
-      "self_seconds": 0.022800200000000003,
-      "cumulative_seconds": 0.11247620000000001
-    },
-    {
-      "file": "r_glmgampoi.py",
-      "line": 147,
-      "function": "_extended_from_float",
-      "primitive_calls": 211200,
-      "total_calls": 211200,
-      "self_seconds": 0.0564327,
-      "cumulative_seconds": 0.0885978
-    },
-    {
-      "file": "r_glmgampoi.py",
-      "line": 729,
-      "function": "<lambda>",
-      "primitive_calls": 2994,
-      "total_calls": 2994,
-      "self_seconds": 0.0017920000000000002,
-      "cumulative_seconds": 0.06371070000000001
+      "line": 632,
+      "function": "gradient",
+      "primitive_calls": 3014,
+      "total_calls": 3014,
+      "self_seconds": 0.0014537,
+      "cumulative_seconds": 0.059615100000000004
     },
     {
       "file": "port_native.py",
-      "line": 154,
+      "line": 401,
       "function": "glmgampoi_score_native",
-      "primitive_calls": 2994,
-      "total_calls": 2994,
-      "self_seconds": 0.0297005,
-      "cumulative_seconds": 0.06191870000000001
+      "primitive_calls": 3014,
+      "total_calls": 3014,
+      "self_seconds": 0.029418600000000003,
+      "cumulative_seconds": 0.0581614
     },
     {
       "file": "model.py",
-      "line": 43,
+      "line": 39,
       "function": "initial_overdispersion_r45",
       "primitive_calls": 441,
       "total_calls": 441,
-      "self_seconds": 0.0094955,
-      "cumulative_seconds": 0.05407820000000001
+      "self_seconds": 0.009160900000000001,
+      "cumulative_seconds": 0.052018800000000004
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 642,
+      "function": "hessian",
+      "primitive_calls": 2505,
+      "total_calls": 2505,
+      "self_seconds": 0.0011007,
+      "cumulative_seconds": 0.0503071
     },
     {
       "file": "port_native.py",
-      "line": 124,
+      "line": 371,
       "function": "_native_callback_arguments",
-      "primitive_calls": 5043,
-      "total_calls": 5043,
-      "self_seconds": 0.023348900000000002,
-      "cumulative_seconds": 0.052155200000000006
+      "primitive_calls": 5519,
+      "total_calls": 5519,
+      "self_seconds": 0.023416700000000002,
+      "cumulative_seconds": 0.049936400000000006
     },
     {
       "file": "port_native.py",
-      "line": 164,
+      "line": 411,
       "function": "glmgampoi_score_derivative_native",
-      "primitive_calls": 2049,
-      "total_calls": 2049,
-      "self_seconds": 0.029842800000000003,
-      "cumulative_seconds": 0.050176500000000006
+      "primitive_calls": 2505,
+      "total_calls": 2505,
+      "self_seconds": 0.025551300000000002,
+      "cumulative_seconds": 0.049206400000000004
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 21,
+      "function": "_table_if_small",
+      "primitive_calls": 441,
+      "total_calls": 441,
+      "self_seconds": 0.023564,
+      "cumulative_seconds": 0.0370419
+    },
+    {
+      "file": "fit.py",
+      "line": 61,
+      "function": "<genexpr>",
+      "primitive_calls": 106281,
+      "total_calls": 106281,
+      "self_seconds": 0.0243452,
+      "cumulative_seconds": 0.030434500000000003
+    },
+    {
+      "file": "model.py",
+      "line": 24,
+      "function": "matrixstats_refined_mean_r45",
+      "primitive_calls": 882,
+      "total_calls": 882,
+      "self_seconds": 0.0275728,
+      "cumulative_seconds": 0.027904300000000003
+    },
+    {
+      "file": "model.py",
+      "line": 56,
+      "function": "<genexpr>",
+      "primitive_calls": 106281,
+      "total_calls": 106281,
+      "self_seconds": 0.0158567,
+      "cumulative_seconds": 0.021796600000000003
+    },
+    {
+      "file": "r_glmgampoi.py",
+      "line": 119,
+      "function": "_digamma_terms",
+      "primitive_calls": 441,
+      "total_calls": 441,
+      "self_seconds": 0.0019584000000000003,
+      "cumulative_seconds": 0.0160837
+    },
+    {
+      "file": "model.py",
+      "line": 64,
+      "function": "intercept_at_overdispersion_r45",
+      "primitive_calls": 882,
+      "total_calls": 882,
+      "self_seconds": 0.0007276,
+      "cumulative_seconds": 0.014617400000000001
+    },
+    {
+      "file": "r45_mathlib.py",
+      "line": 253,
+      "function": "digamma",
+      "primitive_calls": 2109,
+      "total_calls": 2109,
+      "self_seconds": 0.0007082000000000001,
+      "cumulative_seconds": 0.0138007
+    },
+    {
+      "file": "port_native.py",
+      "line": 222,
+      "function": "fit_beta_one_group_native",
+      "primitive_calls": 882,
+      "total_calls": 882,
+      "self_seconds": 0.0111832,
+      "cumulative_seconds": 0.013576900000000001
+    },
+    {
+      "file": "r45_mathlib.py",
+      "line": 243,
+      "function": "_apply",
+      "primitive_calls": 2109,
+      "total_calls": 2109,
+      "self_seconds": 0.0037115000000000004,
+      "cumulative_seconds": 0.0130925
+    },
+    {
+      "file": "r_compat_stats.py",
+      "line": 82,
+      "function": "regularize_v2_r45",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.00010300000000000001,
+      "cumulative_seconds": 0.0104854
     }
   ]
 }

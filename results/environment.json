@@ -11,5 +11,7 @@
   "r": "4.5.2",
   "sctransform": "0.4.3",
   "glmGamPoi": "1.22.0",
+  "matrixStats": "1.5.0",
+  "native_toolchain": "Rtools45 GCC/GFortran 14.3.0",
   "blas_threads": 1
 }

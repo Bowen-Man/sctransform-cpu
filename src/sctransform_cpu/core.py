@@ -32,6 +32,7 @@ class SCTResult:
     cells: np.ndarray
     intercept: np.ndarray
     theta: np.ndarray
+    slope: np.ndarray
     residual_mean: np.ndarray
     residual_variance: np.ndarray
     hvg_indices: np.ndarray
@@ -47,8 +48,8 @@ class SCTResult:
     diagnostics: dict[str, object] = field(default_factory=dict)
     corrected_umi: sparse.csr_matrix | None = None
     semantics: str = (
-        "R 4.5.2 / sctransform 0.4.3 / glmGamPoi 1.22 compatibility candidate; "
-        "direct unbatched v2 path only"
+        "bit-pinned Windows x64 R 4.5.2 / sctransform 0.4.3 / "
+        "glmGamPoi 1.22.0 / matrixStats 1.5.0; direct unbatched v2 path only"
     )
 
 
@@ -150,7 +151,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
     timing["fit"] = time.perf_counter() - started
 
     started = time.perf_counter()
-    intercept, theta, bandwidth, outliers = regularize_v2_r45(
+    intercept, theta, slope, bandwidth, outliers = regularize_v2_r45(
         log_gmean,
         eligible,
         fit_intercept,
@@ -173,7 +174,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         indices = np.arange(offset, min(offset + cfg.tile_genes, len(genes)))
         dense = matrix[indices].toarray()
         residual, mean, variance = cpu_tile(
-            dense, library, intercept[indices], theta[indices], min_variance, clip,
+            dense, library, intercept[indices], slope[indices], theta[indices], min_variance, clip,
             dtype=np.float64,
         )
         residual_mean[indices], residual_variance[indices] = mean, variance
@@ -184,6 +185,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
                 dense,
                 library,
                 intercept[indices],
+                slope[indices],
                 theta[indices],
                 min_variance,
                 scale_factor=cfg.corrected_scale_factor,
@@ -200,6 +202,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
                 matrix[indices].toarray(),
                 library,
                 intercept[indices],
+                slope[indices],
                 theta[indices],
                 min_variance,
                 clip,
@@ -216,6 +219,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         cells=cells,
         intercept=intercept,
         theta=theta,
+        slope=slope,
         residual_mean=residual_mean,
         residual_variance=residual_variance,
         hvg_indices=hvg,

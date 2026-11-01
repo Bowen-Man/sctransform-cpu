@@ -17,11 +17,11 @@ startup. RSS was sampled every 10 ms and can miss shorter peaks.
 
 | implementation | compute wall median [min, max] | process wall median | CPU median | sampled peak RSS median |
 |---|---:|---:|---:|---:|
-| Python | 0.858 [0.853, 0.860] s | 1.686 s | 0.859 s | 75.5 MiB |
-| R reference | 3.340 [3.320, 3.380] s | 4.451 s | 3.320 s | 732.1 MiB |
+| Python | 0.491 [0.486, 0.497] s | 1.195 s | 0.484 s | 63.2 MiB |
+| R reference | 3.380 [3.370, 3.410] s | 4.512 s | 3.390 s | 731.3 MiB |
 
-On this one small fixture, Python compute was 3.89x faster, fresh-process wall
-was 2.64x faster, and sampled peak RSS was 9.70x lower. These ratios are not
+On this one small fixture, Python compute was 6.88x faster, fresh-process wall
+was 3.78x faster, and sampled peak RSS was 11.58x lower. These ratios are not
 claims about larger datasets or different machines. In particular, R package
 startup and the richer R return object contribute to process wall and RSS.
 
@@ -31,26 +31,27 @@ All predefined pointwise gates passed:
 
 | output | max absolute difference | tolerance failures |
 |---|---:|---:|
-| step-1 intercept | 8.88e-16 | 0 |
-| step-1 theta | 8.63e-5 | 0 |
-| regularized intercept | 1.78e-14 | 0 |
-| regularized theta | 1.48e-8 | 0 |
-| 192,000 Pearson residuals | 3.46e-8 | 0 |
-| residual variance | 1.96e-8 | 0 |
+| step-1 intercept | 0 | 0 |
+| step-1 theta | 0 | 0 |
+| regularized intercept | 0 | 0 |
+| regularized theta | 0 | 0 |
+| 192,000 Pearson residuals | 0 | 0 |
+| residual variance | 0 | 0 |
 
 The outlier mask had zero mismatches, corrected UMI counts were exactly equal,
-and Top-100/200/300 residual-variance feature sets were identical. Residual
-variance Spearman correlation was 0.9999999941.
+the complete residual-variance order was identical and residual-variance
+Spearman correlation was 1.0. The separate raw-binary oracle also reported
+zero bit mismatches for every compared intermediate and output.
 
 ## Profile
 
-Deterministic profiling perturbed Python compute from about 0.86 s to 2.03 s,
+Deterministic profiling perturbed Python compute from about 0.49 s to 0.914 s,
 so profile times must not be mixed into the benchmark. Within the profiled
-pipeline, `fit_batch` consumed 1.985 s cumulative and the 441 native PORT
-dispersion fits consumed 1.496 s cumulative. The nested objective and
-intercept entries cannot be added together. The evidence still identifies
-parameter fitting—not residual generation—as the first optimization target
-for this fixture.
+pipeline, `fit_batch` consumed 0.886 s cumulative and the 441 PORT dispersion
+fits consumed 0.756 s cumulative. Their nested likelihood objectives consumed
+0.442 s cumulative; nested rows cannot be added together. The evidence still
+identifies parameter fitting—not residual generation (~0.008 s under
+profiling)—as the first optimization target for this fixture.
 
 Machine-readable evidence is in `results/benchmark.json`,
 `results/quality.json`, `results/python_profile_top.json` and

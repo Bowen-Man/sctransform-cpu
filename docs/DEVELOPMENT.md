@@ -27,6 +27,8 @@ alternative solver switch or hidden approximate fallback.
 - `benchmarks/compare.py` is the less strict numerical acceptance gate.
 - `benchmarks/run_benchmark.py` measures identical work in fresh Python and R
   subprocesses, including sampled RSS and startup separately from compute.
+- `benchmarks/profile_python.py` performs one warm-up and then profiles only
+  `sctransform`, keeping import, I/O and DLL initialization outside cProfile.
 - `tests/data/solver_stress*` is the stored 128-case dispersion regression.
 - `results/` stores machine-readable evidence; prose reports summarize rather
   than replace it.
@@ -55,31 +57,21 @@ alternative solver switch or hidden approximate fallback.
 
 ## Current bit-identity status
 
-The first binary oracle run on the checked-in 800 x 240 PBMC fixture is red.
-The earlier tolerance gate remains green, but it must not be described as bit
-identity.
+The checked-in 800 x 240 PBMC fixture is green under the pinned Windows
+contract. Every compared value has zero mismatches:
 
-| Value | elements | bit mismatches |
-|---|---:|---:|
-| library size | 240 | 0 |
-| arithmetic mean | 800 | 0 |
-| sample variance | 800 | 0 |
-| log geometric mean | 800 | 1 |
-| step-1 intercept | 441 | 3 |
-| step-1 theta | 441 | 40 |
-| step-1 fixed slope | 441 | 0 |
-| regularized intercept | 800 | 400 |
-| regularized theta | 800 | 439 |
-| regularized slope | 800 | 387 |
-| residual mean | 800 | 800 |
-| residual variance | 800 | 749 |
-| Pearson residual | 192,000 | 177,065 |
-| outlier mask | 441 | 0 |
-| corrected UMI | 192,000 | 0 |
+- library size, offsets and `log_umi`;
+- arithmetic/geometric means and sample variance;
+- glmGamPoi starts, fitted intercept, theta and fixed slope for 441 genes;
+- bandwidth, outlier mask and all regularized parameters;
+- all 192,000 model means, model variances, residual numerators,
+  denominators and Pearson residuals;
+- all residual means and variances, complete HVG order and 192,000 corrected
+  UMI integers;
+- retained genes/cells and ordered fit-gene/fit-cell manifests.
 
-Gene/cell/fit ordering is identical. The complete residual-variance order is
-not bit-identical even though the previously reported Top-100/200/300 sets are
-identical.
+The machine-readable evidence is `results/bit_identity.json`. A passing live
+test also regenerated the oracle with R 4.5.2 rather than reusing that file.
 
 Run the hard gate locally:
 
@@ -88,22 +80,21 @@ $env:SCT_TEST_RSCRIPT = 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe'
 python -m pytest -q tests/test_r_bit_identity.py
 ```
 
-The test is intentionally an ordinary assertion, not an `xfail`. It currently
-fails and will become a required release gate only after every compared field
-passes.
+The test is intentionally an ordinary assertion, not an `xfail`. It is the
+required Windows release gate and fails on the first mismatched bit or title.
 
 ## Remaining work, in order
 
-### P0: pinned Windows bit identity
+### P0: harden the pinned Windows guarantee
 
-1. Make the final log-geometric-mean case use the exact R exponent/log path.
-2. Move the remaining glmGamPoi start, intercept and callback arithmetic into
-   one audited native boundary; 40 theta trajectories still diverge.
-3. Port the exact R/sctransform bandwidth, outlier and `ksmooth` operation
-   order, including the nominally constant slope smoothing.
-4. Match the residual formula and matrixStats reduction order after the model
-   parameters are bit-identical.
-5. Add more binary oracles before treating one PBMC fixture as a guarantee.
+1. Add independent binary oracles covering low-count, Poisson-boundary,
+   clipping and extreme-library cases; one PBMC fixture is a regression gate,
+   not a universal proof.
+2. Build and test Windows wheels for Python 3.10, 3.11, 3.12 and 3.13.
+3. Record compiler, DLL and oracle hashes as release metadata and reproduce
+   the native build in CI.
+4. Exercise different tile sizes and requested output modes against the same
+   full R result.
 
 This guarantee can only be version/platform pinned. Cross-platform bit
 identity is not a reasonable default contract because libm, compiler and

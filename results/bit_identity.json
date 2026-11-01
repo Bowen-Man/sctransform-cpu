@@ -9,17 +9,36 @@
     "cells": 240,
     "r_version": "4.5.2",
     "sctransform_version": "0.4.3",
-    "glmgampoi_version": "1.22.0"
+    "glmgampoi_version": "1.22.0",
+    "matrixstats_version": "1.5.0",
+    "r_platform": "x86_64-w64-mingw32",
+    "r_arch": "x86_64"
   },
   "name_checks": {
     "genes": true,
     "cells": true,
     "fit_genes": true,
     "fit_cells": true,
-    "hvg_order": false
+    "hvg_order": true
   },
   "float_checks": {
     "library": {
+      "elements": 240,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "offset": {
+      "elements": 240,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "log_umi": {
       "elements": 240,
       "bit_mismatches": 0,
       "bit_identical_fraction": 1.0,
@@ -43,95 +62,37 @@
       "first_mismatches": [],
       "passed": true
     },
+    "gmean": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
     "log_gmean": {
       "elements": 800,
-      "bit_mismatches": 1,
-      "bit_identical_fraction": 0.99875,
-      "max_abs_finite": 1.1102230246251565e-15,
-      "first_mismatches": [
-        {
-          "flat_index": 72,
-          "python": -1.0718136688485635,
-          "r": -1.0718136688485647,
-          "python_bits": "0xbff1262616f1c403",
-          "r_bits": "0xbff1262616f1c408"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     },
     "fit_intercept": {
       "elements": 441,
-      "bit_mismatches": 3,
-      "bit_identical_fraction": 0.9931972789115646,
-      "max_abs_finite": 8.881784197001252e-16,
-      "first_mismatches": [
-        {
-          "flat_index": 97,
-          "python": -7.429536625066439,
-          "r": -7.42953662506644,
-          "python_bits": "0xc01db7d872f460d7",
-          "r_bits": "0xc01db7d872f460d8"
-        },
-        {
-          "flat_index": 168,
-          "python": -7.411547475572091,
-          "r": -7.41154747557209,
-          "python_bits": "0xc01da56cb391557e",
-          "r_bits": "0xc01da56cb391557d"
-        },
-        {
-          "flat_index": 378,
-          "python": -7.500533850420594,
-          "r": -7.500533850420593,
-          "python_bits": "0xc01e008bf21863bf",
-          "r_bits": "0xc01e008bf21863be"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     },
     "fit_theta": {
       "elements": 441,
-      "bit_mismatches": 40,
-      "bit_identical_fraction": 0.909297052154195,
-      "max_abs_finite": 8.631312285700687e-05,
-      "first_mismatches": [
-        {
-          "flat_index": 1,
-          "python": 0.25397086346799236,
-          "r": 0.25397086346799286,
-          "python_bits": "0x3fd0410f022ed796",
-          "r_bits": "0x3fd0410f022ed79f"
-        },
-        {
-          "flat_index": 10,
-          "python": 10.812229945378537,
-          "r": 10.812285864471107,
-          "python_bits": "0x40259fdc9a787722",
-          "r_bits": "0x40259fe3eecdd020"
-        },
-        {
-          "flat_index": 11,
-          "python": 0.30185288070303024,
-          "r": 0.30185288070303035,
-          "python_bits": "0x3fd3518ebeb4aa77",
-          "r_bits": "0x3fd3518ebeb4aa79"
-        },
-        {
-          "flat_index": 12,
-          "python": 0.3216018158728708,
-          "r": 0.321601815872873,
-          "python_bits": "0x3fd4951fc860863f",
-          "r_bits": "0x3fd4951fc8608667"
-        },
-        {
-          "flat_index": 31,
-          "python": 0.10087390258607551,
-          "r": 0.1008739021911038,
-          "python_bits": "0x3fb9d2df40a08896",
-          "r_bits": "0x3fb9d2df3eee41ef"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     },
     "fit_slope": {
       "elements": 441,
@@ -141,269 +102,141 @@
       "first_mismatches": [],
       "passed": true
     },
+    "fit_dispersion_par": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_start_log": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_start_alpha": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_count_mean": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "fit_count_variance": {
+      "elements": 441,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
     "intercept": {
       "elements": 800,
-      "bit_mismatches": 400,
-      "bit_identical_fraction": 0.5,
-      "max_abs_finite": 1.7763568394002505e-14,
-      "first_mismatches": [
-        {
-          "flat_index": 0,
-          "python": -7.258432687791574,
-          "r": -7.258432687791589,
-          "python_bits": "0xc01d08a2941920f6",
-          "r_bits": "0xc01d08a294192107"
-        },
-        {
-          "flat_index": 1,
-          "python": -7.835026652857299,
-          "r": -7.835026652857291,
-          "python_bits": "0xc01f57113a153de5",
-          "r_bits": "0xc01f57113a153ddc"
-        },
-        {
-          "flat_index": 3,
-          "python": -8.488153599438709,
-          "r": -8.488153599438713,
-          "python_bits": "0xc020f9ef44c20723",
-          "r_bits": "0xc020f9ef44c20725"
-        },
-        {
-          "flat_index": 4,
-          "python": -7.804752894963687,
-          "r": -7.804752894963679,
-          "python_bits": "0xc01f38112494ebe3",
-          "r_bits": "0xc01f38112494ebda"
-        },
-        {
-          "flat_index": 5,
-          "python": -7.202097114123769,
-          "r": -7.202097114123775,
-          "python_bits": "0xc01ccef28bbf1c3b",
-          "r_bits": "0xc01ccef28bbf1c41"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     },
     "theta": {
       "elements": 800,
-      "bit_mismatches": 439,
-      "bit_identical_fraction": 0.45125000000000004,
-      "max_abs_finite": 1.4839354633977564e-08,
-      "first_mismatches": [
-        {
-          "flat_index": 0,
-          "python": 0.4540915456391041,
-          "r": 0.45409154559869674,
-          "python_bits": "0x3fdd0fd5fc7a3e27",
-          "r_bits": "0x3fdd0fd5fc6f22bd"
-        },
-        {
-          "flat_index": 1,
-          "python": 0.19062561255156302,
-          "r": 0.1906256124256686,
-          "python_bits": "0x3fc8666b89d82ede",
-          "r_bits": "0x3fc8666b8992f8ce"
-        },
-        {
-          "flat_index": 2,
-          "python": 0.8868662577709502,
-          "r": 0.8868662561384779,
-          "python_bits": "0x3fec613558a1ab1b",
-          "r_bits": "0x3fec613557c14d98"
-        },
-        {
-          "flat_index": 3,
-          "python": 0.11099879037338951,
-          "r": 0.11099879039074016,
-          "python_bits": "0x3fbc6a6aae8c9ccd",
-          "r_bits": "0x3fbc6a6aae9fb093"
-        },
-        {
-          "flat_index": 4,
-          "python": 0.19871519501408996,
-          "r": 0.1987151948799354,
-          "python_bits": "0x3fc96f7fdfe6e238",
-          "r_bits": "0x3fc96f7fdf9d21a4"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "bandwidth": {
+      "elements": 1,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "regularized_dispersion_par": {
+      "elements": 800,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     },
     "slope": {
       "elements": 800,
-      "bit_mismatches": 387,
-      "bit_identical_fraction": 0.51625,
-      "max_abs_finite": 1.0658141036401503e-14,
-      "first_mismatches": [
-        {
-          "flat_index": 0,
-          "python": 2.302585092994046,
-          "r": 2.3025850929940472,
-          "python_bits": "0x40026bb1bbb55516",
-          "r_bits": "0x40026bb1bbb55519"
-        },
-        {
-          "flat_index": 1,
-          "python": 2.302585092994046,
-          "r": 2.302585092994044,
-          "python_bits": "0x40026bb1bbb55516",
-          "r_bits": "0x40026bb1bbb55512"
-        },
-        {
-          "flat_index": 2,
-          "python": 2.302585092994046,
-          "r": 2.3025850929940463,
-          "python_bits": "0x40026bb1bbb55516",
-          "r_bits": "0x40026bb1bbb55517"
-        },
-        {
-          "flat_index": 3,
-          "python": 2.302585092994046,
-          "r": 2.302585092994049,
-          "python_bits": "0x40026bb1bbb55516",
-          "r_bits": "0x40026bb1bbb5551d"
-        },
-        {
-          "flat_index": 4,
-          "python": 2.302585092994046,
-          "r": 2.3025850929940432,
-          "python_bits": "0x40026bb1bbb55516",
-          "r_bits": "0x40026bb1bbb55510"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     },
     "residual_mean": {
       "elements": 800,
-      "bit_mismatches": 800,
-      "bit_identical_fraction": 0.0,
-      "max_abs_finite": 6.324403223345598e-10,
-      "first_mismatches": [
-        {
-          "flat_index": 0,
-          "python": 0.033061134293487456,
-          "r": 0.03306113429424607,
-          "python_bits": "0x3fa0ed63951e4e81",
-          "r_bits": "0x3fa0ed63951ff991"
-        },
-        {
-          "flat_index": 1,
-          "python": -0.05829400551967618,
-          "r": -0.058294005519142385,
-          "python_bits": "0xbfadd8b63e850b69",
-          "r_bits": "0xbfadd8b63e83dee9"
-        },
-        {
-          "flat_index": 2,
-          "python": 0.08696223444161326,
-          "r": 0.08696223440892409,
-          "python_bits": "0x3fb6432830e9efb3",
-          "r_bits": "0x3fb6432830c5fe84"
-        },
-        {
-          "flat_index": 3,
-          "python": -0.004770222931579623,
-          "r": -0.004770222932026797,
-          "python_bits": "0xbf7389f0f7c5b02f",
-          "r_bits": "0xbf7389f0f7cd8e14"
-        },
-        {
-          "flat_index": 4,
-          "python": 0.01765237889361967,
-          "r": 0.01765237889782638,
-          "python_bits": "0x3f921377182dc517",
-          "r_bits": "0x3f9213771840456c"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     },
     "residual_variance": {
       "elements": 800,
-      "bit_mismatches": 749,
-      "bit_identical_fraction": 0.06374999999999997,
-      "max_abs_finite": 1.9605450596316132e-08,
-      "first_mismatches": [
-        {
-          "flat_index": 0,
-          "python": 1.7817516647568947,
-          "r": 1.7817516647429983,
-          "python_bits": "0x3ffc820e089b9738",
-          "r_bits": "0x3ffc820e089aa2c0"
-        },
-        {
-          "flat_index": 1,
-          "python": 0.5652811040214971,
-          "r": 0.5652811038712401,
-          "python_bits": "0x3fe216c865da361a",
-          "r_bits": "0x3fe216c865c58f67"
-        },
-        {
-          "flat_index": 2,
-          "python": 2.4557257969629385,
-          "r": 2.4557257953715674,
-          "python_bits": "0x4003a553910f31e2",
-          "r_bits": "0x4003a55390d88409"
-        },
-        {
-          "flat_index": 3,
-          "python": 0.8133098206996233,
-          "r": 0.8133098207300912,
-          "python_bits": "0x3fea06a2512d74c9",
-          "r_bits": "0x3fea06a25131a4c7"
-        },
-        {
-          "flat_index": 4,
-          "python": 1.8294165763415593,
-          "r": 1.8294165761567809,
-          "python_bits": "0x3ffd454a50e25b47",
-          "r_bits": "0x3ffd454a50d5a89f"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     },
     "residual": {
       "elements": 192000,
-      "bit_mismatches": 177065,
-      "bit_identical_fraction": 0.07778645833333331,
-      "max_abs_finite": 3.463094166988867e-08,
-      "first_mismatches": [
-        {
-          "flat_index": 0,
-          "python": -0.3175043357049444,
-          "r": -0.31750433570180675,
-          "python_bits": "0xbfd451fdb48c3862",
-          "r_bits": "0xbfd451fdb48b5b97"
-        },
-        {
-          "flat_index": 1,
-          "python": -0.4086249591846047,
-          "r": -0.40862495917791797,
-          "python_bits": "0xbfda26e94d01bdd7",
-          "r_bits": "0xbfda26e94cffe74e"
-        },
-        {
-          "flat_index": 2,
-          "python": -0.38685989225725104,
-          "r": -0.3868598922515767,
-          "python_bits": "0xbfd8c24ffe584128",
-          "r_bits": "0xbfd8c24ffe56b1dc"
-        },
-        {
-          "flat_index": 3,
-          "python": -0.3665646019359566,
-          "r": -0.366564601931129,
-          "python_bits": "0xbfd775cb604bea91",
-          "r_bits": "0xbfd775cb604a96db"
-        },
-        {
-          "flat_index": 4,
-          "python": -0.1995777597473149,
-          "r": -0.19957775974653488,
-          "python_bits": "0xbfc98bc3978fd42e",
-          "r_bits": "0xbfc98bc3978f6667"
-        }
-      ],
-      "passed": false
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "mu": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "model_variance": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "residual_numerator": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
+    },
+    "residual_denominator": {
+      "elements": 192000,
+      "bit_mismatches": 0,
+      "bit_identical_fraction": 1.0,
+      "max_abs_finite": 0.0,
+      "first_mismatches": [],
+      "passed": true
     }
   },
   "integer_checks": {
@@ -422,5 +255,5 @@
       "passed": true
     }
   },
-  "passed": false
+  "passed": true
 }

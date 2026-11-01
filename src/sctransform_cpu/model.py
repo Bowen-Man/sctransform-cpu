@@ -4,6 +4,8 @@ from __future__ import annotations
 import math
 import numpy as np
 
+from .port_native import fit_beta_one_group_native
+
 
 def r45_offset_from_library(library: np.ndarray) -> np.ndarray:
     """Reproduce ``log(10^log10_umi)`` used by sctransform 0.4.3.
@@ -72,22 +74,4 @@ def intercept_at_overdispersion_r45(y: np.ndarray, offset: np.ndarray,
         raise ValueError("expected aligned one-dimensional y and offset")
     if not math.isfinite(alpha) or alpha < 0.0:
         raise ValueError("overdispersion must be finite and non-negative")
-    beta = float(initial)
-    for _ in range(100):
-        dl = 0.0
-        ddl = 0.0
-        all_zero = True
-        for count_raw, offset_raw in zip(y, offset):
-            count = float(count_raw)
-            all_zero = all_zero and count == 0.0
-            mu = math.exp(beta + float(offset_raw))
-            denominator = 1.0 + mu * alpha
-            dl += (count - mu) / denominator
-            ddl += mu * (1.0 + count * alpha) / denominator / denominator
-        if all_zero:
-            return -math.inf
-        step = dl / ddl
-        beta += step
-        if abs(step) < 1e-8 or math.isnan(beta):
-            break
-    return beta
+    return fit_beta_one_group_native(y, offset, alpha, initial)

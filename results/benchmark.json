@@ -17,54 +17,54 @@
   "summary": {
     "python": {
       "compute_wall_seconds": {
-        "median": 0.8577424999093637,
-        "min": 0.8527094000019133,
-        "max": 0.8599653000710532,
-        "standard_deviation": 0.0030285198347248894
+        "median": 0.4910829000873491,
+        "min": 0.4858877999940887,
+        "max": 0.497323099989444,
+        "standard_deviation": 0.004116887874986837
       },
       "compute_cpu_seconds": {
-        "median": 0.859375,
-        "min": 0.84375,
-        "max": 0.875,
-        "standard_deviation": 0.01307281291459493
+        "median": 0.484375,
+        "min": 0.484375,
+        "max": 0.5,
+        "standard_deviation": 0.00855816496101822
       },
       "process_wall_seconds": {
-        "median": 1.6856488999910653,
-        "min": 1.6663468999322504,
-        "max": 1.7101413999916986,
-        "standard_deviation": 0.01880046671850438
+        "median": 1.1946427000220865,
+        "min": 1.1806029999861494,
+        "max": 1.2195811999263242,
+        "standard_deviation": 0.016298275143608182
       },
       "sampled_peak_rss_bytes": {
-        "median": 79155200,
-        "min": 78659584,
-        "max": 80240640,
-        "standard_deviation": 599155.3420581344
+        "median": 66224128,
+        "min": 66007040,
+        "max": 66494464,
+        "standard_deviation": 199811.76370574383
       }
     },
     "r": {
       "compute_wall_seconds": {
-        "median": 3.34,
-        "min": 3.32,
-        "max": 3.38,
-        "standard_deviation": 0.024899799195977505
+        "median": 3.38,
+        "min": 3.37,
+        "max": 3.41,
+        "standard_deviation": 0.01870828693386978
       },
       "compute_cpu_seconds": {
-        "median": 3.32,
-        "min": 3.28,
-        "max": 3.39,
-        "standard_deviation": 0.040373258476372804
+        "median": 3.39,
+        "min": 3.37,
+        "max": 3.43,
+        "standard_deviation": 0.024083189157584648
       },
       "process_wall_seconds": {
-        "median": 4.451262899907306,
-        "min": 4.439971399959177,
-        "max": 4.489471700042486,
-        "standard_deviation": 0.020678959320550385
+        "median": 4.511814999976195,
+        "min": 4.492080900003202,
+        "max": 4.536861400003545,
+        "standard_deviation": 0.01690863008557926
       },
       "sampled_peak_rss_bytes": {
-        "median": 767655936,
-        "min": 766533632,
-        "max": 767819776,
-        "standard_deviation": 546677.1479138304
+        "median": 766787584,
+        "min": 765988864,
+        "max": 767598592,
+        "standard_deviation": 637224.9237159514
       }
     }
   },
@@ -72,15 +72,15 @@
     "python": [
       {
         "implementation": "sctransform-cpu",
-        "compute_wall_seconds": 0.8598254000535235,
-        "compute_cpu_seconds": 0.875,
+        "compute_wall_seconds": 0.4858877999940887,
+        "compute_cpu_seconds": 0.484375,
         "stage_seconds": {
-          "input_statistics": 0.01188550004735589,
-          "selection": 0.0003000999568030238,
-          "fit": 0.8291610000887886,
-          "regularization": 0.013361499994061887,
-          "residual_statistics": 0.004952699993737042,
-          "selection_output": 3.670004662126303e-05
+          "input_statistics": 0.0050734999822452664,
+          "selection": 0.00017969997134059668,
+          "fit": 0.4641446000896394,
+          "regularization": 0.009171499987132847,
+          "residual_statistics": 0.007079200004227459,
+          "selection_output": 4.130008164793253e-05
         },
         "retained_genes": 800,
         "fitted_genes": 441,
@@ -88,20 +88,20 @@
         "python": "3.12.13",
         "numpy": "2.5.4",
         "scipy": "1.18.1",
-        "process_wall_seconds": 1.6982734999619424,
-        "sampled_peak_rss_bytes": 79155200
+        "process_wall_seconds": 1.1946427000220865,
+        "sampled_peak_rss_bytes": 66224128
       },
       {
         "implementation": "sctransform-cpu",
-        "compute_wall_seconds": 0.8527094000019133,
-        "compute_cpu_seconds": 0.859375,
+        "compute_wall_seconds": 0.4918448000680655,
+        "compute_cpu_seconds": 0.5,
         "stage_seconds": {
-          "input_statistics": 0.011656599934212863,
-          "selection": 0.00024449999909847975,
-          "fit": 0.8223141999915242,
-          "regularization": 0.013272600015625358,
-          "residual_statistics": 0.005067300051450729,
-          "selection_output": 3.739993553608656e-05
+          "input_statistics": 0.00511589995585382,
+          "selection": 0.0001829999964684248,
+          "fit": 0.47022509993985295,
+          "regularization": 0.008986400091089308,
+          "residual_statistics": 0.007156600011512637,
+          "selection_output": 4.549999721348286e-05
         },
         "retained_genes": 800,
         "fitted_genes": 441,
@@ -109,20 +109,20 @@
         "python": "3.12.13",
         "numpy": "2.5.4",
         "scipy": "1.18.1",
-        "process_wall_seconds": 1.6663468999322504,
-        "sampled_peak_rss_bytes": 80240640
+        "process_wall_seconds": 1.1847151999827474,
+        "sampled_peak_rss_bytes": 66035712
       },
       {
         "implementation": "sctransform-cpu",
-        "compute_wall_seconds": 0.8558990999590605,
-        "compute_cpu_seconds": 0.84375,
+        "compute_wall_seconds": 0.4910829000873491,
+        "compute_cpu_seconds": 0.484375,
         "stage_seconds": {
-          "input_statistics": 0.011372999986633658,
-          "selection": 0.00024279998615384102,
-          "fit": 0.82507020002231,
-          "regularization": 0.01355949998833239,
-          "residual_statistics": 0.00547450000885874,
-          "selection_output": 3.729993477463722e-05
+          "input_statistics": 0.005250499933026731,
+          "selection": 0.00020560005214065313,
+          "fit": 0.4683966999873519,
+          "regularization": 0.009707799996249378,
+          "residual_statistics": 0.007368299993686378,
+          "selection_output": 4.369998350739479e-05
         },
         "retained_genes": 800,
         "fitted_genes": 441,
@@ -130,20 +130,20 @@
         "python": "3.12.13",
         "numpy": "2.5.4",
         "scipy": "1.18.1",
-        "process_wall_seconds": 1.7101413999916986,
-        "sampled_peak_rss_bytes": 78942208
+        "process_wall_seconds": 1.208356500021182,
+        "sampled_peak_rss_bytes": 66007040
       },
       {
         "implementation": "sctransform-cpu",
-        "compute_wall_seconds": 0.8599653000710532,
-        "compute_cpu_seconds": 0.875,
+        "compute_wall_seconds": 0.4899138000328094,
+        "compute_cpu_seconds": 0.484375,
         "stage_seconds": {
-          "input_statistics": 0.011374399997293949,
-          "selection": 0.0002788000274449587,
-          "fit": 0.8298434000462294,
-          "regularization": 0.013398299925029278,
-          "residual_statistics": 0.004914500052109361,
-          "selection_output": 3.5100034438073635e-05
+          "input_statistics": 0.005328899947926402,
+          "selection": 0.0002133999951183796,
+          "fit": 0.4678750999737531,
+          "regularization": 0.009226300055161119,
+          "residual_statistics": 0.007130999932996929,
+          "selection_output": 4.120008088648319e-05
         },
         "retained_genes": 800,
         "fitted_genes": 441,
@@ -151,20 +151,20 @@
         "python": "3.12.13",
         "numpy": "2.5.4",
         "scipy": "1.18.1",
-        "process_wall_seconds": 1.6856488999910653,
-        "sampled_peak_rss_bytes": 79196160
+        "process_wall_seconds": 1.2195811999263242,
+        "sampled_peak_rss_bytes": 66494464
       },
       {
         "implementation": "sctransform-cpu",
-        "compute_wall_seconds": 0.8577424999093637,
-        "compute_cpu_seconds": 0.859375,
+        "compute_wall_seconds": 0.497323099989444,
+        "compute_cpu_seconds": 0.5,
         "stage_seconds": {
-          "input_statistics": 0.011301500024273992,
-          "selection": 0.00021059997379779816,
-          "fit": 0.8272128999233246,
-          "regularization": 0.013430000049993396,
-          "residual_statistics": 0.005420499946922064,
-          "selection_output": 3.870006185024977e-05
+          "input_statistics": 0.005168900010176003,
+          "selection": 0.00018319999799132347,
+          "fit": 0.47508500004187226,
+          "regularization": 0.009257299941964447,
+          "residual_statistics": 0.007460099994204938,
+          "selection_output": 4.1800085455179214e-05
         },
         "retained_genes": 800,
         "fitted_genes": 441,
@@ -172,40 +172,14 @@
         "python": "3.12.13",
         "numpy": "2.5.4",
         "scipy": "1.18.1",
-        "process_wall_seconds": 1.6688499000156298,
-        "sampled_peak_rss_bytes": 78659584
+        "process_wall_seconds": 1.1806029999861494,
+        "sampled_peak_rss_bytes": 66293760
       }
     ],
     "r": [
       {
         "implementation": "sctransform::vst",
-        "compute_wall_seconds": 3.35,
-        "compute_cpu_seconds": 3.31,
-        "retained_genes": 800,
-        "fitted_genes": 441,
-        "fitted_cells": 240,
-        "r_version": "4.5.2",
-        "sctransform_version": "0.4.3",
-        "glmgampoi_version": "1.22.0",
-        "process_wall_seconds": 4.444590699975379,
-        "sampled_peak_rss_bytes": 767819776
-      },
-      {
-        "implementation": "sctransform::vst",
-        "compute_wall_seconds": 3.32,
-        "compute_cpu_seconds": 3.33,
-        "retained_genes": 800,
-        "fitted_genes": 441,
-        "fitted_cells": 240,
-        "r_version": "4.5.2",
-        "sctransform_version": "0.4.3",
-        "glmgampoi_version": "1.22.0",
-        "process_wall_seconds": 4.471366399899125,
-        "sampled_peak_rss_bytes": 767655936
-      },
-      {
-        "implementation": "sctransform::vst",
-        "compute_wall_seconds": 3.38,
+        "compute_wall_seconds": 3.37,
         "compute_cpu_seconds": 3.39,
         "retained_genes": 800,
         "fitted_genes": 441,
@@ -213,34 +187,60 @@
         "r_version": "4.5.2",
         "sctransform_version": "0.4.3",
         "glmgampoi_version": "1.22.0",
-        "process_wall_seconds": 4.489471700042486,
-        "sampled_peak_rss_bytes": 766533632
+        "process_wall_seconds": 4.521114300005138,
+        "sampled_peak_rss_bytes": 766525440
       },
       {
         "implementation": "sctransform::vst",
-        "compute_wall_seconds": 3.32,
-        "compute_cpu_seconds": 3.28,
+        "compute_wall_seconds": 3.38,
+        "compute_cpu_seconds": 3.38,
         "retained_genes": 800,
         "fitted_genes": 441,
         "fitted_cells": 240,
         "r_version": "4.5.2",
         "sctransform_version": "0.4.3",
         "glmgampoi_version": "1.22.0",
-        "process_wall_seconds": 4.439971399959177,
-        "sampled_peak_rss_bytes": 767082496
+        "process_wall_seconds": 4.492080900003202,
+        "sampled_peak_rss_bytes": 765988864
       },
       {
         "implementation": "sctransform::vst",
-        "compute_wall_seconds": 3.34,
-        "compute_cpu_seconds": 3.32,
+        "compute_wall_seconds": 3.41,
+        "compute_cpu_seconds": 3.41,
         "retained_genes": 800,
         "fitted_genes": 441,
         "fitted_cells": 240,
         "r_version": "4.5.2",
         "sctransform_version": "0.4.3",
         "glmgampoi_version": "1.22.0",
-        "process_wall_seconds": 4.451262899907306,
-        "sampled_peak_rss_bytes": 767729664
+        "process_wall_seconds": 4.511814999976195,
+        "sampled_peak_rss_bytes": 767311872
+      },
+      {
+        "implementation": "sctransform::vst",
+        "compute_wall_seconds": 3.38,
+        "compute_cpu_seconds": 3.37,
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "r_version": "4.5.2",
+        "sctransform_version": "0.4.3",
+        "glmgampoi_version": "1.22.0",
+        "process_wall_seconds": 4.504642700077966,
+        "sampled_peak_rss_bytes": 766787584
+      },
+      {
+        "implementation": "sctransform::vst",
+        "compute_wall_seconds": 3.41,
+        "compute_cpu_seconds": 3.43,
+        "retained_genes": 800,
+        "fitted_genes": 441,
+        "fitted_cells": 240,
+        "r_version": "4.5.2",
+        "sctransform_version": "0.4.3",
+        "glmgampoi_version": "1.22.0",
+        "process_wall_seconds": 4.536861400003545,
+        "sampled_peak_rss_bytes": 767598592
       }
     ]
   },

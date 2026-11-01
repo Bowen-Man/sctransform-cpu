@@ -91,7 +91,7 @@ def main():
         "step1_slope": compare(np.full(len(fit), np.log(10.0)), values(fit, "log_umi"), "slope"),
         "regularized_intercept": compare(result.intercept, values(all_genes, "(Intercept)"), "intercept"),
         "regularized_theta": compare(result.theta, values(all_genes, "theta"), "theta"),
-        "regularized_slope": compare(np.full(len(all_genes), np.log(10.0)), values(all_genes, "log_umi"), "slope"),
+        "regularized_slope": compare(result.slope, values(all_genes, "log_umi"), "slope"),
         "residual": compare(result.residuals, r_residual, "residual"),
         "residual_variance": compare(result.residual_variance, r_variance, "residual_variance"),
     }
@@ -112,7 +112,7 @@ def main():
               and all(item["passed"] for item in hvg.values()))
     payload = {
         "scope": "PBMC3K-derived 800 gene x 240 cell direct unbatched v2 path",
-        "reference": "R 4.5.2, sctransform 0.4.3, glmGamPoi 1.22.0",
+        "reference": "R 4.5.2, sctransform 0.4.3, glmGamPoi 1.22.0, matrixStats 1.5.0",
         "retained_genes": len(result.genes),
         "fitted_genes": len(result.fit_gene_indices),
         "fitted_cells": len(result.fit_cell_indices),

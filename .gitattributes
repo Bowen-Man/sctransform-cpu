@@ -7,6 +7,7 @@
 *.toml text eol=lf
 *.ps1 text eol=crlf
 *.c text eol=lf
+*.cpp text eol=lf
 *.npz binary
 *.dll binary
 src/sctransform_cpu/native/portsrc.f -text

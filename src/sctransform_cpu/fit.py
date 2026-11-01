@@ -11,6 +11,7 @@ from .model import (
     r45_offset_from_library,
 )
 from .r_glmgampoi import fit_dispersion_port_native
+from .port_native import make_mu_native
 
 
 def _local_dispersion_trend(expression: np.ndarray, alpha: np.ndarray) -> np.ndarray:
@@ -64,11 +65,7 @@ def fit_batch(counts: np.ndarray, library: np.ndarray,
         beta0 = math.log(matrixstats_refined_mean_r45(normalized))
         beta = intercept_at_overdispersion_r45(row, offset, initial_alpha, beta0)
         initial_beta[index] = beta
-        mu = np.fromiter(
-            (math.exp(float(beta) + float(off)) for off in offset),
-            dtype=np.float64,
-            count=len(offset),
-        )
+        mu = make_mu_native(beta, offset)
         alpha[index] = fit_dispersion_port_native(row, mu, use_r45_mathlib=True)
         expression[index] = mu.mean()
 

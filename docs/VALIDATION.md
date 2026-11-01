@@ -2,12 +2,16 @@
 
 ## Bit identity versus numerical acceptance
 
-Version 0.1.0 passed the numerical gates below; it did **not** pass exact
-IEEE-754 bit identity. A new binary oracle avoids CSV round-tripping and
-compares every float as `uint64`, corrected counts/outliers as `int32`, and
-all ordered titles. The first run is recorded in `results/bit_identity.json`
-and currently fails. See `DEVELOPMENT.md` for the mismatch breakdown and
-remediation order.
+The strict oracle avoids CSV round-tripping and compares every float as
+`uint64`, corrected counts/outliers as `int32`, and all ordered titles. The
+checked-in run in `results/bit_identity.json` passes with zero mismatches.
+A live integration test also creates a new oracle with R and compares it in a
+temporary directory, so the gate is not limited to a stored result.
+
+The exact guarantee is pinned to Windows x64, R 4.5.2, sctransform 0.4.3,
+glmGamPoi 1.22.0, matrixStats 1.5.0 and the Rtools45 floating-point behavior.
+Cross-platform builds retain the numerical acceptance contract below until
+they have their own binary oracles.
 
 The acceptance tolerances are explicit engineering gates, not universal
 biological error bounds:
@@ -33,3 +37,14 @@ Limitations remain explicit: only the direct unbatched path is covered;
 implicit cross-language sampling, additional covariates, complete Seurat
 post-processing, other R/package versions and non-Windows builds require
 separate gates.
+
+Run the stored oracle and then regenerate it live:
+
+```powershell
+& 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe' `
+  benchmarks/bit_reference.R benchmark_data build/bit_oracle
+python benchmarks/bit_identity.py benchmark_data build/bit_oracle `
+  results/bit_identity.json --enforce
+$env:SCT_TEST_RSCRIPT = 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe'
+python -m pytest -q tests/test_r_bit_identity.py
+```

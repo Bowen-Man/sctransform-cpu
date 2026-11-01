@@ -8,6 +8,7 @@ $source = Join-Path $root 'src\sctransform_cpu\native'
 $toolBin = Join-Path $RtoolsHome 'x86_64-w64-mingw32.static.posix\bin'
 $toolUsr = Join-Path $RtoolsHome 'usr\bin'
 $gcc = Join-Path $toolBin 'gcc.exe'
+$gxx = Join-Path $toolBin 'g++.exe'
 $gfortran = Join-Path $toolBin 'gfortran.exe'
 $build = Join-Path $root 'build\native'
 $output = Join-Path $source 'sct_port_r45.dll'
@@ -30,11 +31,15 @@ try {
             -o (Join-Path $build ($name -replace '\.c$', '.o'))
         if ($LASTEXITCODE) { throw "$name compilation failed" }
     }
+    & $gxx -O2 -Wall -std=gnu++17 -mfpmath=sse -msse2 -mstackrealign -c `
+        (Join-Path $source 'rcpp_compat.cpp') -o (Join-Path $build 'rcpp_compat.o')
+    if ($LASTEXITCODE) { throw 'rcpp_compat.cpp compilation failed' }
     & $gfortran -shared -o $output `
         (Join-Path $build 'portsrc.o') `
         (Join-Path $build 'port_standalone.o') `
         (Join-Path $build 'r45_mathlib_subset.o') `
         (Join-Path $build 'glmgampoi_compat.o') `
+        (Join-Path $build 'rcpp_compat.o') `
         -static-libgfortran -static-libgcc
     if ($LASTEXITCODE) { throw 'link failed' }
 } finally {
