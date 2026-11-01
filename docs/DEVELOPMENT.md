@@ -97,7 +97,9 @@ end-to-end live gate is strict, not skipped or tolerance-based.
 1. Add independent binary oracles covering low-count, Poisson-boundary,
    clipping and extreme-library cases; one PBMC fixture is a regression gate,
    not a universal proof.
-2. Build and test Windows and Linux wheels for Python 3.10 through 3.13.
+2. Extend the strict live R gate beyond Python 3.12. Functional wheel CI now
+   covers Python 3.10 through 3.13 on Windows and Linux, but that is not itself
+   evidence of bit identity.
 3. Record compiler, DLL and oracle hashes as release metadata and reproduce
    the native build in CI.
 4. Exercise different tile sizes and requested output modes against the same
@@ -117,7 +119,6 @@ cross-platform byte stream is not the contract.
 
 ### P2: packaging and scale
 
-- Python 3.10, 3.11 and 3.13 Windows wheels;
 - macOS and additional Linux distribution builds with their own gates;
 - PBMC10K/30K and controlled larger scaling, peak allocation timelines and
   thread-scaling measurements;
