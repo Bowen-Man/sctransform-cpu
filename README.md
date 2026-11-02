@@ -1,14 +1,17 @@
 # sctransform-cpu
 
-An R-free, Python-first implementation of SCTransform v2, built around a
-strictly validated CPU reference. The long-term goal is a complete Python SCT
-v2 implementation with an optional GPU backend that interoperates naturally
-with AnnData, CuPy and the RAPIDS single-cell ecosystem.
+An installable, R-free-runtime implementation of the validated SCTransform v2
+CPU paths. This repository records the **preliminary reference work** for a
+separate native Python CPU/GPU implementation: source auditing, exact oracle
+construction, numerical edge cases, packaging and the first CPU performance
+evidence.
 
-The current development version is the correctness-first CPU foundation. It
-does **not** yet contain a GPU backend, and it covers a narrower contract than
-the complete official R workflow. Correctness coverage and CPU performance
-must be closed and measured before a GPU execution design is selected.
+It is also usable software today. The v0.4.0 wheels run the documented SCT v2
+contract without an R installation. On the checked 800 x 240 PBMC3K-derived
+fixture, Python compute was 6.88x faster than the pinned Windows R reference
+and 15.46x faster in the pinned Linux run, with about 10--12x lower sampled
+peak RSS. These are fixture- and machine-specific measurements, not universal
+speedup claims; see the [benchmark report](docs/BENCHMARK_REPORT.md).
 
 The public API and pipeline orchestration are Python/NumPy/SciPy. Bundled
 Windows x64 (`.dll`) and Linux x86_64 (`.so`) compatibility libraries
@@ -17,21 +20,16 @@ arithmetic where ordinary NumPy/SciPy evaluation differs by a few bits.
 **R is not a runtime dependency.** The package is a native-backed Python
 implementation, not an all-Python numerical reimplementation.
 
-## Project direction
+## Repository role
 
-Development follows three gated phases:
-
-1. **R alignment:** reproduce the targeted `sctransform::vst` v2 statistical
-   paths, sampling decisions, outputs and edge cases against pinned live R
-   oracles.
-2. **CPU implementation and optimization:** establish scaling profiles, then
-   optimize only measured hotspots while preserving the reference gates.
-3. **RAPIDS-compatible GPU backend:** design the backend and dataflow from the
-   completed CPU evidence, including transfer, sparse/dense and VRAM costs.
-
-The GPU phase will not assume that CuPy, Triton, CUDA C++ or whole-pipeline GPU
-execution is automatically best. See the explicit [project roadmap](docs/ROADMAP.md)
-and current [development rules](docs/DEVELOPMENT.md).
+This GPL repository remains the exact CPU reference, live-R oracle harness and
+reproducible baseline. It will receive correctness, compatibility, packaging
+and security maintenance, but it is not the production home for the future
+MIT-compatible AnnData/CuPy/RAPIDS backend. That implementation will be
+developed independently from the published mathematics and black-box
+contracts; no R/Fortran runtime or build dependency from this package will be
+carried into it. See the [reference status](docs/REFERENCE_STATUS.md) and
+[maintenance roadmap](docs/ROADMAP.md).
 
 ## Validated scope
 
@@ -68,24 +66,21 @@ and [development rules](docs/DEVELOPMENT.md).
 
 ## Install
 
-The v0.3.0 release wheels support the validated default design on Windows x64
-and Linux x86_64. Install the wheel for your platform directly from that
-versioned GitHub release:
+The v0.4.0 release wheels support the complete validated contract listed
+above on Windows x64 and Linux x86_64. Install the wheel for your platform
+directly from that versioned GitHub release:
 
 ```powershell
-python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/download/v0.3.0/sctransform_cpu-0.3.0-py3-none-win_amd64.whl"
+python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/download/v0.4.0/sctransform_cpu-0.4.0-py3-none-win_amd64.whl"
 ```
 
 ```bash
-python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/download/v0.3.0/sctransform_cpu-0.3.0-py3-none-linux_x86_64.whl"
+python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/download/v0.4.0/sctransform_cpu-0.4.0-py3-none-linux_x86_64.whl"
 ```
 
-The numeric-covariate and categorical-batch paths described below are in the
-unreleased development version; clone the repository and run
-`python -m pip install -e .` to use them before the next tagged release. The
-project is not yet published on PyPI, so `pip install sctransform-cpu` is not
-currently a supported command. R is needed only to regenerate the correctness
-oracle; it is never imported or invoked at runtime.
+The project is not published on PyPI, so `pip install sctransform-cpu` without
+the release URL is not currently supported. R is needed only to regenerate the
+correctness oracle; it is never imported or invoked at runtime.
 
 | Platform | functional CI | strict bit-identity environment |
 |---|---|---|

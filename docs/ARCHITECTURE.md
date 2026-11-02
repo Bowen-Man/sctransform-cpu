@@ -1,5 +1,9 @@
 # Architecture
 
+This is the native-backed GPL reference architecture completed by v0.4.0. It
+is preliminary work for a separate clean CPU/GPU implementation, not the
+architecture that the future RAPIDS contribution must inherit.
+
 ```text
 raw gene x cell UMI CSR
   -> library size before filtering

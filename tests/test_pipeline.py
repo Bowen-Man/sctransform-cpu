@@ -7,7 +7,7 @@ from sctransform_cpu import SCTConfig, __version__, sctransform
 
 
 def test_installed_metadata_version():
-    assert __version__ == "0.3.0"
+    assert __version__ == "0.4.0"
 
 
 def test_cpu_pipeline_is_deterministic_and_float64():

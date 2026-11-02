@@ -98,43 +98,18 @@ Windows-only stored 128-case solver oracle remains explicitly skipped there;
 it is not valid evidence for a different libc/compiler contract. The Linux
 end-to-end live gate is strict, not skipped or tolerance-based.
 
-## Remaining work, in order
+## Maintenance boundary
 
-### P0: harden both pinned guarantees
+Version 0.4.0 closes the preliminary reference phase. Changes here must be
+limited to correctness regressions, platform contracts, provenance,
+packaging, security, oracle tooling and documentation. Unsupported historical
+SCT/Seurat branches stay explicit instead of being approximated.
 
-1. Add independent binary oracles covering low-count, Poisson-boundary,
-   clipping and extreme-library cases; one PBMC fixture is a regression gate,
-   not a universal proof.
-2. Extend the strict live R gate beyond Python 3.12. Functional wheel CI now
-   covers Python 3.10 through 3.13 on Windows and Linux, but that is not itself
-   evidence of bit identity.
-3. Record compiler, DLL and oracle hashes as release metadata and reproduce
-   the native build in CI.
-4. Exercise different tile sizes and requested output modes against the same
-   full R result.
+Broad scaling, alternative CPU algorithms, AnnData integration, CuPy/RMM,
+async execution and GPU kernels belong in the separate MIT-compatible native
+implementation. Code must not be copied from this GPL/native compatibility
+layer into that project.
 
-The guarantee can only be version/platform pinned. The Linux implementation
-uses platform `exp`, `pow`, `lgamma`, `sqrt` and `log10` where the official
-Linux packages do; Windows retains Rtools-specific arithmetic. One universal
-cross-platform byte stream is not the contract.
-
-### P1: statistical feature coverage
-
-- exact independent R RNG/density-weighted sampling, including ties;
-- explicit factor-level/contrast control beyond the current string-batch path;
-- complete Seurat-facing output semantics;
-- more real datasets, extreme libraries, Poisson boundaries and rare counts.
-
-### P2: packaging and scale
-
-- macOS and additional Linux distribution builds with their own gates;
-- PBMC10K/30K and controlled larger scaling, peak allocation timelines and
-  thread-scaling measurements;
-- AnnData/Scanpy integration without changing the core matrix contract.
-
-### P3: optimization backends
-
-Only after P0/P1 gates are explicit: vectorized/native CPU callbacks,
-streamed residual reductions, then evidence-driven GPU prototypes. Current
-profiling identifies per-gene fitting as the first CPU hotspot; it does not
-yet justify moving the whole pipeline to GPU.
+The guarantee remains version/platform pinned. Linux uses the platform math
+paths used by its official packages; Windows retains Rtools-specific
+arithmetic. One universal cross-platform byte stream is not the contract.
