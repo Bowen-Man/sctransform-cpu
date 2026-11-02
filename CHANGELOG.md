@@ -19,6 +19,9 @@ while its validated statistical contract remains explicitly version-pinned.
 - Add regularized numeric covariates and one categorical batch variable with
   strict same-platform R gates for fitted parameters, regularization,
   outliers, Pearson residuals and residual statistics.
+- Add finite-theta non-regularized GLMs and corrected UMI for supported
+  general designs, with strict Windows/Linux R gates and explicit failure for
+  the official `theta=Inf` incompatibility.
 
 ## 0.3.0 - 2026-11-02
 

@@ -226,6 +226,17 @@ def _load_library() -> ctypes.CDLL:
         double_pointer, ctypes.c_int, double_pointer, double_pointer,
     ]
     library.sct_general_mu.restype = None
+    library.sct_general_linear.argtypes = [
+        double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, ctypes.c_int, double_pointer,
+    ]
+    library.sct_general_linear.restype = None
+    library.sct_nonreg_fit.argtypes = [
+        double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, ctypes.c_int, double_pointer, double_pointer,
+        double_pointer,
+    ]
+    library.sct_nonreg_fit.restype = ctypes.c_int
     library.sct_general_cr_logdet.argtypes = [
         double_pointer, ctypes.c_int, ctypes.c_int,
         double_pointer, ctypes.c_double,
@@ -598,6 +609,46 @@ def general_mu_native(beta, design, offsets) -> np.ndarray:
         coefficients.ctypes.data_as(pointer), coefficients.shape[0],
         coefficients.shape[1], x.ctypes.data_as(pointer), x.shape[0],
         off.ctypes.data_as(pointer), result.ctypes.data_as(pointer))
+    return result
+
+
+def general_linear_native(beta, design) -> np.ndarray:
+    """Evaluate the pinned Armadillo ``tcrossprod`` expression."""
+    coefficients = np.ascontiguousarray(beta, dtype=np.float64)
+    x = np.ascontiguousarray(design, dtype=np.float64)
+    if (coefficients.ndim != 2 or x.ndim != 2
+            or coefficients.shape[1] != x.shape[1]):
+        raise ValueError("unaligned general-design linear predictor inputs")
+    result = np.empty((coefficients.shape[0], x.shape[0]), dtype=np.float64)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    _load_library().sct_general_linear(
+        coefficients.ctypes.data_as(pointer), coefficients.shape[0],
+        coefficients.shape[1], x.ctypes.data_as(pointer), x.shape[0],
+        result.ctypes.data_as(pointer))
+    return result
+
+
+def nonreg_fit_native(counts, design, offsets, theta) -> np.ndarray:
+    """Fit the pinned fixed-theta ``stats::glm`` non-regularized stage."""
+    y = np.ascontiguousarray(counts, dtype=np.float64)
+    x = np.ascontiguousarray(design, dtype=np.float64)
+    off = np.ascontiguousarray(offsets, dtype=np.float64)
+    theta_array = np.ascontiguousarray(theta, dtype=np.float64)
+    if (y.ndim != 2 or x.ndim != 2 or x.shape[0] != y.shape[1]
+            or off.shape != y.shape
+            or theta_array.shape != (y.shape[0],)):
+        raise ValueError("unaligned non-regularized fit inputs")
+    result = np.empty((y.shape[0], x.shape[1]), dtype=np.float64)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    status = int(_load_library().sct_nonreg_fit(
+        y.ctypes.data_as(pointer), y.shape[0], y.shape[1],
+        x.ctypes.data_as(pointer), x.shape[1], off.ctypes.data_as(pointer),
+        theta_array.ctypes.data_as(pointer), result.ctypes.data_as(pointer)))
+    if status == 4:
+        raise ValueError(
+            "latent_variables_nonreg cannot fit a non-finite regularized theta")
+    if status:
+        raise RuntimeError(f"non-regularized GLM fitting failed ({status})")
     return result
 
 

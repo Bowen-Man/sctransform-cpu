@@ -74,7 +74,7 @@ returned object.
 | `cell_attr` | created/validated by `make_cell_attr`; may supply arbitrary requested covariates | finite numeric covariates and one string batch vector **implemented** |
 | `latent_var` | default `log_umi`; additional variables enter the design | `log_umi` plus numeric regularized variables **implemented** |
 | `batch_var` | factorized; formula becomes `(latent):batch + batch + 0` | one categorical batch variable **implemented** |
-| `latent_var_nonreg` | fitted after regularization and appended to final design | **missing** |
+| `latent_var_nonreg` | fixed-theta GLM after regularization; appended to the final residual design | **implemented** when every final theta is finite; official theta=Inf failure is reproduced |
 | `n_genes` | default 2,000; inverse-density sample when fewer than eligible genes | R 4.5 RNG and density sampler **implemented**, live-R selection gate required |
 | `n_cells` | null becomes 2,000 under v2; uniform sample without replacement | R 4.5 RNG sampler **implemented** |
 | `method` | v2 selects `glmGamPoi_offset`, fallback `nb_offset` | pinned glmGamPoi offset path **implemented**; fallback **missing** |
@@ -86,7 +86,7 @@ returned object.
 | `residual_type` | `pearson`, `deviance`, or `none` | Pearson **implemented**; other branches **missing** |
 | `return_cell_attr` | removes `cell_attr` when false | compact result has no cell attributes |
 | `return_gene_attr` | detection rate, gmean, amean, variance and residual summaries | **implemented** in `SCTResult.to_vst_dict()` |
-| `return_corrected_umi` | only with Pearson residuals; rounded positive sparse counts | **implemented** for targeted path |
+| `return_corrected_umi` | only with Pearson residuals; rounded positive sparse counts | **implemented** for default and supported general designs |
 | `min_variance` | v2 default `umi_median`; also numeric, `model_mean`, `model_median` | `umi_median` **implemented** |
 | `bw_adjust` | scales `bw.SJ` during cross-gene smoothing | **implemented** |
 | `gmean_eps` | default 1 in sparse geometric mean | fixed value 1 **implemented** |
@@ -96,7 +96,7 @@ returned object.
 | `use_geometric_mean` | controls abundance coordinate for sampling/smoothing | true **implemented** |
 | `use_geometric_mean_offset` | affects fixed-parameter branches | false only |
 | `fix_intercept`, `fix_slope` | affect non-offset/general fitting paths | not exposed; v2 offset slope is fixed by its own fitting function |
-| `scale_factor` | corrected-count target depth; NA uses median UMI | default and numeric scale factor **implemented** |
+| `scale_factor` | correction replaces regularized latent variables by medians; numeric value overrides `log_umi` | default and numeric scale factor **implemented** |
 | `vst.flavor` | `"v2"` performs the rewrite above | fixed to v2 |
 | `verbosity` | messages/progress only | deliberately omitted from numerical core |
 
@@ -188,6 +188,22 @@ reproduces global dispersion smoothing plus batch-specific abundance
 coordinates and coefficient smoothing. Its live oracle compares the complete
 parameter and residual bit patterns rather than only the selected features.
 
+## Non-regularized fixed-theta stage
+
+After regularization, `get_model_pars_nonreg` fits every retained gene with
+`stats::glm` and `MASS::negative.binomial(theta=...)`. The regularized linear
+predictor is passed as an offset; only the requested non-regularized design is
+estimated. The final residual predictor concatenates the regularized and
+non-regularized matrices and coefficients. Python reproduces the narrow
+full-rank `dqrdc2`/`dqrsl` operation order needed by this path and preserves
+the platform-specific `exp` and `sqrt` paths used by IRLS.
+
+This official branch has a real limitation: `negative.binomial(theta=Inf)`
+cannot produce valid starting values. The pinned unbatched fixture therefore
+fails in official R when Poisson regularization creates infinite theta. Python
+raises instead of silently replacing the model. The batch fixture has finite
+theta and is binary-identical on both validated platforms.
+
 ## Residual and corrected-count contract
 
 For Pearson output:
@@ -206,8 +222,10 @@ retaining the full matrix.
 
 The Python `output="hvg"` path similarly computes tiled statistics and only
 materializes selected rows. `output="full"` is required for the R-like return
-adapter. Corrected counts are reconstructed from Pearson residuals, clipped
-to nonnegative values, rounded, and returned sparse.
+adapter. Corrected counts use the **unclipped** final-model residual. The target
+predictor replaces regularized numeric covariates with their medians, retains
+batch membership, and excludes nonreg coefficients so those effects remain
+removed. Counts are then clipped nonnegative, rounded, and returned sparse.
 
 ## Return schema
 
@@ -237,7 +255,8 @@ of an R list or Seurat assay.
 | return names, shapes, titles and optional fields | structural identity | green for targeted path |
 | numeric covariate | model matrix, coefficients, residuals | green on Windows and Linux |
 | categorical batch | factor levels, coefficients, regularization, residuals | green on Windows and Linux |
-| non-regularized variables | appended design and coefficients | missing |
+| general-design corrected UMI | numeric covariate and batch+nonreg integers | green on Windows and Linux |
+| non-regularized variables | coefficients, final residuals, official theta=Inf failure | green for finite theta on Windows and Linux |
 | fallback `nb_offset` | parameters and failure behavior | missing |
 
 No missing row may be advertised as supported. In particular, a tolerant fit

@@ -18,7 +18,7 @@ execution order. It does not embed, link to or invoke an R runtime.
 The `.so` dynamically uses the distribution `libgfortran.so.5`, `libgcc_s`,
 `libm` and `libc`; libstdc++ plus BLAS/LAPACK are statically linked. Its
 SHA-256 is
-`ca1b9e9248307caf516a5bcd44cf639f696401637917830c3b6d5738f2f47678`.
+`97b426f7beced380fd98ded949cd1ad736decff503638d29777616efaf1b3645`.
 
 ## Exact gate
 
@@ -33,6 +33,10 @@ the complete HVG order. The result is in
 The same environment also passes the numeric-covariate and categorical-batch
 live gates for fitted/regularized parameters, outlier masks, full Pearson
 residuals and residual statistics.
+
+The expanded gate additionally passes numeric-covariate corrected UMI and a
+batch plus non-regularized covariate design. Nonreg coefficients, final
+residuals, residual statistics and corrected UMI integers are bit-identical.
 
 This is a regression guarantee for the named fixture and pinned environment,
 not a proof for every input or another libc/libm. The independent Windows
