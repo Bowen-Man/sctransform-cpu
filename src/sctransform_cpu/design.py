@@ -17,6 +17,9 @@ class SCTDesign:
     offset: np.ndarray
     model_str: str
     attributes: dict[str, np.ndarray]
+    nonreg_full: np.ndarray | None
+    nonreg_coefficient_names: tuple[str, ...]
+    model_str_nonreg: str
     batch_levels: tuple[object, ...] = ()
 
 
@@ -59,28 +62,34 @@ def _cell_attributes(counts, library, supplied, required):
 
 
 def build_design(counts, library, latent_variables, batch_variable,
-                 cell_attributes, fit_cells) -> SCTDesign:
+                 latent_variables_nonreg, cell_attributes, fit_cells) -> SCTDesign:
     """Build the model matrices used by ``vst(..., method='glmGamPoi_offset')``."""
     latent = tuple(latent_variables)
+    nonreg = tuple(latent_variables_nonreg)
     if (not latent or not all(isinstance(name, str) for name in latent)
             or len(set(latent)) != len(latent) or "log_umi" not in latent):
         raise ValueError("latent_variables must contain distinct names including log_umi")
+    if (not all(isinstance(name, str) for name in nonreg)
+            or len(set(nonreg)) != len(nonreg)
+            or set(latent) & set(nonreg)):
+        raise ValueError(
+            "latent_variables_nonreg must contain distinct names not in latent_variables")
     if batch_variable is not None and not isinstance(batch_variable, str):
         raise ValueError("batch_variable must be a string name")
     if any(name in {"(Intercept)", "Intercept"} for name in latent):
         raise ValueError("reserved intercept names cannot be latent variables")
     if batch_variable in {"(Intercept)", "Intercept"}:
         raise ValueError("reserved intercept names cannot be batch variables")
-    identifiers = latent + (() if batch_variable is None else (batch_variable,))
+    identifiers = latent + nonreg + (() if batch_variable is None else (batch_variable,))
     if any(not re.fullmatch(r"[A-Za-z.][A-Za-z0-9._]*", name)
            for name in identifiers):
         raise ValueError("model variables must use simple R-compatible names")
-    required = latent + (() if batch_variable is None else (batch_variable,))
+    required = latent + nonreg + (() if batch_variable is None else (batch_variable,))
     attributes = _cell_attributes(counts, library, cell_attributes, required)
     fit_cells = np.asarray(fit_cells, dtype=int)
 
     numeric = {}
-    for name in latent:
+    for name in latent + nonreg:
         try:
             values = np.asarray(attributes[name], dtype=np.float64)
         except (TypeError, ValueError) as error:
@@ -101,7 +110,12 @@ def build_design(counts, library, latent_variables, batch_variable,
             np.asarray(library, dtype=np.float64)[fit_cells])
         return SCTDesign(
             np.asarray(fit, dtype=np.float64), np.asarray(full, dtype=np.float64),
-            names, offset, f"y ~ {' + '.join(latent)}", attributes)
+            names, offset, f"y ~ {' + '.join(latent)}", attributes,
+            (np.column_stack((np.ones(counts.shape[1]),
+                              *(numeric[name] for name in nonreg)))
+             if nonreg else None),
+            (("(Intercept)", *nonreg) if nonreg else ()),
+            (f"y ~ {' + '.join(nonreg)}" if nonreg else ""))
 
     batch = np.asarray(attributes[batch_variable])
     if batch.dtype.kind not in "US":
@@ -126,6 +140,51 @@ def build_design(counts, library, latent_variables, batch_variable,
     full = np.column_stack(columns)
     fit = full[fit_cells]
     model = f"y ~ ({' + '.join(latent)}) : {batch_variable} + {batch_variable} + 0"
+    nonreg_columns = []
+    nonreg_names = []
+    if nonreg:
+        for level in levels:
+            nonreg_columns.append((batch == level).astype(np.float64))
+            nonreg_names.append(f"{batch_variable}{level}")
+        for variable in nonreg:
+            for level in levels:
+                nonreg_columns.append(numeric[variable] * (batch == level))
+                nonreg_names.append(f"{variable}:{batch_variable}{level}")
+    nonreg_model = (
+        f"y ~ ({' + '.join(nonreg)}) : {batch_variable} + {batch_variable} + 0"
+        if nonreg else "")
     return SCTDesign(
         np.asarray(fit, dtype=np.float64), np.asarray(full, dtype=np.float64),
-        tuple(names), np.zeros(len(fit_cells)), model, attributes, levels)
+        tuple(names), np.zeros(len(fit_cells)), model, attributes,
+        (np.asarray(np.column_stack(nonreg_columns), dtype=np.float64)
+         if nonreg else None),
+        tuple(nonreg_names), nonreg_model, levels)
+
+
+def correction_design(design: SCTDesign, latent_variables,
+                      batch_variable, scale_factor) -> np.ndarray:
+    """Return the official ``correct()`` target model matrix."""
+    latent = tuple(latent_variables)
+    numeric = {}
+    for name in latent:
+        values = np.asarray(design.attributes[name], dtype=np.float64)
+        numeric[name] = np.full(len(values), np.median(values))
+    if scale_factor is not None:
+        if not np.isfinite(scale_factor) or scale_factor <= 0:
+            raise ValueError("scale_factor must be finite and positive")
+        numeric["log_umi"][:] = platform_log10_native(
+            np.asarray([scale_factor], dtype=np.float64))[0]
+
+    if batch_variable is None:
+        fitted_names = tuple(name for name in latent if name != "log_umi")
+        return np.asarray(np.column_stack(
+            (np.ones(len(numeric["log_umi"])), numeric["log_umi"],
+             *(numeric[name] for name in fitted_names))), dtype=np.float64)
+
+    batch = np.asarray(design.attributes[batch_variable])
+    columns = [(batch == level).astype(np.float64)
+               for level in design.batch_levels]
+    for variable in latent:
+        for level in design.batch_levels:
+            columns.append(numeric[variable] * (batch == level))
+    return np.asarray(np.column_stack(columns), dtype=np.float64)

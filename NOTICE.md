@@ -25,11 +25,11 @@ contain or derive from the following free-software components:
 
 The bundled `sctransform_cpu/native/sct_port_r45.dll` was built with Rtools45
 GCC/GFortran 14.3.0. Its SHA-256 is
-`e9950f96491162ce50a4d1f671f01729387be91cdc50ef9309a89543c17e4d8b`.
+`e2abaa8f7d22ec193e48c9b75f3294e56f763e7a4f7e2318150a292ad5b10ba2`.
 
 The bundled `sctransform_cpu/native/libsct_port_r45.so` was built on Ubuntu
 26.04 x86_64 with GCC/GFortran 15.2.0 and glibc 2.43. Its SHA-256 is
-`ca1b9e9248307caf516a5bcd44cf639f696401637917830c3b6d5738f2f47678`.
+`97b426f7beced380fd98ded949cd1ad736decff503638d29777616efaf1b3645`.
 
 The original copyright notices, license identifiers, and source-level
 attribution are retained in `sctransform_cpu/native/`. See `LICENSE` for the

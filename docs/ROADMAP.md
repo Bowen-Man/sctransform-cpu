@@ -28,7 +28,8 @@ separate integration concern and must not be confused with statistical parity.
 | R-compatible implicit sampling | validated in pinned contract | live R selection gates compare complete ordered cell/gene titles |
 | Regularized numeric covariates | validated | live Windows and Linux R binary oracles compare coefficients and residual outputs |
 | One categorical batch variable | validated | live Windows and Linux R binary oracles cover batch-specific intercepts/slopes and regularization |
-| Non-regularized latent variables and general-design corrected UMI | missing | the public API fails closed instead of approximating these branches |
+| General-design corrected UMI | validated | numeric-covariate and batch+nonreg live binary oracles on Windows and Linux |
+| Non-regularized latent variables | validated with finite theta | batch+nonreg live oracle; the official theta=Inf failure is reproduced by failing closed |
 | Complete v2 flavor/method option coverage | incomplete | source map exists; alternative method/residual branches remain outside the contract |
 | Poisson-boundary, clipping, rare-count and extreme-library suites | validated for current path | adversarial live-R fixture is bit-identical; broader property coverage remains ongoing |
 | Targeted `vst` return schema | implemented | `to_vst_dict()` exposes official names with explicit matrix titles; unsupported branches remain absent |

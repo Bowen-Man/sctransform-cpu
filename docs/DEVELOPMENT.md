@@ -76,6 +76,7 @@ every compared value has zero mismatches:
 - retained genes/cells and ordered fit-gene/fit-cell manifests.
 - numeric-covariate and categorical-batch fit parameters, regularized
   parameters, outlier masks, full residuals and residual statistics.
+- general-design corrected UMI integers and finite-theta nonreg coefficients.
 
 The machine-readable evidence is `results/bit_identity.json` on Windows and
 `results/linux/bit_identity.json` on Linux. Passing live tests regenerated the
@@ -120,7 +121,7 @@ cross-platform byte stream is not the contract.
 ### P1: statistical feature coverage
 
 - exact independent R RNG/density-weighted sampling, including ties;
-- non-regularized variables and general-design corrected UMI;
+- explicit factor-level/contrast control beyond the current string-batch path;
 - complete Seurat-facing output semantics;
 - more real datasets, extreme libraries, Poisson boundaries and rare counts.
 

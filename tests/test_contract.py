@@ -134,3 +134,38 @@ def test_supported_general_design_contract(batch):
         "theta", *expected]
     assert contract["model_pars_fit"]["values"].shape == (
         len(result.genes), len(expected) + 1)
+
+
+def test_batch_nonreg_and_general_corrected_contract():
+    counts = sparse.csr_matrix(_counts())
+    attributes = {
+        "percent": (np.arange(counts.shape[1]) % 11) / 11,
+        "batch": np.resize(np.asarray(["A", "B"]), counts.shape[1]),
+    }
+    result = sctransform(
+        counts, cell_attributes=attributes,
+        config=SCTConfig(
+            min_cells=2, fit_cells=None, fit_genes=None, output="full",
+            batch_variable="batch", latent_variables_nonreg=("percent",),
+            return_corrected_umi=True))
+    assert result.nonreg_coefficient_names == (
+        "batchA", "batchB", "percent:batchA", "percent:batchB")
+    assert result.nonreg_coefficients.shape == (len(result.genes), 4)
+    assert result.corrected_umi.shape == counts.shape
+    assert np.all(result.corrected_umi.data == np.rint(result.corrected_umi.data))
+    contract = result.to_vst_dict()
+    assert contract["model_str_nonreg"] == (
+        "y ~ (percent) : batch + batch + 0")
+    assert contract["model_pars_nonreg"]["values"].shape == (
+        len(result.genes), 4)
+
+
+def test_nonreg_fails_closed_for_official_infinite_theta_case():
+    counts = sparse.csr_matrix(_counts())
+    attributes = {"percent": (np.arange(counts.shape[1]) % 11) / 11}
+    with pytest.raises(ValueError, match="non-finite regularized theta"):
+        sctransform(
+            counts, cell_attributes=attributes,
+            config=SCTConfig(
+                min_cells=2, fit_cells=None, fit_genes=None,
+                latent_variables_nonreg=("percent",)))

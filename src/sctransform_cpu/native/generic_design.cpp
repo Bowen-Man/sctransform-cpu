@@ -38,17 +38,18 @@ void dgemm_(const char*, const char*, const int*, const int*, const int*,
             const double*, double*, const int*, arma::blas_len, arma::blas_len);
 void dgesv_(const int*, const int*, double*, const int*, int*, double*,
             const int*, int*);
+double sct_r45_exp(double);
+double sct_r45_sqrt(double);
 }
 
 /* R's qr.default uses dqrdc2 rather than LAPACK.  This full-rank subset is
  * the exact loop from R 4.5's src/appl/dqrdc2.f, expressed against the same
  * reference BLAS.  Returning false on pivoting keeps the supported contract
  * explicit instead of silently relabelling a degenerate design. */
-static bool r_qr(std::vector<double>& x, int n, int p,
+static bool r_qr(std::vector<double>& x, int n, int p, double tolerance,
                  std::vector<double>& qraux)
 {
     const int one = 1;
-    const double tolerance = 1e-7;
     std::vector<double> original(p), work(p);
     std::vector<int> pivot(p);
     for (int column = 0; column < p; ++column) {
@@ -168,7 +169,7 @@ extern "C" SCT_EXPORT int sct_general_initial_beta(
         for (int column = 0; column < coefficients; ++column)
             qr[(size_t)column * qr_rows + cells + column] = ridge;
     std::vector<double> qraux(coefficients);
-    if (!r_qr(qr, qr_rows, coefficients, qraux)) return 1;
+    if (!r_qr(qr, qr_rows, coefficients, 1e-7, qraux)) return 1;
 
     std::vector<double> q((size_t)qr_rows * coefficients, 0.0);
     for (int column = 0; column < coefficients; ++column)
@@ -389,6 +390,167 @@ extern "C" SCT_EXPORT double sct_general_cr_score_derivative(
     return -0.5 * arma::trace(inverse * db) * cr_factor;
 }
 
+static bool r_weighted_least_squares(
+    const arma::mat& design, const arma::vec& weight,
+    const arma::vec& response, arma::vec& coefficients)
+{
+    const int cells = (int)design.n_rows;
+    const int variables = (int)design.n_cols;
+    const int one = 1;
+    std::vector<double> qr((size_t)cells * variables);
+    for (int column = 0; column < variables; ++column)
+        for (int cell = 0; cell < cells; ++cell)
+            qr[(size_t)column * cells + cell] =
+                design(cell, column) * weight(cell);
+    std::vector<double> qraux(variables);
+    if (!r_qr(qr, cells, variables, 1e-11, qraux)) return false;
+
+    std::vector<double> qty(cells);
+    for (int cell = 0; cell < cells; ++cell)
+        qty[cell] = response(cell) * weight(cell);
+    const int reflectors = std::min(variables, cells - 1);
+    for (int column = 0; column < reflectors; ++column) {
+        if (qraux[column] == 0.0) continue;
+        double& diagonal = qr[(size_t)column * cells + column];
+        double saved = diagonal;
+        diagonal = qraux[column];
+        int length = cells - column;
+        double value = -ddot_(&length, &diagonal, &one, &qty[column], &one)
+                       / diagonal;
+        daxpy_(&length, &value, &diagonal, &one, &qty[column], &one);
+        diagonal = saved;
+    }
+
+    coefficients.set_size(variables);
+    for (int column = 0; column < variables; ++column)
+        coefficients(column) = qty[column];
+    for (int column = variables - 1; column >= 0; --column) {
+        double diagonal = qr[(size_t)column * cells + column];
+        if (diagonal == 0.0) return false;
+        coefficients(column) /= diagonal;
+        if (column > 0) {
+            int length = column;
+            double value = -coefficients(column);
+            daxpy_(&length, &value, &qr[(size_t)column * cells], &one,
+                   coefficients.memptr(), &one);
+        }
+    }
+    return true;
+}
+
+static double negative_binomial_deviance(
+    const arma::vec& counts, const arma::vec& mu, double theta)
+{
+    long double result = 0.0L;
+    for (arma::uword index = 0; index < counts.n_elem; ++index) {
+        double y = counts(index);
+        double term = 2.0 * (
+            y * std::log(std::max(1.0, y) / mu(index))
+            - (y + theta) * std::log(
+                (y + theta) / (mu(index) + theta)));
+        result += term;
+    }
+    return (double)result;
+}
+
+static arma::vec nonreg_linear_predictor(
+    const arma::mat& design, const arma::vec& coefficients,
+    const arma::vec& offset)
+{
+    arma::mat beta = coefficients.t();
+    arma::mat linear = beta * design.t();
+    arma::vec result(design.n_rows);
+    for (arma::uword cell = 0; cell < design.n_rows; ++cell)
+        result(cell) = linear(0, cell) + offset(cell);
+    return result;
+}
+
+static double nonreg_exp(double value)
+{
+#ifdef _WIN32
+    return sct_r45_exp(value);
+#else
+    return std::exp(value);
+#endif
+}
+
+extern "C" SCT_EXPORT int sct_nonreg_fit(
+    const double counts[], int genes, int cells,
+    const double design_values[], int variables,
+    const double offsets[], const double theta[], double beta_out[])
+{
+    arma::mat design = copy_matrix(design_values, cells, variables);
+    for (int gene = 0; gene < genes; ++gene) {
+        if (!(theta[gene] > 0.0) || !std::isfinite(theta[gene])) return 4;
+        arma::vec y(cells), eta(cells), mu(cells), offset(cells);
+        for (int cell = 0; cell < cells; ++cell) {
+            y(cell) = counts[(size_t)gene * cells + cell];
+            offset(cell) = offsets[(size_t)gene * cells + cell];
+            eta(cell) = std::log(y(cell) + (y(cell) == 0.0 ? 1.0 / 6.0 : 0.0));
+            mu(cell) = std::max(nonreg_exp(eta(cell)),
+                                std::numeric_limits<double>::epsilon());
+        }
+        double dev_old = negative_binomial_deviance(y, mu, theta[gene]);
+        arma::vec coefficients(variables, arma::fill::zeros), previous;
+        bool have_previous = false, converged = false;
+        for (int iteration = 0; iteration < 25; ++iteration) {
+            arma::vec variance = mu + mu % mu / theta[gene];
+            arma::vec z = (eta - offset) + (y - mu) / mu;
+            arma::vec weight = (mu % mu) / variance;
+            for (int cell = 0; cell < cells; ++cell)
+                weight(cell) = sct_r45_sqrt(weight(cell));
+            arma::vec candidate;
+            if (!r_weighted_least_squares(
+                    design, weight, z, candidate)) return 1;
+            coefficients = candidate;
+            eta = nonreg_linear_predictor(design, coefficients, offset);
+            for (int cell = 0; cell < cells; ++cell)
+                mu(cell) = std::max(nonreg_exp(eta(cell)),
+                                    std::numeric_limits<double>::epsilon());
+            double dev = negative_binomial_deviance(y, mu, theta[gene]);
+            if (!std::isfinite(dev)) {
+                if (!have_previous) return 2;
+                int steps = 0;
+                while (!std::isfinite(dev) && steps < 25) {
+                    coefficients = (coefficients + previous) / 2.0;
+                    eta = nonreg_linear_predictor(
+                        design, coefficients, offset);
+                    for (int cell = 0; cell < cells; ++cell)
+                        mu(cell) = std::max(nonreg_exp(eta(cell)),
+                            std::numeric_limits<double>::epsilon());
+                    dev = negative_binomial_deviance(y, mu, theta[gene]);
+                    ++steps;
+                }
+                if (!std::isfinite(dev)) return 2;
+            }
+            if (std::abs(dev - dev_old) / (0.1 + std::abs(dev)) < 1e-8) {
+                converged = true;
+                break;
+            }
+            dev_old = dev;
+            previous = coefficients;
+            have_previous = true;
+        }
+        if (!converged) return 3;
+        for (int variable = 0; variable < variables; ++variable)
+            beta_out[(size_t)gene * variables + variable] =
+                coefficients(variable);
+    }
+    return 0;
+}
+
+extern "C" SCT_EXPORT void sct_general_linear(
+    const double beta_values[], int genes, int coefficients,
+    const double design_values[], int cells, double out[])
+{
+    arma::mat design = copy_matrix(design_values, cells, coefficients);
+    arma::mat beta = copy_matrix(beta_values, genes, coefficients);
+    arma::mat linear = beta * design.t();
+    for (int gene = 0; gene < genes; ++gene)
+        for (int cell = 0; cell < cells; ++cell)
+            out[(size_t)gene * cells + cell] = linear(gene, cell);
+}
+
 extern "C" SCT_EXPORT void sct_general_mu(
     const double beta_values[], int genes, int coefficients,
     const double design_values[], int cells, const double offsets[],
@@ -400,7 +562,6 @@ extern "C" SCT_EXPORT void sct_general_mu(
     for (int gene = 0; gene < genes; ++gene)
         for (int cell = 0; cell < cells; ++cell) {
             double value = std::exp(linear(gene, cell) + offsets[cell]);
-            out[(size_t)gene * cells + cell] =
-                std::min(std::max(value, 1e-50), 1e50);
+            out[(size_t)gene * cells + cell] = value;
         }
 }

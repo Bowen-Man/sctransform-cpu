@@ -36,12 +36,13 @@ from the public 10x PBMC3K dataset. It is a computational regression fixture,
 not a biological validation dataset.
 
 The exact contract covers the direct fixed-slope path, regularized numeric
-covariates and one categorical batch variable. Numeric covariates use the
-official offset model; the batch path uses the official batch-specific
-intercepts and slopes. Unsupported cases remain explicit: non-regularized
-latent variables, corrected UMI for general designs, arbitrary R contrast
-coding, complete Seurat post-processing, other R/package versions, macOS and
-other Linux runtimes require separate implementations and gates.
+covariates, one categorical batch variable, general-design corrected UMI and
+the fixed-theta non-regularized stage when all theta values are finite. The
+live gates compare nonreg coefficients, final residuals, residual statistics
+and corrected integer counts. Official v2 throws during nonreg fitting when a
+regularized theta is infinite; Python deliberately fails closed for the same
+case. Arbitrary R contrast coding, complete Seurat post-processing, other
+R/package versions, macOS and other Linux runtimes require separate gates.
 
 Run the stored oracle and then regenerate it live:
 

@@ -7,8 +7,8 @@ import time
 import numpy as np
 from scipy import sparse
 
-from .corrected_counts import corrected_counts_tile
-from .design import build_design
+from .corrected_counts import corrected_counts_design_tile, corrected_counts_tile
+from .design import build_design, correction_design
 from .fit import fit_batch, fit_general_batch
 from .r_compat_stats import (
     regularize_design_v2_r45,
@@ -16,6 +16,7 @@ from .r_compat_stats import (
     row_statistics_r45,
 )
 from .residuals import cpu_design_tile, cpu_tile
+from .port_native import general_linear_native, nonreg_fit_native
 from .sampling import (
     RMersenneTwister,
     SelectionManifest,
@@ -36,6 +37,7 @@ class SCTConfig:
     return_corrected_umi: bool = False
     corrected_scale_factor: float | None = None
     latent_variables: tuple[str, ...] = ("log_umi",)
+    latent_variables_nonreg: tuple[str, ...] = ()
     batch_variable: str | None = None
 
 
@@ -69,11 +71,15 @@ class SCTResult:
     coefficients: np.ndarray | None = None
     fit_coefficients: np.ndarray | None = None
     model_str: str = "y ~ log_umi"
+    nonreg_coefficient_names: tuple[str, ...] = ()
+    nonreg_coefficients: np.ndarray | None = None
+    model_str_nonreg: str = ""
     semantics: str = (
         "platform-pinned Windows x64 or Linux x86_64 R 4.5.2 / "
         "sctransform 0.4.3 / "
         "glmGamPoi 1.22.0 / matrixStats 1.5.0; regularized numeric and "
-        "single categorical-batch v2 designs"
+        "single categorical-batch v2 designs, finite-theta nonreg and "
+        "corrected UMI"
     )
 
     def selection_manifest(self, seed: int) -> SelectionManifest:
@@ -125,8 +131,12 @@ class SCTResult:
                 columns,
                 regularized,
             ),
-            "model_str_nonreg": "",
-            "model_pars_nonreg": None,
+            "model_str_nonreg": self.model_str_nonreg,
+            "model_pars_nonreg": (
+                self._named_matrix(
+                    self.genes, self.nonreg_coefficient_names,
+                    self.nonreg_coefficients)
+                if self.nonreg_coefficients is not None else None),
             "arguments": dict(self.diagnostics["arguments"]),
             "genes_log_gmean_step1": self.log_gmean[self.fit_gene_indices].copy(),
             "cells_step1": self.cells[self.fit_cell_indices].copy(),
@@ -176,8 +186,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         raise ValueError("fit_cells and fit_genes must be positive or None")
     general_design = (cfg.latent_variables != ("log_umi",)
                       or cfg.batch_variable is not None)
-    if general_design and cfg.return_corrected_umi:
-        raise ValueError("corrected UMI is not yet supported for a general design")
+    has_nonreg = bool(cfg.latent_variables_nonreg)
 
     started = time.perf_counter()
     matrix = sparse.csr_matrix(counts, dtype=np.float64, copy=True)
@@ -262,7 +271,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
     started = time.perf_counter()
     design = build_design(
         input_matrix, library, cfg.latent_variables, cfg.batch_variable,
-        cell_attributes, selected_cells)
+        cfg.latent_variables_nonreg, cell_attributes, selected_cells)
     fit_theta = np.empty(len(eligible))
     fit_coefficients = np.empty((len(eligible), len(design.coefficient_names)))
     if not general_design:
@@ -311,18 +320,42 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
     timing["regularization"] = time.perf_counter() - started
 
     started = time.perf_counter()
+    nonreg_coefficients = None
+    final_design = design.full
+    final_coefficients = coefficients
+    if design.nonreg_full is not None:
+        nonreg_coefficients = np.empty(
+            (len(genes), len(design.nonreg_coefficient_names)),
+            dtype=np.float64)
+        for offset in range(0, len(genes), 500):
+            indices = np.arange(offset, min(offset + 500, len(genes)))
+            base_linear = general_linear_native(
+                coefficients[indices], design.full)
+            fitted_nonreg = nonreg_fit_native(
+                matrix[indices].toarray(), design.nonreg_full,
+                base_linear, theta[indices])
+            nonreg_coefficients[indices] = fitted_nonreg
+        final_design = np.column_stack((design.full, design.nonreg_full))
+        final_coefficients = np.column_stack(
+            (coefficients, nonreg_coefficients))
+    timing["nonregularized_fit"] = time.perf_counter() - started
+
+    started = time.perf_counter()
     clip = float(np.sqrt(matrix.shape[1]))
     min_variance = float((np.median(matrix.data) / 5.0) ** 2)
     residual_mean = np.empty(len(genes))
     residual_variance = np.empty(len(genes))
     full = np.empty(matrix.shape, dtype=np.float64) if cfg.output == "full" else None
     corrected = [] if cfg.return_corrected_umi else None
+    target_design = (correction_design(
+        design, cfg.latent_variables, cfg.batch_variable,
+        cfg.corrected_scale_factor) if corrected is not None else None)
     for offset in range(0, len(genes), cfg.tile_genes):
         indices = np.arange(offset, min(offset + cfg.tile_genes, len(genes)))
         dense = matrix[indices].toarray()
-        if general_design:
+        if general_design or has_nonreg:
             residual, mean, variance = cpu_design_tile(
-                dense, design.full, coefficients[indices], theta[indices],
+                dense, final_design, final_coefficients[indices], theta[indices],
                 min_variance, clip)
         else:
             residual, mean, variance = cpu_tile(
@@ -332,15 +365,17 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         if full is not None:
             full[indices] = residual
         if corrected is not None:
-            corrected.append(sparse.csr_matrix(corrected_counts_tile(
-                dense,
-                library,
-                intercept[indices],
-                slope[indices],
-                theta[indices],
-                min_variance,
-                scale_factor=cfg.corrected_scale_factor,
-            )))
+            if general_design or has_nonreg:
+                corrected_values = corrected_counts_design_tile(
+                    dense, final_design, final_coefficients[indices],
+                    target_design, coefficients[indices], theta[indices],
+                    min_variance)
+            else:
+                corrected_values = corrected_counts_tile(
+                    dense, library, intercept[indices], slope[indices],
+                    theta[indices], min_variance,
+                    scale_factor=cfg.corrected_scale_factor)
+            corrected.append(sparse.csr_matrix(corrected_values))
     timing["residual_statistics"] = time.perf_counter() - started
 
     started = time.perf_counter()
@@ -350,9 +385,9 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         for offset in range(0, len(hvg), cfg.tile_genes):
             indices = hvg[offset:offset + cfg.tile_genes]
             dense = matrix[indices].toarray()
-            if general_design:
+            if general_design or has_nonreg:
                 residuals[offset:offset + len(indices)] = cpu_design_tile(
-                    dense, design.full, coefficients[indices], theta[indices],
+                    dense, final_design, final_coefficients[indices], theta[indices],
                     min_variance, clip)[0]
             else:
                 residuals[offset:offset + len(indices)] = cpu_tile(
@@ -390,6 +425,9 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         coefficients=coefficients,
         fit_coefficients=fit_coefficients,
         model_str=design.model_str,
+        nonreg_coefficient_names=design.nonreg_coefficient_names,
+        nonreg_coefficients=nonreg_coefficients,
+        model_str_nonreg=design.model_str_nonreg,
         timing=timing,
         diagnostics={
             "fit_outliers": outliers,
@@ -406,6 +444,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
                 "exclude_poisson": True,
                 "return_corrected_umi": cfg.return_corrected_umi,
                 "latent_var": cfg.latent_variables,
+                "latent_var_nonreg": cfg.latent_variables_nonreg,
                 "batch_var": cfg.batch_variable,
             },
         },

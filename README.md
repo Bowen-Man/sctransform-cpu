@@ -42,20 +42,22 @@ Windows x64/Rtools45 and Ubuntu 26.04 x86_64/glibc 2.43/GCC 15.2.
 - direct v2 `vst` path with the default fixed `log_umi` slope;
 - additional numeric regularized covariates;
 - one categorical batch variable with batch-specific coefficients;
+- fixed-theta non-regularized covariates when every fitted theta is finite;
 - initial and regularized model parameters;
 - Pearson residuals and residual variance;
 - R 4.5-compatible implicit cell/gene sampling and reusable title manifests;
 - Poisson-boundary, rare-gene, clipping and extreme-library adversarial cases;
 - Top-100/200/300 residual-variance feature sets;
-- corrected UMI counts;
+- corrected UMI counts for default, covariate, batch and supported nonreg designs;
 - a Python-native adapter for the targeted official `vst` return names;
 - a Windows-pinned 128-case fixed-mean dispersion stress suite.
 
 This is a version- and contract-pinned alpha release, not yet a claim of parity
-for every SCT/Seurat workflow. Non-regularized variables, corrected counts for
-general designs, alternative residual and fitting methods, macOS, other Linux
-distributions/libm versions and the complete Seurat object lifecycle are not
-yet covered.
+for every SCT/Seurat workflow. In particular, official v2 itself cannot fit a
+non-regularized stage when regularization produces `theta=Inf`; this package
+fails closed for the same case. Alternative residual and fitting methods,
+arbitrary R contrasts, macOS, other Linux distributions/libm versions and the
+complete Seurat object lifecycle are not yet covered.
 
 The pinned 800 x 240 regression fixture passes the strict binary gate on both
 validated platforms: every compared binary64 value, integer output and
@@ -159,8 +161,13 @@ numeric = sctransform(
 # Batch design: y ~ (log_umi):batch + batch + 0
 batched = sctransform(
     counts,
-    cell_attributes={"batch": batch_labels},
-    config=SCTConfig(batch_variable="batch", random_seed=42),
+    cell_attributes={"batch": batch_labels, "percent_mito": percent_mito},
+    config=SCTConfig(
+        batch_variable="batch",
+        latent_variables_nonreg=("percent_mito",),
+        return_corrected_umi=True,
+        random_seed=42,
+    ),
 )
 ```
 
@@ -168,8 +175,10 @@ Covariates must be finite numeric vectors. Batch labels must be nonempty ASCII
 strings, and a sampled fit-cell set must retain every level. General-design
 coefficients are exposed by `coefficient_names`, `coefficients` and
 `fit_coefficients`; the legacy `intercept`/`slope` convenience fields apply
-only when those global columns exist. Corrected UMI output currently fails
-closed for a general design.
+only when those global columns exist. Non-regularized coefficients are exposed
+separately by `nonreg_coefficient_names` and `nonreg_coefficients` because the
+official algorithm does not smooth them. Corrected UMI uses the regularized
+covariates at their medians while preserving observed batch membership.
 
 The main result fields are:
 
@@ -179,6 +188,7 @@ The main result fields are:
 | `theta` | `(G,)` float64 | regularized inverse overdispersion |
 | `coefficient_names`, `coefficients` | names and `(G, P)` float64 | regularized design coefficients |
 | `fit_coefficients` | `(F, P)` float64 | unregularized coefficients for fitted genes |
+| `nonreg_coefficient_names`, `nonreg_coefficients` | names and optional `(G, Q)` float64 | fixed-theta post-regularization fit |
 | `intercept`, `slope` | optional `(G,)` float64 | convenience views for global columns |
 | `residual_mean`, `residual_variance` | `(G,)` float64 | per-gene Pearson residual statistics |
 | `hvg_indices` | `(min(features, G),)` integers | stable residual-variance ranking |

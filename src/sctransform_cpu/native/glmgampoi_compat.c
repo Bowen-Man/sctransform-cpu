@@ -36,6 +36,11 @@ static double sct_platform_sqrt(double value)
 #endif
 }
 
+SCT_EXPORT double sct_r45_sqrt(double value)
+{
+    return sct_platform_sqrt(value);
+}
+
 static double sct_platform_pow(double base, double exponent)
 {
 #ifdef _WIN32
