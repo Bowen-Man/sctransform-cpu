@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sctransform-cpu"
-version = "0.3.0"
-description = "Python-first SCTransform v2 reference for CPU optimization and RAPIDS-compatible GPU research"
+version = "0.4.0"
+description = "Installable, bit-validated SCTransform v2 CPU reference and preliminary performance work"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"

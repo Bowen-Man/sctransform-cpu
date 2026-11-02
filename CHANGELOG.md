@@ -5,9 +5,10 @@ while its validated statistical contract remains explicitly version-pinned.
 
 ## Unreleased
 
-- Clarify the project mission: complete the R-aligned Python CPU reference and
-  evidence-based CPU optimization before designing a RAPIDS-compatible GPU
-  backend.
+## 0.4.0 - 2026-11-02
+
+- Finalize this repository as the installable GPL CPU reference and
+  preliminary performance study for a separate native CPU/GPU project.
 - Add explicit phase gates and a compatibility roadmap.
 - Add an R 4.5-compatible Mersenne-Twister/rejection sampler, inverse-density
   gene sampling, and reusable ordered selection manifests.
