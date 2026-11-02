@@ -16,6 +16,9 @@ while its validated statistical contract remains explicitly version-pinned.
   gates on Windows and Linux.
 - Preserve glmGamPoi's native unordered count-table order, closing a
   collision-dependent dispersion mismatch found by the adversarial suite.
+- Add regularized numeric covariates and one categorical batch variable with
+  strict same-platform R gates for fitted parameters, regularization,
+  outliers, Pearson residuals and residual statistics.
 
 ## 0.3.0 - 2026-11-02
 

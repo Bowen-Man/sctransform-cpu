@@ -128,6 +128,17 @@ def _load_library() -> ctypes.CDLL:
     library.sct_glmgampoi_score_log.restype = ctypes.c_double
     library.sct_glmgampoi_score_derivative_log.argtypes = callback_arguments
     library.sct_glmgampoi_score_derivative_log.restype = ctypes.c_double
+    general_callback_arguments = [
+        double_pointer, double_pointer, ctypes.c_int, ctypes.c_double,
+        double_pointer, ctypes.c_int, double_pointer, double_pointer,
+        ctypes.c_int,
+    ]
+    library.sct_glmgampoi_general_loglikelihood.argtypes = general_callback_arguments
+    library.sct_glmgampoi_general_loglikelihood.restype = ctypes.c_double
+    library.sct_glmgampoi_general_score.argtypes = general_callback_arguments
+    library.sct_glmgampoi_general_score.restype = ctypes.c_double
+    library.sct_glmgampoi_general_score_derivative_log.argtypes = general_callback_arguments
+    library.sct_glmgampoi_general_score_derivative_log.restype = ctypes.c_double
     library.sct_r45_exp.argtypes = [ctypes.c_double]
     library.sct_r45_exp.restype = ctypes.c_double
     library.sct_use_r_fpu.argtypes = []
@@ -170,10 +181,10 @@ def _load_library() -> ctypes.CDLL:
             double_pointer, double_pointer, ctypes.c_int, double_pointer,
         ]
         library.sct_regularization_dispersion.restype = None
-        library.sct_regularization_theta.argtypes = [
-            double_pointer, double_pointer, ctypes.c_int, double_pointer,
-        ]
-        library.sct_regularization_theta.restype = None
+    library.sct_regularization_theta.argtypes = [
+        double_pointer, double_pointer, ctypes.c_int, double_pointer,
+    ]
+    library.sct_regularization_theta.restype = None
     library.sct_ksmooth_normal.argtypes = [
         double_pointer, double_pointer, ctypes.c_int,
         double_pointer, ctypes.c_int, ctypes.c_double, double_pointer,
@@ -188,11 +199,43 @@ def _load_library() -> ctypes.CDLL:
         double_pointer, double_pointer, double_pointer,
     ]
     library.sct_pearson_residuals.restype = None
+    library.sct_pearson_residuals_from_mu.argtypes = [
+        double_pointer, double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, ctypes.c_double, ctypes.c_double, double_pointer,
+    ]
+    library.sct_pearson_residuals_from_mu.restype = None
     library.sct_residual_statistics.argtypes = [
         double_pointer, ctypes.c_int, ctypes.c_int,
         double_pointer, double_pointer,
     ]
     library.sct_residual_statistics.restype = None
+    library.sct_general_initial_beta.argtypes = [
+        double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, ctypes.c_int, double_pointer, ctypes.c_int,
+        double_pointer,
+    ]
+    library.sct_general_initial_beta.restype = ctypes.c_int
+    library.sct_general_fisher.argtypes = [
+        double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, ctypes.c_int, double_pointer, double_pointer,
+        ctypes.c_int, double_pointer, double_pointer,
+    ]
+    library.sct_general_fisher.restype = ctypes.c_int
+    library.sct_general_mu.argtypes = [
+        double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, ctypes.c_int, double_pointer, double_pointer,
+    ]
+    library.sct_general_mu.restype = None
+    library.sct_general_cr_logdet.argtypes = [
+        double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, ctypes.c_double,
+    ]
+    library.sct_general_cr_logdet.restype = ctypes.c_double
+    library.sct_general_cr_derivatives.argtypes = [
+        double_pointer, ctypes.c_int, ctypes.c_int,
+        double_pointer, ctypes.c_double, double_pointer,
+    ]
+    library.sct_general_cr_derivatives.restype = None
     # R 4.5.2 initializes the x87 precision field to extended precision
     # (control word 0x037f), whereas CPython on Windows uses 0x027f.  The
     # difference is observable in Rcpp's exp(x)-1 and glmGamPoi callbacks.
@@ -238,10 +281,11 @@ def count_table_native(values, stop_if_larger: int):
 def platform_log10_native(values) -> np.ndarray:
     """Evaluate scalar log10 with the pinned platform C runtime."""
     array = np.ascontiguousarray(values, dtype=np.float64)
-    if array.ndim != 1 or np.any(array <= 0.0):
-        raise ValueError("log10 input must be a positive one-dimensional vector")
+    if array.ndim != 1 or np.any(array < 0.0):
+        raise ValueError("log10 input must be a non-negative one-dimensional vector")
     if os.name == "nt":
-        return np.log10(array)
+        with np.errstate(divide="ignore"):
+            return np.log10(array)
     result = np.empty_like(array)
     pointer = ctypes.POINTER(ctypes.c_double)
     _load_library().sct_log10_array(
@@ -288,8 +332,6 @@ def regularization_theta_native(log_gmean, dispersion) -> np.ndarray:
     dispersion_array = np.ascontiguousarray(dispersion, dtype=np.float64)
     if x.ndim != 1 or dispersion_array.shape != x.shape:
         raise ValueError("regularization inputs must be aligned vectors")
-    if os.name == "nt":
-        return np.power(10.0, x) / (np.power(10.0, dispersion_array) - 1.0)
     result = np.empty_like(x)
     pointer = ctypes.POINTER(ctypes.c_double)
     _load_library().sct_regularization_theta(
@@ -478,6 +520,106 @@ def residual_statistics_native(residual) -> tuple[np.ndarray, np.ndarray]:
     return means, variances
 
 
+def pearson_residuals_from_mu_native(
+    counts, mu, theta, minimum_variance, clip,
+) -> np.ndarray:
+    """Evaluate SCT Pearson residuals for a precomputed general-design mean."""
+    matrix = np.ascontiguousarray(counts, dtype=np.float64)
+    mean = np.ascontiguousarray(mu, dtype=np.float64)
+    theta_array = np.ascontiguousarray(theta, dtype=np.float64)
+    if (matrix.ndim != 2 or mean.shape != matrix.shape
+            or theta_array.shape != (matrix.shape[0],)):
+        raise ValueError("invalid residual tile shapes")
+    result = np.empty_like(matrix)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    _load_library().sct_pearson_residuals_from_mu(
+        matrix.ctypes.data_as(pointer), mean.ctypes.data_as(pointer),
+        matrix.shape[0], matrix.shape[1], theta_array.ctypes.data_as(pointer),
+        float(minimum_variance), float(clip), result.ctypes.data_as(pointer))
+    return result
+
+
+def general_initial_beta_native(counts, design, offsets, *, ridge=False) -> np.ndarray:
+    """Run glmGamPoi's rough general-design coefficient initialization."""
+    y = np.ascontiguousarray(counts, dtype=np.float64)
+    x = np.ascontiguousarray(design, dtype=np.float64)
+    off = np.ascontiguousarray(offsets, dtype=np.float64)
+    if y.ndim != 2 or x.ndim != 2 or x.shape[0] != y.shape[1]:
+        raise ValueError("design rows must match count columns")
+    if off.shape != (y.shape[1],):
+        raise ValueError("offsets must match count columns")
+    result = np.empty((y.shape[0], x.shape[1]), dtype=np.float64)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    status = int(_load_library().sct_general_initial_beta(
+        y.ctypes.data_as(pointer), y.shape[0], y.shape[1],
+        x.ctypes.data_as(pointer), x.shape[1], off.ctypes.data_as(pointer),
+        int(ridge), result.ctypes.data_as(pointer)))
+    if status:
+        raise RuntimeError(f"general-design initialization failed ({status})")
+    return result
+
+
+def general_fisher_native(counts, design, offsets, dispersions, beta, *, ridge=False):
+    """Run glmGamPoi's general-design Fisher scoring stage."""
+    y = np.ascontiguousarray(counts, dtype=np.float64)
+    x = np.ascontiguousarray(design, dtype=np.float64)
+    off = np.ascontiguousarray(offsets, dtype=np.float64)
+    alpha = np.ascontiguousarray(dispersions, dtype=np.float64)
+    result = np.ascontiguousarray(beta, dtype=np.float64).copy()
+    if (y.ndim != 2 or x.ndim != 2 or x.shape[0] != y.shape[1]
+            or off.shape != (y.shape[1],)
+            or alpha.shape != (y.shape[0],)
+            or result.shape != (y.shape[0], x.shape[1])):
+        raise ValueError("unaligned general-design fit inputs")
+    mu = np.empty_like(y)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    status = int(_load_library().sct_general_fisher(
+        y.ctypes.data_as(pointer), y.shape[0], y.shape[1],
+        x.ctypes.data_as(pointer), x.shape[1], off.ctypes.data_as(pointer),
+        alpha.ctypes.data_as(pointer), int(ridge), result.ctypes.data_as(pointer),
+        mu.ctypes.data_as(pointer)))
+    if status:
+        raise RuntimeError(f"general-design Fisher scoring failed ({status})")
+    return result, mu
+
+
+def general_mu_native(beta, design, offsets) -> np.ndarray:
+    """Evaluate the pinned Armadillo design-matrix mean expression."""
+    coefficients = np.ascontiguousarray(beta, dtype=np.float64)
+    x = np.ascontiguousarray(design, dtype=np.float64)
+    off = np.ascontiguousarray(offsets, dtype=np.float64)
+    if (coefficients.ndim != 2 or x.ndim != 2
+            or coefficients.shape[1] != x.shape[1]
+            or off.shape != (x.shape[0],)):
+        raise ValueError("unaligned general-design mean inputs")
+    result = np.empty((coefficients.shape[0], x.shape[0]), dtype=np.float64)
+    pointer = ctypes.POINTER(ctypes.c_double)
+    _load_library().sct_general_mu(
+        coefficients.ctypes.data_as(pointer), coefficients.shape[0],
+        coefficients.shape[1], x.ctypes.data_as(pointer), x.shape[0],
+        off.ctypes.data_as(pointer), result.ctypes.data_as(pointer))
+    return result
+
+
+def general_cr_native(design, mu, alpha: float) -> tuple[float, float, float]:
+    """Return glmGamPoi's matrix Cox--Reid value and derivatives."""
+    x = np.ascontiguousarray(design, dtype=np.float64)
+    mean = np.ascontiguousarray(mu, dtype=np.float64)
+    if x.ndim != 2 or mean.shape != (x.shape[0],) or alpha <= 0.0:
+        raise ValueError("invalid general Cox--Reid inputs")
+    pointer = ctypes.POINTER(ctypes.c_double)
+    library = _load_library()
+    log_term = float(library.sct_general_cr_logdet(
+        x.ctypes.data_as(pointer), x.shape[0], x.shape[1],
+        mean.ctypes.data_as(pointer), float(alpha)))
+    derivatives = np.empty(2, dtype=np.float64)
+    library.sct_general_cr_derivatives(
+        x.ctypes.data_as(pointer), x.shape[0], x.shape[1],
+        mean.ctypes.data_as(pointer), float(alpha),
+        derivatives.ctypes.data_as(pointer))
+    return log_term, float(derivatives[0]), float(derivatives[1])
+
+
 def _native_callback_arguments(y, mu, alpha, cox_reid, table):
     y_array = np.ascontiguousarray(y, dtype=np.float64)
     mu_array = np.ascontiguousarray(mu, dtype=np.float64)
@@ -561,6 +703,52 @@ def glmgampoi_score_derivative_log_native(
     return _glmgampoi_log_callback(
         "sct_glmgampoi_score_derivative_log", y, mu, log_alpha,
         cox_reid, table)
+
+
+def glmgampoi_general_score_derivative_log_native(
+    y, mu, log_alpha, design, *, table=None
+) -> float:
+    """Evaluate glmGamPoi's complete matrix Cox--Reid Hessian callback."""
+    arguments, keepalive = _native_callback_arguments(
+        y, mu, 1.0, True, table)
+    x = np.ascontiguousarray(design, dtype=np.float64)
+    if x.ndim != 2 or x.shape[0] != len(keepalive[0]):
+        raise ValueError("design rows must match observations")
+    pointer = ctypes.POINTER(ctypes.c_double)
+    value = float(_load_library().sct_glmgampoi_general_score_derivative_log(
+        arguments[0], arguments[1], arguments[2], float(log_alpha),
+        x.ctypes.data_as(pointer), x.shape[1], arguments[5], arguments[6],
+        arguments[7]))
+    del keepalive
+    return value
+
+
+def glmgampoi_general_loglikelihood_native(
+    y, mu, log_alpha, design, *, table=None
+) -> float:
+    return _glmgampoi_general_callback(
+        "sct_glmgampoi_general_loglikelihood", y, mu, log_alpha, design, table)
+
+
+def glmgampoi_general_score_native(
+    y, mu, log_alpha, design, *, table=None
+) -> float:
+    return _glmgampoi_general_callback(
+        "sct_glmgampoi_general_score", y, mu, log_alpha, design, table)
+
+
+def _glmgampoi_general_callback(name, y, mu, log_alpha, design, table):
+    arguments, keepalive = _native_callback_arguments(y, mu, 1.0, True, table)
+    x = np.ascontiguousarray(design, dtype=np.float64)
+    if x.ndim != 2 or x.shape[0] != len(keepalive[0]):
+        raise ValueError("design rows must match observations")
+    pointer = ctypes.POINTER(ctypes.c_double)
+    value = float(getattr(_load_library(), name)(
+        arguments[0], arguments[1], arguments[2], float(log_alpha),
+        x.ctypes.data_as(pointer), x.shape[1], arguments[5], arguments[6],
+        arguments[7]))
+    del keepalive
+    return value
 
 
 def minimize_port_native_1d(

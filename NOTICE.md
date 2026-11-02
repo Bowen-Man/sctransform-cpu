@@ -10,6 +10,9 @@ contain or derive from the following free-software components:
 - glmGamPoi 1.22.0 dispersion formulas and operation order, Bioconductor
   commit `908cde9d595259b4a317343ddfbcf20036ef0895`, GPL-3.0; portions are
   identified upstream as adapted from DESeq2 under LGPL-3.0-or-later.
+- RcppArmadillo 15.2.3-1's legacy Armadillo 14.6.3 headers, GPL-2-or-later
+  package / Apache-2.0 Armadillo, are a pinned native build dependency. They
+  are downloaded with a verified SHA-256 and are not shipped in the wheel.
 - glmGamPoi's ordered count-frequency table is reproduced with the platform
   C++ standard library because its `unordered_map` traversal order affects
   cancellation-sensitive dispersion estimates.
@@ -22,11 +25,11 @@ contain or derive from the following free-software components:
 
 The bundled `sctransform_cpu/native/sct_port_r45.dll` was built with Rtools45
 GCC/GFortran 14.3.0. Its SHA-256 is
-`d62310f070a70891952eec610f95803a089e5a9cb38b2938a48cced38f74f04f`.
+`e9950f96491162ce50a4d1f671f01729387be91cdc50ef9309a89543c17e4d8b`.
 
 The bundled `sctransform_cpu/native/libsct_port_r45.so` was built on Ubuntu
 26.04 x86_64 with GCC/GFortran 15.2.0 and glibc 2.43. Its SHA-256 is
-`7ed38d800dbf70e97ff964b6b98795053cce5eef8f06990dd33f3e711a6570b1`.
+`ca1b9e9248307caf516a5bcd44cf639f696401637917830c3b6d5738f2f47678`.
 
 The original copyright notices, license identifiers, and source-level
 attribution are retained in `sctransform_cpu/native/`. See `LICENSE` for the

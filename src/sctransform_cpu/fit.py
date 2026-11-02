@@ -1,4 +1,4 @@
-"""Strict unbatched SCT v2 fitting primitives."""
+"""Strict SCT v2 fitting primitives for the supported model designs."""
 from __future__ import annotations
 
 import math
@@ -11,7 +11,14 @@ from .model import (
     r45_offset_from_library,
 )
 from .r_glmgampoi import fit_dispersion_port_native
-from .port_native import make_mu_native, reciprocal_native
+from .port_native import (
+    general_fisher_native,
+    general_initial_beta_native,
+    general_mu_native,
+    make_mu_native,
+    reciprocal_native,
+    residual_statistics_native,
+)
 
 
 def _local_dispersion_trend(expression: np.ndarray, alpha: np.ndarray) -> np.ndarray:
@@ -74,6 +81,47 @@ def fit_batch(counts: np.ndarray, library: np.ndarray,
         intercept_at_overdispersion_r45(row, offset, dispersion, start)
         for row, dispersion, start in zip(counts, trend, initial_beta)
     ])
+    theta = reciprocal_native(alpha)
+    naive_theta = all_cell_means ** 2 / (all_cell_variances - all_cell_means)
+    theta[naive_theta / theta < 1e-3] = np.inf
+    return beta, theta
+
+
+def fit_general_batch(counts, design, offset, all_cell_means,
+                      all_cell_variances):
+    """Fit one glmGamPoi batch with the pinned general-design path."""
+    counts = np.ascontiguousarray(counts, dtype=np.float64)
+    design = np.ascontiguousarray(design, dtype=np.float64)
+    offset = np.ascontiguousarray(offset, dtype=np.float64)
+    if (counts.ndim != 2 or design.shape[0] != counts.shape[1]
+            or offset.shape != (counts.shape[1],)):
+        raise ValueError("unaligned general-design fitting inputs")
+
+    means = np.asarray([
+        matrixstats_refined_mean_r45(row) for row in counts
+    ])
+    variances = residual_statistics_native(counts)[1]
+    exp_offset = np.asarray([math.exp(float(value)) for value in offset])
+    xim = 1.0 / matrixstats_refined_mean_r45(exp_offset)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        rough = (variances - xim * means) / (means * means)
+    rough[~np.isfinite(rough) | (rough < 0.0)] = 0.0
+
+    beta = general_initial_beta_native(counts, design, offset, ridge=True)
+    beta, _ = general_fisher_native(
+        counts, design, offset, rough, beta, ridge=True)
+    mu = general_mu_native(beta, design, offset)
+    alpha = np.asarray([
+        fit_dispersion_port_native(row, mean, use_r45_mathlib=True,
+                                   design=design)
+        for row, mean in zip(counts, mu)
+    ])
+    expression = np.asarray([
+        matrixstats_refined_mean_r45(row) for row in mu
+    ])
+    trend = _local_dispersion_trend(expression, alpha)
+    beta, _ = general_fisher_native(
+        counts, design, offset, trend, beta, ridge=True)
     theta = reciprocal_native(alpha)
     naive_theta = all_cell_means ** 2 / (all_cell_variances - all_cell_means)
     theta[naive_theta / theta < 1e-3] = np.inf
