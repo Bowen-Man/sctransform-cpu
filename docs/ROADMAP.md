@@ -26,8 +26,10 @@ separate integration concern and must not be confused with statistical parity.
 | Corrected UMI counts | validated in current contract | integer-exact comparison on the pinned fixture |
 | Explicit shared fit-cell and fit-gene selections | validated | ordered manifests are compared with R |
 | R-compatible implicit sampling | validated in pinned contract | live R selection gates compare complete ordered cell/gene titles |
-| Additional covariates and batch paths | missing | current public API is deliberately unbatched |
-| Complete v2 flavor/method option coverage | incomplete | source map exists; covariate/batch and alternative method/residual branches remain outside the contract |
+| Regularized numeric covariates | validated | live Windows and Linux R binary oracles compare coefficients and residual outputs |
+| One categorical batch variable | validated | live Windows and Linux R binary oracles cover batch-specific intercepts/slopes and regularization |
+| Non-regularized latent variables and general-design corrected UMI | missing | the public API fails closed instead of approximating these branches |
+| Complete v2 flavor/method option coverage | incomplete | source map exists; alternative method/residual branches remain outside the contract |
 | Poisson-boundary, clipping, rare-count and extreme-library suites | validated for current path | adversarial live-R fixture is bit-identical; broader property coverage remains ongoing |
 | Targeted `vst` return schema | implemented | `to_vst_dict()` exposes official names with explicit matrix titles; unsupported branches remain absent |
 | Broad real-data and scaling evidence | incomplete | current benchmark is intentionally small |

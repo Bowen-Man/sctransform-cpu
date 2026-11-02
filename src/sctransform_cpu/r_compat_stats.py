@@ -116,3 +116,85 @@ def regularize_v2_r45(log_gmean, fit_indices, intercept, theta, means, variances
     b0[poisson] = np.log(means[poisson])-np.log(mean_filtered_library)
     slope[poisson] = math.log(10.0)
     return b0, fitted_theta, slope, bandwidth, outliers
+
+
+def regularize_design_v2_r45(
+    log_gmean, fit_indices, coefficients, theta, coefficient_names,
+    means, variances, mean_filtered_library, bandwidth_adjust=3.0,
+    *, counts=None, batch=None, fit_cells=None, batch_variable=None,
+):
+    """Regularize a supported numeric-covariate or categorical-batch design."""
+    log_gmean, means, variances = (
+        np.asarray(value, dtype=np.float64)
+        for value in (log_gmean, means, variances)
+    )
+    fit_indices = np.asarray(fit_indices, dtype=int)
+    coefficients = np.asarray(coefficients, dtype=np.float64)
+    theta = np.asarray(theta, dtype=np.float64)
+    names = tuple(coefficient_names)
+    if coefficients.shape != (len(fit_indices), len(names)):
+        raise ValueError("coefficient matrix does not match fit genes and names")
+
+    x = log_gmean[fit_indices]
+    dispersion = regularization_dispersion_native(x, theta)
+    parameters = np.column_stack((dispersion, coefficients))
+    outliers = np.zeros(len(fit_indices), dtype=bool)
+    for column in parameters.T:
+        outliers |= outlier_r45(x, column)
+
+    poisson = (variances <= means) | (means < 1e-3)
+    exclude_poisson = batch_variable is None
+    if exclude_poisson:
+        outliers |= ~np.isfinite(theta)
+    keep = ~outliers
+    if exclude_poisson:
+        keep &= ~poisson[fit_indices]
+    if keep.sum() < 2:
+        raise ValueError("fewer than two NB fits remain for R-style regularization")
+
+    fit_x = x[keep]
+    bandwidth = bw_sj_r45(fit_x) * bandwidth_adjust
+    query = np.clip(log_gmean, fit_x.min(), fit_x.max())
+    fitted_dispersion = ksmooth_normal_r45(
+        fit_x, dispersion[keep], query, bandwidth)
+    fitted = np.empty((len(log_gmean), len(names)), dtype=np.float64)
+
+    if batch_variable is None:
+        for column in range(len(names)):
+            fitted[:, column] = ksmooth_normal_r45(
+                fit_x, coefficients[keep, column], query, bandwidth)
+    else:
+        if counts is None or batch is None or fit_cells is None:
+            raise ValueError("batch regularization requires counts, labels and fit cells")
+        batch = np.asarray(batch)
+        fit_cells = np.asarray(fit_cells, dtype=int)
+        fit_genes = fit_indices[keep]
+        seen = []
+        for value in batch.tolist():
+            if value not in seen:
+                seen.append(value)
+        for value in seen:
+            selected_fit_cells = fit_cells[batch[fit_cells] == value]
+            _, batch_fit_x = row_gmean_native(
+                counts[fit_genes][:, selected_fit_cells])
+            finite = np.isfinite(batch_fit_x)
+            if not finite.any():
+                raise ValueError(f'batch "{value}" has no detected fitted genes')
+            batch_fit_x[~finite & (batch_fit_x < 0)] = batch_fit_x[finite].min()
+            _, batch_x = row_gmean_native(counts[:, batch == value])
+            batch_x = np.maximum(batch_x, batch_fit_x.min())
+            marker = f"{batch_variable}{value}"
+            for column, name in enumerate(names):
+                if marker in name:
+                    fitted[:, column] = ksmooth_normal_r45(
+                        batch_fit_x, coefficients[keep, column], batch_x,
+                        bandwidth)
+
+    fitted_theta = regularization_theta_native(log_gmean, fitted_dispersion)
+    if exclude_poisson:
+        fitted_theta[poisson] = np.inf
+        fitted[poisson] = 0.0
+        fitted[poisson, names.index("(Intercept)")] = (
+            np.log(means[poisson]) - np.log(mean_filtered_library))
+        fitted[poisson, names.index("log_umi")] = math.log(10.0)
+    return fitted, fitted_theta, bandwidth, outliers

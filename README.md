@@ -5,10 +5,10 @@ strictly validated CPU reference. The long-term goal is a complete Python SCT
 v2 implementation with an optional GPU backend that interoperates naturally
 with AnnData, CuPy and the RAPIDS single-cell ecosystem.
 
-The current release is the correctness-first CPU foundation. It does **not**
-yet contain a GPU backend, and it covers a narrower contract than the complete
-official R workflow. Correctness coverage and CPU performance must be closed
-and measured before a GPU execution design is selected.
+The current development version is the correctness-first CPU foundation. It
+does **not** yet contain a GPU backend, and it covers a narrower contract than
+the complete official R workflow. Correctness coverage and CPU performance
+must be closed and measured before a GPU execution design is selected.
 
 The public API and pipeline orchestration are Python/NumPy/SciPy. Bundled
 Windows x64 (`.dll`) and Linux x86_64 (`.so`) compatibility libraries
@@ -39,8 +39,9 @@ Validated reference environments use R 4.5.2, sctransform 0.4.3,
 glmGamPoi 1.22.0 and matrixStats 1.5.0. The two distinct native contracts are
 Windows x64/Rtools45 and Ubuntu 26.04 x86_64/glibc 2.43/GCC 15.2.
 
-- direct, one-batch v2 `vst` path;
-- fixed `log_umi` slope and no additional covariates;
+- direct v2 `vst` path with the default fixed `log_umi` slope;
+- additional numeric regularized covariates;
+- one categorical batch variable with batch-specific coefficients;
 - initial and regularized model parameters;
 - Pearson residuals and residual variance;
 - R 4.5-compatible implicit cell/gene sampling and reusable title manifests;
@@ -51,9 +52,10 @@ Windows x64/Rtools45 and Ubuntu 26.04 x86_64/glibc 2.43/GCC 15.2.
 - a Windows-pinned 128-case fixed-mean dispersion stress suite.
 
 This is a version- and contract-pinned alpha release, not yet a claim of parity
-for every SCT/Seurat workflow. Batch/covariates, alternative residual and
-fitting methods, macOS, other Linux distributions/libm versions and the
-complete Seurat object lifecycle are not yet covered.
+for every SCT/Seurat workflow. Non-regularized variables, corrected counts for
+general designs, alternative residual and fitting methods, macOS, other Linux
+distributions/libm versions and the complete Seurat object lifecycle are not
+yet covered.
 
 The pinned 800 x 240 regression fixture passes the strict binary gate on both
 validated platforms: every compared binary64 value, integer output and
@@ -64,8 +66,9 @@ and [development rules](docs/DEVELOPMENT.md).
 
 ## Install
 
-Release wheels support Windows x64 and Linux x86_64. Install the wheel for
-your platform directly from the versioned GitHub release:
+The v0.3.0 release wheels support the validated default design on Windows x64
+and Linux x86_64. Install the wheel for your platform directly from that
+versioned GitHub release:
 
 ```powershell
 python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/download/v0.3.0/sctransform_cpu-0.3.0-py3-none-win_amd64.whl"
@@ -75,10 +78,12 @@ python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/dow
 python -m pip install "https://github.com/Bowen-Man/sctransform-cpu/releases/download/v0.3.0/sctransform_cpu-0.3.0-py3-none-linux_x86_64.whl"
 ```
 
-For development, clone the repository and run `python -m pip install -e .`.
-The project is not yet published on PyPI, so `pip install sctransform-cpu` is
-not currently a supported command. R is needed only to regenerate the
-correctness oracle; it is never imported or invoked at runtime.
+The numeric-covariate and categorical-batch paths described below are in the
+unreleased development version; clone the repository and run
+`python -m pip install -e .` to use them before the next tagged release. The
+project is not yet published on PyPI, so `pip install sctransform-cpu` is not
+currently a supported command. R is needed only to regenerate the correctness
+oracle; it is never imported or invoked at runtime.
 
 | Platform | functional CI | strict bit-identity environment |
 |---|---|---|
@@ -137,12 +142,44 @@ ordered cell/gene titles without running GLM fitting. See the pinned
 [v2 source map](docs/SCT_V2_SOURCE_MAP.md) for the exact filtering and RNG
 contract.
 
+Additional numeric covariates and one categorical batch variable use the same
+`cell_attributes` mapping in cell order:
+
+```python
+# Numeric covariate: y ~ log_umi + percent_mito
+numeric = sctransform(
+    counts,
+    cell_attributes={"percent_mito": percent_mito},
+    config=SCTConfig(
+        latent_variables=("log_umi", "percent_mito"),
+        random_seed=42,
+    ),
+)
+
+# Batch design: y ~ (log_umi):batch + batch + 0
+batched = sctransform(
+    counts,
+    cell_attributes={"batch": batch_labels},
+    config=SCTConfig(batch_variable="batch", random_seed=42),
+)
+```
+
+Covariates must be finite numeric vectors. Batch labels must be nonempty ASCII
+strings, and a sampled fit-cell set must retain every level. General-design
+coefficients are exposed by `coefficient_names`, `coefficients` and
+`fit_coefficients`; the legacy `intercept`/`slope` convenience fields apply
+only when those global columns exist. Corrected UMI output currently fails
+closed for a general design.
+
 The main result fields are:
 
 | Field | Shape / type | Meaning |
 |---|---|---|
 | `genes`, `cells` | `(G,)`, `(C,)` strings | retained names in computation order |
-| `intercept`, `theta`, `slope` | `(G,)` float64 | regularized v2 model parameters |
+| `theta` | `(G,)` float64 | regularized inverse overdispersion |
+| `coefficient_names`, `coefficients` | names and `(G, P)` float64 | regularized design coefficients |
+| `fit_coefficients` | `(F, P)` float64 | unregularized coefficients for fitted genes |
+| `intercept`, `slope` | optional `(G,)` float64 | convenience views for global columns |
 | `residual_mean`, `residual_variance` | `(G,)` float64 | per-gene Pearson residual statistics |
 | `hvg_indices` | `(min(features, G),)` integers | stable residual-variance ranking |
 | `residuals` | `(features, C)` or `(G, C)` float64 | dense clipped Pearson residuals |

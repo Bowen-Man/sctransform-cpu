@@ -109,3 +109,28 @@ def test_poisson_boundaries_and_residual_clipping():
     )
     assert np.max(residual) == 2.0
     assert np.min(residual) >= -2.0
+
+
+@pytest.mark.parametrize("batch", [False, True])
+def test_supported_general_design_contract(batch):
+    counts = sparse.csr_matrix(_counts())
+    attributes = {
+        "percent": (np.arange(counts.shape[1]) % 11) / 11,
+        "batch": np.resize(np.asarray(["A", "B"]), counts.shape[1]),
+    }
+    config = SCTConfig(
+        min_cells=2, fit_cells=None, fit_genes=None, output="full",
+        latent_variables=("log_umi",) if batch else ("log_umi", "percent"),
+        batch_variable="batch" if batch else None,
+    )
+    result = sctransform(counts, cell_attributes=attributes, config=config)
+    contract = result.to_vst_dict()
+    expected = (
+        ("batchA", "batchB", "log_umi:batchA", "log_umi:batchB")
+        if batch else ("(Intercept)", "log_umi", "percent")
+    )
+    assert result.coefficient_names == expected
+    assert contract["model_pars_fit"]["column_names"].tolist() == [
+        "theta", *expected]
+    assert contract["model_pars_fit"]["values"].shape == (
+        len(result.genes), len(expected) + 1)

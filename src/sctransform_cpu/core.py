@@ -1,4 +1,4 @@
-"""Minimal CPU-only implementation of the validated unbatched SCT v2 path."""
+"""Minimal CPU-only implementation of the validated SCT v2 paths."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -8,9 +8,14 @@ import numpy as np
 from scipy import sparse
 
 from .corrected_counts import corrected_counts_tile
-from .fit import fit_batch
-from .r_compat_stats import regularize_v2_r45, row_statistics_r45
-from .residuals import cpu_tile
+from .design import build_design
+from .fit import fit_batch, fit_general_batch
+from .r_compat_stats import (
+    regularize_design_v2_r45,
+    regularize_v2_r45,
+    row_statistics_r45,
+)
+from .residuals import cpu_design_tile, cpu_tile
 from .sampling import (
     RMersenneTwister,
     SelectionManifest,
@@ -30,15 +35,17 @@ class SCTConfig:
     bandwidth_adjust: float = 3.0
     return_corrected_umi: bool = False
     corrected_scale_factor: float | None = None
+    latent_variables: tuple[str, ...] = ("log_umi",)
+    batch_variable: str | None = None
 
 
 @dataclass
 class SCTResult:
     genes: np.ndarray
     cells: np.ndarray
-    intercept: np.ndarray
+    intercept: np.ndarray | None
     theta: np.ndarray
-    slope: np.ndarray
+    slope: np.ndarray | None
     residual_mean: np.ndarray
     residual_variance: np.ndarray
     hvg_indices: np.ndarray
@@ -46,7 +53,7 @@ class SCTResult:
     residuals: np.ndarray
     fit_gene_indices: np.ndarray
     fit_cell_indices: np.ndarray
-    fit_intercept: np.ndarray
+    fit_intercept: np.ndarray | None
     fit_theta: np.ndarray
     library_size: np.ndarray
     log_gmean: np.ndarray
@@ -58,10 +65,15 @@ class SCTResult:
     timing: dict[str, float] = field(default_factory=dict)
     diagnostics: dict[str, object] = field(default_factory=dict)
     corrected_umi: sparse.csr_matrix | None = None
+    coefficient_names: tuple[str, ...] = ("(Intercept)", "log_umi")
+    coefficients: np.ndarray | None = None
+    fit_coefficients: np.ndarray | None = None
+    model_str: str = "y ~ log_umi"
     semantics: str = (
         "platform-pinned Windows x64 or Linux x86_64 R 4.5.2 / "
         "sctransform 0.4.3 / "
-        "glmGamPoi 1.22.0 / matrixStats 1.5.0; direct unbatched v2 path only"
+        "glmGamPoi 1.22.0 / matrixStats 1.5.0; regularized numeric and "
+        "single categorical-batch v2 designs"
     )
 
     def selection_manifest(self, seed: int) -> SelectionManifest:
@@ -89,22 +101,28 @@ class SCTResult:
         """
         if len(self.residual_gene_indices) != len(self.genes):
             raise ValueError("to_vst_dict requires SCTConfig(output='full')")
-        fitted = np.column_stack((self.fit_theta, self.fit_intercept,
-                                  np.full(len(self.fit_theta), np.log(10.0))))
-        regularized = np.column_stack((self.theta, self.intercept, self.slope))
+        fitted_coefficients = self.fit_coefficients
+        regularized_coefficients = self.coefficients
+        if fitted_coefficients is None or regularized_coefficients is None:
+            fitted_coefficients = np.column_stack(
+                (self.fit_intercept, np.full(len(self.fit_theta), np.log(10.0))))
+            regularized_coefficients = np.column_stack((self.intercept, self.slope))
+        fitted = np.column_stack((self.fit_theta, fitted_coefficients))
+        regularized = np.column_stack((self.theta, regularized_coefficients))
+        columns = ("theta", *self.coefficient_names)
         result: dict[str, object] = {
             "y": self._named_matrix(self.genes, self.cells, self.residuals),
-            "model_str": "y ~ log_umi",
+            "model_str": self.model_str,
             "model_pars": self._named_matrix(
                 self.genes[self.fit_gene_indices],
-                ("theta", "(Intercept)", "log_umi"),
+                columns,
                 fitted,
             ),
             "model_pars_outliers": np.asarray(
                 self.diagnostics["fit_outliers"], dtype=bool),
             "model_pars_fit": self._named_matrix(
                 self.genes,
-                ("theta", "(Intercept)", "log_umi"),
+                columns,
                 regularized,
             ),
             "model_str_nonreg": "",
@@ -142,7 +160,8 @@ def _names(values, size: int, prefix: str) -> np.ndarray:
 def sctransform(counts, *, gene_names=None, cell_names=None,
                 config: SCTConfig | None = None,
                 fit_cell_indices=None, fit_gene_names=None,
-                selection_manifest: SelectionManifest | None = None) -> SCTResult:
+                selection_manifest: SelectionManifest | None = None,
+                cell_attributes=None) -> SCTResult:
     """Transform raw UMI counts in gene x cell orientation.
 
     Exact comparison can either reuse an ordered ``SelectionManifest`` or use
@@ -155,6 +174,10 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         raise ValueError("invalid bandwidth_adjust or output")
     if any(value is not None and value < 1 for value in (cfg.fit_cells, cfg.fit_genes)):
         raise ValueError("fit_cells and fit_genes must be positive or None")
+    general_design = (cfg.latent_variables != ("log_umi",)
+                      or cfg.batch_variable is not None)
+    if general_design and cfg.return_corrected_umi:
+        raise ValueError("corrected UMI is not yet supported for a general design")
 
     started = time.perf_counter()
     matrix = sparse.csr_matrix(counts, dtype=np.float64, copy=True)
@@ -168,6 +191,7 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         raise ValueError("input must contain finite non-negative integer raw UMI counts")
     genes = _names(gene_names, matrix.shape[0], "gene")
     cells = _names(cell_names, matrix.shape[1], "cell")
+    input_matrix = matrix
     library = np.asarray(matrix.sum(axis=0)).ravel()
     keep = np.asarray(matrix.getnnz(axis=1)).ravel() >= cfg.min_cells
     matrix, genes = matrix[keep].tocsr(), genes[keep]
@@ -236,29 +260,54 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
     timing["selection"] = time.perf_counter() - started
 
     started = time.perf_counter()
-    fit_intercept = np.empty(len(eligible))
+    design = build_design(
+        input_matrix, library, cfg.latent_variables, cfg.batch_variable,
+        cell_attributes, selected_cells)
     fit_theta = np.empty(len(eligible))
-    for offset in range(0, len(eligible), 500):
-        indices = eligible[offset:offset + 500]
-        fit_intercept[offset:offset + len(indices)], fit_theta[offset:offset + len(indices)] = fit_batch(
-            sampled[indices].toarray(),
-            library[selected_cells],
-            means[indices],
-            variances[indices],
-        )
+    fit_coefficients = np.empty((len(eligible), len(design.coefficient_names)))
+    if not general_design:
+        fit_intercept = fit_coefficients[:, 0]
+        for offset in range(0, len(eligible), 500):
+            indices = eligible[offset:offset + 500]
+            fit_intercept[offset:offset + len(indices)], fit_theta[offset:offset + len(indices)] = fit_batch(
+                sampled[indices].toarray(), library[selected_cells],
+                means[indices], variances[indices])
+        fit_coefficients[:, 1] = np.log(10.0)
+    else:
+        for offset in range(0, len(eligible), 500):
+            indices = eligible[offset:offset + 500]
+            raw_coefficients, values = fit_general_batch(
+                sampled[indices].toarray(), design.fit, design.offset,
+                means[indices], variances[indices])
+            fit_theta[offset:offset + len(indices)] = values
+            if cfg.batch_variable is None:
+                fit_coefficients[offset:offset + len(indices), 0] = raw_coefficients[:, 0]
+                fit_coefficients[offset:offset + len(indices), 1] = np.log(10.0)
+                fit_coefficients[offset:offset + len(indices), 2:] = raw_coefficients[:, 1:]
+            else:
+                fit_coefficients[offset:offset + len(indices)] = raw_coefficients
+        fit_theta[np.isfinite(fit_theta) & (fit_theta < 1e-7)] = 1e-7
+        fit_intercept = (fit_coefficients[:, design.coefficient_names.index("(Intercept)")]
+                         if "(Intercept)" in design.coefficient_names else None)
     timing["fit"] = time.perf_counter() - started
 
     started = time.perf_counter()
-    intercept, theta, slope, bandwidth, outliers = regularize_v2_r45(
-        log_gmean,
-        eligible,
-        fit_intercept,
-        fit_theta,
-        means,
-        variances,
-        retained_mean_library,
-        cfg.bandwidth_adjust,
-    )
+    if not general_design:
+        intercept, theta, slope, bandwidth, outliers = regularize_v2_r45(
+            log_gmean, eligible, fit_intercept, fit_theta, means, variances,
+            retained_mean_library, cfg.bandwidth_adjust)
+        coefficients = np.column_stack((intercept, slope))
+    else:
+        coefficients, theta, bandwidth, outliers = regularize_design_v2_r45(
+            log_gmean, eligible, fit_coefficients, fit_theta,
+            design.coefficient_names, means, variances, retained_mean_library,
+            cfg.bandwidth_adjust, counts=matrix,
+            batch=design.attributes.get(cfg.batch_variable),
+            fit_cells=selected_cells, batch_variable=cfg.batch_variable)
+        intercept = (coefficients[:, design.coefficient_names.index("(Intercept)")]
+                     if "(Intercept)" in design.coefficient_names else None)
+        slope = (coefficients[:, design.coefficient_names.index("log_umi")]
+                 if "log_umi" in design.coefficient_names else None)
     timing["regularization"] = time.perf_counter() - started
 
     started = time.perf_counter()
@@ -271,10 +320,14 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
     for offset in range(0, len(genes), cfg.tile_genes):
         indices = np.arange(offset, min(offset + cfg.tile_genes, len(genes)))
         dense = matrix[indices].toarray()
-        residual, mean, variance = cpu_tile(
-            dense, library, intercept[indices], slope[indices], theta[indices], min_variance, clip,
-            dtype=np.float64,
-        )
+        if general_design:
+            residual, mean, variance = cpu_design_tile(
+                dense, design.full, coefficients[indices], theta[indices],
+                min_variance, clip)
+        else:
+            residual, mean, variance = cpu_tile(
+                dense, library, intercept[indices], slope[indices], theta[indices],
+                min_variance, clip, dtype=np.float64)
         residual_mean[indices], residual_variance[indices] = mean, variance
         if full is not None:
             full[indices] = residual
@@ -296,16 +349,15 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         residuals = np.empty((len(hvg), matrix.shape[1]), dtype=np.float64)
         for offset in range(0, len(hvg), cfg.tile_genes):
             indices = hvg[offset:offset + cfg.tile_genes]
-            residuals[offset:offset + len(indices)] = cpu_tile(
-                matrix[indices].toarray(),
-                library,
-                intercept[indices],
-                slope[indices],
-                theta[indices],
-                min_variance,
-                clip,
-                dtype=np.float64,
-            )[0]
+            dense = matrix[indices].toarray()
+            if general_design:
+                residuals[offset:offset + len(indices)] = cpu_design_tile(
+                    dense, design.full, coefficients[indices], theta[indices],
+                    min_variance, clip)[0]
+            else:
+                residuals[offset:offset + len(indices)] = cpu_tile(
+                    dense, library, intercept[indices], slope[indices],
+                    theta[indices], min_variance, clip, dtype=np.float64)[0]
         residual_rows = hvg
     else:
         residuals = full
@@ -334,6 +386,10 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
         detection_rate=detection_rate,
         min_variance=min_variance,
         bandwidth=bandwidth,
+        coefficient_names=design.coefficient_names,
+        coefficients=coefficients,
+        fit_coefficients=fit_coefficients,
+        model_str=design.model_str,
         timing=timing,
         diagnostics={
             "fit_outliers": outliers,
@@ -349,6 +405,8 @@ def sctransform(counts, *, gene_names=None, cell_names=None,
                 "bw_adjust": cfg.bandwidth_adjust,
                 "exclude_poisson": True,
                 "return_corrected_umi": cfg.return_corrected_umi,
+                "latent_var": cfg.latent_variables,
+                "batch_var": cfg.batch_variable,
             },
         },
     )

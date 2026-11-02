@@ -5,6 +5,7 @@
 | Module | Responsibility | Important invariant |
 |---|---|---|
 | `core.py` | Public API, filtering, stage order, tiling and result construction | Input is raw gene x cell integer UMI; no silent subsampling |
+| `design.py` | Numeric covariate and categorical batch model matrices | Column names/order must match R `model.matrix` |
 | `fit.py` | Ordered batches of at most 500 genes | Preserve R batch and gene order |
 | `model.py` | Moment start and one-intercept refits | Preserve scalar accumulation and convergence order |
 | `r_glmgampoi.py` | Dispersion objective, score, Hessian and fallback chain | Match pinned glmGamPoi 1.22 semantics |
@@ -13,6 +14,7 @@
 | `r_compat_stats.py` | Sparse row statistics, bandwidth, outliers and kernel smoothing | Cross-gene order is part of the numerical contract |
 | `residuals.py` | Float64 Pearson residual tiles and sample moments | Sparse zeros have nonzero residuals; output is generally dense |
 | `corrected_counts.py` | Reverse unclipped residuals at the target depth | Integer rounding order is part of the contract |
+| `native/generic_design.cpp` | General QR/Fisher scoring and matrix Cox--Reid primitives | Match the pinned RcppArmadillo 14.6.3 expression form |
 | `native/` | R PORT Fortran, compatibility callbacks, Windows DLL and Linux shared object | Corresponding source and provenance must ship with releases |
 
 The public package deliberately contains no GPU backend, async executor,
@@ -24,6 +26,8 @@ alternative solver switch or hidden approximate fallback.
   avoids CSV formatting and is the authoritative bit-level oracle.
 - `benchmarks/bit_identity.py` compares float bit patterns, integers and
   ordered titles. `--enforce` exits nonzero on one mismatched bit.
+- `benchmarks/design_reference.R` is the live oracle for numeric covariates
+  and categorical batch designs.
 - `benchmarks/compare.py` is the less strict numerical acceptance gate.
 - `benchmarks/run_benchmark.py` measures identical work in fresh Python and R
   subprocesses, including sampled RSS and startup separately from compute.
@@ -70,6 +74,8 @@ every compared value has zero mismatches:
 - all residual means and variances, complete HVG order and 192,000 corrected
   UMI integers;
 - retained genes/cells and ordered fit-gene/fit-cell manifests.
+- numeric-covariate and categorical-batch fit parameters, regularized
+  parameters, outlier masks, full residuals and residual statistics.
 
 The machine-readable evidence is `results/bit_identity.json` on Windows and
 `results/linux/bit_identity.json` on Linux. Passing live tests regenerated the
@@ -80,6 +86,7 @@ Run the hard gate locally:
 ```powershell
 $env:SCT_TEST_RSCRIPT = 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe'
 python -m pytest -q tests/test_r_bit_identity.py
+python -m pytest -q tests/test_r_design_identity.py
 ```
 
 The test is intentionally an ordinary assertion, not an `xfail`. It is the
@@ -113,7 +120,7 @@ cross-platform byte stream is not the contract.
 ### P1: statistical feature coverage
 
 - exact independent R RNG/density-weighted sampling, including ties;
-- batch and additional covariates;
+- non-regularized variables and general-design corrected UMI;
 - complete Seurat-facing output semantics;
 - more real datasets, extreme libraries, Poisson boundaries and rare counts.
 

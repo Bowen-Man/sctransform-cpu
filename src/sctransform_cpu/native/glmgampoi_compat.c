@@ -46,14 +46,9 @@ static double sct_platform_pow(double base, double exponent)
 #endif
 }
 
-static double sct_platform_lgamma(double value)
+static double sct_vector_lgamma(double value)
 {
-#ifdef _WIN32
     return sct_r45_lgamma(value);
-#else
-    /* glmGamPoi's unqualified scalar lgamma resolves to glibc on Linux. */
-    return lgamma(value);
-#endif
 }
 
 SCT_EXPORT void sct_log10_array(
@@ -326,6 +321,27 @@ SCT_EXPORT void sct_pearson_residuals(
     }
 }
 
+SCT_EXPORT void sct_pearson_residuals_from_mu(
+    const double counts[], const double mu[], int genes, int cells,
+    const double theta[], double minimum_variance, double clip, double out[])
+{
+    for (int gene = 0; gene < genes; ++gene) {
+        for (int cell = 0; cell < cells; ++cell) {
+            int index = gene * cells + cell;
+            double mean = mu[index];
+            double model_variance = mean + mean * mean / theta[gene];
+            if (model_variance < minimum_variance)
+                model_variance = minimum_variance;
+            volatile double numerator = counts[index] - mean;
+            volatile double denominator = sct_platform_sqrt(model_variance);
+            double residual = numerator / denominator;
+            if (residual < -clip) residual = -clip;
+            if (residual > clip) residual = clip;
+            out[index] = residual;
+        }
+    }
+}
+
 /* Reproduce the two distinct reductions used by sctransform 0.4.3:
  *
  *   gene_attr$residual_mean     <- base::rowMeans(rv$y)
@@ -537,14 +553,14 @@ SCT_EXPORT double sct_glmgampoi_loglikelihood(
     if (table_size > 0) {
         for (int i = 0; i < table_size; ++i) {
             lgamma_term += count_frequencies[i]
-                           * sct_platform_lgamma(unique_counts[i] + theta_neg1);
+                           * lgamma(unique_counts[i] + theta_neg1);
         }
     } else {
         for (int i = 0; i < n; ++i) {
-            lgamma_term += sct_platform_lgamma(y[i] + theta_neg1);
+            lgamma_term += sct_vector_lgamma(y[i] + theta_neg1);
         }
     }
-    lgamma_term -= n * sct_platform_lgamma(theta_neg1);
+    lgamma_term -= n * lgamma(theta_neg1);
     double ll_part = 0.0;
     for (int i = 0; i < n; ++i) {
         ll_part += (-y[i] - theta_neg1) * log(mu[i] + theta_neg1);
@@ -571,4 +587,133 @@ SCT_EXPORT double sct_glmgampoi_score_derivative_log(
     return sct_glmgampoi_score_derivative(
         y, mu, n, exp(log_theta), do_cox_reid_adjustment,
         unique_counts, count_frequencies, table_size);
+}
+
+extern void sct_general_cr_derivatives(
+    const double design_values[], int cells, int coefficients,
+    const double mu_values[], double theta, double out[]);
+extern double sct_general_cr_logdet(
+    const double design_values[], int cells, int coefficients,
+    const double mu_values[], double theta);
+extern double sct_general_cr_score_derivative(
+    const double design_values[], int cells, int coefficients,
+    const double mu_values[], double theta);
+
+SCT_EXPORT double sct_glmgampoi_general_loglikelihood(
+    const double y[], const double mu[], int n, double log_theta,
+    const double design[], int coefficients,
+    const double unique_counts[], const double count_frequencies[],
+    int table_size)
+{
+    double theta = exp(log_theta);
+    double cr_term = sct_general_cr_logdet(
+        design, n, coefficients, mu, theta);
+    double theta_neg1 = 1.0 / theta;
+    double lgamma_term = 0.0;
+    if (table_size > 0) {
+        for (int i = 0; i < table_size; ++i)
+            lgamma_term += count_frequencies[i]
+                           * lgamma(unique_counts[i] + theta_neg1);
+    } else {
+        for (int i = 0; i < n; ++i)
+            lgamma_term += sct_vector_lgamma(y[i] + theta_neg1);
+    }
+    lgamma_term -= n * lgamma(theta_neg1);
+    double ll_part = 0.0;
+    for (int i = 0; i < n; ++i)
+        ll_part += (-y[i] - theta_neg1) * log(mu[i] + theta_neg1);
+    ll_part -= n * theta_neg1 * log(theta);
+    return lgamma_term + ll_part + cr_term;
+}
+
+SCT_EXPORT double sct_glmgampoi_general_score(
+    const double y[], const double mu[], int n, double log_theta,
+    const double design[], int coefficients,
+    const double unique_counts[], const double count_frequencies[],
+    int table_size)
+{
+    double theta = exp(log_theta);
+    double theta_neg1 = 1.0 / theta;
+    double cr = sct_general_cr_score_derivative(
+        design, n, coefficients, mu, theta);
+    double digamma_term = 0.0;
+    double max_y = 0.0, sum_y = 0.0, sum_prod_y = 0.0;
+    if (table_size > 0) {
+        for (int i = 0; i < table_size; ++i) {
+            double value = unique_counts[i], frequency = count_frequencies[i];
+            digamma_term += frequency * sct_r45_digamma(value + theta_neg1);
+            sum_y += frequency * value;
+            sum_prod_y += frequency * (value - 1.0) * value;
+            max_y = fmax(max_y, value);
+        }
+    } else {
+        for (int i = 0; i < n; ++i) {
+            double value = y[i];
+            digamma_term += sct_r45_digamma(value + theta_neg1);
+            sum_y += value;
+            sum_prod_y += (value - 1.0) * value;
+            max_y = fmax(max_y, value);
+        }
+    }
+    double correction = theta_neg1 > 1e5
+        ? sum_prod_y / (2.0 * theta_neg1) : 0.0;
+    if (max_y * 1e6 < theta_neg1) {
+        digamma_term = sum_y - correction;
+    } else {
+        digamma_term -= n * sct_r45_digamma(theta_neg1);
+        digamma_term *= theta_neg1;
+        digamma_term = fmin(digamma_term, sum_y - correction);
+    }
+    double ll_part = 0.0;
+    for (int i = 0; i < n; ++i) {
+        double mu_theta = mu[i] * theta;
+        if (mu_theta < 1e-10) {
+            ll_part += mu_theta * mu_theta
+                       * (1.0 / (1.0 + mu_theta) - 0.5);
+        } else if (mu_theta < 1e-4) {
+            double inverse = 1.0 / (1.0 + mu_theta);
+            double upper = mu_theta * mu_theta * inverse;
+            double lower = mu_theta * mu_theta * (inverse - 0.5);
+            double suggested = log(1.0 + mu_theta)
+                               - mu[i] / (mu[i] + theta_neg1);
+            ll_part += fmax(fmin(suggested, upper), lower);
+        } else {
+            ll_part += log(1.0 + mu_theta)
+                       - mu[i] / (mu[i] + theta_neg1);
+        }
+        ll_part += y[i] / (mu[i] + theta_neg1);
+    }
+    ll_part *= theta_neg1;
+    return ll_part - digamma_term + cr * theta;
+}
+
+SCT_EXPORT double sct_glmgampoi_general_score_derivative_log(
+    const double y[], const double mu[], int n, double log_theta,
+    const double design[], int coefficients,
+    const double unique_counts[], const double count_frequencies[],
+    int table_size)
+{
+    double theta = exp(log_theta);
+    double cr[2];
+    sct_general_cr_derivatives(
+        design, n, coefficients, mu, theta, cr);
+    double theta_neg1 = 1.0 / theta;
+    double theta_neg2 = 1.0 / (theta * theta);
+    double digamma_term, trigamma_term;
+    digamma_sums(y, n, unique_counts, count_frequencies, table_size,
+                 theta_neg1, &digamma_term, &trigamma_term, theta_neg2);
+
+    double ll_part_1 = 0.0, ll_part_2 = 0.0;
+    for (int i = 0; i < n; ++i) {
+        ll_part_1 += log(1.0 + mu[i] * theta)
+                     + (y[i] - mu[i]) / (mu[i] + theta_neg1);
+        ll_part_2 += (mu[i] * mu[i] * theta + y[i])
+                     / (1.0 + mu[i] * theta)
+                     / (1.0 + mu[i] * theta);
+    }
+    double ll_part = -2.0 * theta_neg1 * (ll_part_1 - digamma_term)
+                     + (ll_part_2 + trigamma_term);
+    return ll_part + cr[1] * (theta * theta)
+           + (ll_part_1 - digamma_term) * theta_neg1
+           + cr[0] * theta;
 }

@@ -15,9 +15,10 @@ execution order. It does not embed, link to or invoke an R runtime.
 - R 4.5.2, sctransform 0.4.3, glmGamPoi 1.22.0, matrixStats 1.5.0;
 - `OMP_NUM_THREADS=MKL_NUM_THREADS=OPENBLAS_NUM_THREADS=1` for benchmarks.
 
-The `.so` depends only on `libm.so.6` and `libc.so.6`; libgfortran, libgcc and
-libstdc++ are statically linked. Its SHA-256 is
-`7ed38d800dbf70e97ff964b6b98795053cce5eef8f06990dd33f3e711a6570b1`.
+The `.so` dynamically uses the distribution `libgfortran.so.5`, `libgcc_s`,
+`libm` and `libc`; libstdc++ plus BLAS/LAPACK are statically linked. Its
+SHA-256 is
+`ca1b9e9248307caf516a5bcd44cf639f696401637917830c3b6d5738f2f47678`.
 
 ## Exact gate
 
@@ -28,6 +29,10 @@ mean, model variance, numerator, denominator and Pearson residual; 192,000
 corrected UMI integers; all parameters, residual statistics, masks, names and
 the complete HVG order. The result is in
 `results/linux/bit_identity.json`.
+
+The same environment also passes the numeric-covariate and categorical-batch
+live gates for fitted/regularized parameters, outlier masks, full Pearson
+residuals and residual statistics.
 
 This is a regression guarantee for the named fixture and pinned environment,
 not a proof for every input or another libc/libm. The independent Windows

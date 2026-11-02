@@ -23,8 +23,8 @@ def _strict_exp():
     """Return the scalar exponential used by the pinned platform build."""
     if os.name != "nt":
         return math.exp
-    from .r45_mathlib import exp
-    return exp
+    from .port_native import r45_exp_native
+    return r45_exp_native
 
 
 def _table_if_small(y: np.ndarray):
@@ -527,7 +527,8 @@ def fit_dispersion_port_bfgs(y, mu, *, max_iter=200,
 def fit_dispersion_port_native(y, mu, *, max_iter=200,
                                return_diagnostics=False,
                                use_r45_mathlib=True,
-                               cr_sum_function=None):
+                               cr_sum_function=None,
+                               design=None):
     """Run the complete pinned glmGamPoi/R ``nlminb`` attempt chain.
 
     This is the strict candidate: R 4.5.2's original PORT Fortran routines
@@ -550,6 +551,11 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
     if (np.any(y < 0) or np.any(mu < 0) or not np.isfinite(y).all()
             or not np.isfinite(mu).all()):
         raise ValueError("invalid y or mu")
+    if design is not None:
+        design = np.asarray(design, dtype=np.float64)
+        if (design.ndim != 2 or design.shape[0] != len(y)
+                or design.shape[1] < 1 or not np.isfinite(design).all()):
+            raise ValueError("design must be a finite cell-by-coefficient matrix")
     if np.all(y == 0):
         value = (0.0, {
             "branch": "all_zero",
@@ -593,8 +599,25 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
         }
         return objective_options, score_options, derivative_options
 
+    from .port_native import (
+        glmgampoi_general_loglikelihood_native,
+        glmgampoi_general_score_native, glmgampoi_loglikelihood_native,
+        glmgampoi_general_score_derivative_log_native,
+        glmgampoi_score_derivative_native, glmgampoi_score_native,
+    )
+
+    def general_score(alpha, cox_reid):
+        if design is not None and cox_reid:
+            return glmgampoi_general_score_native(
+                y, mu, math.log(alpha), design, table=table)
+        value = glmgampoi_score_native(
+            y, mu, alpha, cox_reid=False, table=table)
+        return value
+
     _, left_score_options, _ = options(True)
-    if score(y, mu, math.log(1e-8), **left_score_options) < 0:
+    left_score = (score(y, mu, math.log(1e-8), **left_score_options)
+                  if design is None else general_score(1e-8, True))
+    if left_score < 0:
         value = (0.0, {
             "branch": "left_score",
             "converged": True,
@@ -620,20 +643,28 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
     for name, cox_reid, analytic_hessian in attempts:
         objective_options, score_options, derivative_options = options(cox_reid)
         def objective(value, opts=objective_options, stage=name, cr=cox_reid):
-            if os.name == "nt":
-                result = -loglikelihood(y, mu, value, **opts)
+            if design is None:
+                if os.name == "nt":
+                    result = -loglikelihood(y, mu, value, **opts)
+                else:
+                    result = -glmgampoi_loglikelihood_native(
+                        y, mu, value, cox_reid=cr, table=table)
             else:
-                result = -glmgampoi_loglikelihood_native(
-                    y, mu, value, cox_reid=cr, table=table)
+                if cr:
+                    result = -glmgampoi_general_loglikelihood_native(
+                        y, mu, value, design, table=table)
+                else:
+                    result = -glmgampoi_loglikelihood_native(
+                        y, mu, value, cox_reid=False, table=table)
             if callback_trace is not None:
                 callback_trace.append((stage, "objective", value, result))
             return result
 
         def gradient(value, cr=cox_reid, stage=name):
-            result = -glmgampoi_score_native(
-                y, mu,
-                (math.exp if exp_function is None else exp_function)(value),
-                cox_reid=cr, table=table)
+            alpha = (math.exp if exp_function is None else exp_function)(value)
+            result = -(glmgampoi_score_native(
+                y, mu, alpha, cox_reid=cr, table=table)
+                if design is None else general_score(alpha, cr))
             if callback_trace is not None:
                 callback_trace.append((stage, "gradient", value, result))
             return result
@@ -641,14 +672,18 @@ def fit_dispersion_port_native(y, mu, *, max_iter=200,
         if analytic_hessian:
             def hessian(value, cr=cox_reid, opts=derivative_options,
                         stage=name):
-                result = -glmgampoi_score_derivative_native(
-                    y,
-                    mu,
-                    (math.exp if exp_function is None else exp_function)(
-                        value),
-                    cox_reid=cr,
-                    table=table,
-                )
+                alpha = (math.exp if exp_function is None else exp_function)(value)
+                if design is None:
+                    derivative = glmgampoi_score_derivative_native(
+                        y, mu, alpha, cox_reid=cr, table=table)
+                else:
+                    if cr:
+                        derivative = glmgampoi_general_score_derivative_log_native(
+                            y, mu, value, design, table=table)
+                    else:
+                        derivative = glmgampoi_score_derivative_native(
+                            y, mu, alpha, cox_reid=False, table=table)
+                result = -derivative
                 if callback_trace is not None:
                     callback_trace.append((stage, "hessian", value, result))
                 return result

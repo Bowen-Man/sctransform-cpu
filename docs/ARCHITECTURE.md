@@ -5,18 +5,22 @@ raw gene x cell UMI CSR
   -> library size before filtering
   -> gene filtering and R-order row statistics
   -> explicit fit-cell / fit-gene selection
+  -> R-compatible model matrix
+       -> fixed log_umi offset for an unbatched numeric design
+       -> batch indicators and batch-specific interactions otherwise
   -> batches of at most 500 genes
-       -> moment dispersion and intercept
-       -> fixed-mean glmGamPoi dispersion MLE
+       -> moment dispersion and initial coefficients
+       -> Fisher scoring and matrix Cox-Reid dispersion MLE
        -> local dispersion trend
-       -> intercept refit
+       -> coefficient refit
   -> cross-gene outlier detection and kernel regularization
   -> tiled float64 Pearson residual statistics
   -> residual-variance ranking
   -> optional residual or corrected-count materialization
 ```
 
-`core.py` owns the data flow and public contract. `fit.py` contains the
+`core.py` owns the data flow and public contract. `design.py` owns the
+supported R model-matrix contract. `fit.py` contains the
 per-batch SCT v2 sequence. `r_glmgampoi.py`, `r45_mathlib.py`,
 `r_compat_stats.py`, `port_native.py` and the bundled native library form the
 numerical compatibility boundary. The library contains the PORT optimizer

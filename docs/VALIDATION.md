@@ -35,10 +35,13 @@ The public benchmark fixture is an 800-gene by 240-cell raw UMI subset derived
 from the public 10x PBMC3K dataset. It is a computational regression fixture,
 not a biological validation dataset.
 
-Limitations remain explicit: only the direct unbatched path is covered;
-implicit cross-language sampling, additional covariates, complete Seurat
-post-processing, other R/package versions, macOS and other Linux runtimes
-require separate gates.
+The exact contract covers the direct fixed-slope path, regularized numeric
+covariates and one categorical batch variable. Numeric covariates use the
+official offset model; the batch path uses the official batch-specific
+intercepts and slopes. Unsupported cases remain explicit: non-regularized
+latent variables, corrected UMI for general designs, arbitrary R contrast
+coding, complete Seurat post-processing, other R/package versions, macOS and
+other Linux runtimes require separate implementations and gates.
 
 Run the stored oracle and then regenerate it live:
 
@@ -49,6 +52,7 @@ python benchmarks/bit_identity.py benchmark_data build/bit_oracle `
   results/bit_identity.json --enforce
 $env:SCT_TEST_RSCRIPT = 'C:\Program Files\R\R-4.5.2\bin\Rscript.exe'
 python -m pytest -q tests/test_r_bit_identity.py
+python -m pytest -q tests/test_r_design_identity.py
 ```
 
 Linux equivalent:
@@ -57,6 +61,7 @@ Linux equivalent:
 ./scripts/build_native.sh
 export SCT_TEST_RSCRIPT=/usr/bin/Rscript
 python -m pytest -q tests/test_r_bit_identity.py
+python -m pytest -q tests/test_r_design_identity.py
 Rscript benchmarks/bit_reference.R benchmark_data build/bit_oracle_linux
 python benchmarks/bit_identity.py benchmark_data build/bit_oracle_linux \
   results/linux/bit_identity.json --enforce

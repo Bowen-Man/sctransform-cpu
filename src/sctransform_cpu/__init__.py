@@ -1,4 +1,4 @@
-"""CPU reference implementation of the validated unbatched SCT v2 path."""
+"""CPU reference implementation of the validated SCT v2 paths."""
 from importlib.metadata import PackageNotFoundError, version
 
 from .core import SCTConfig, SCTResult, sctransform

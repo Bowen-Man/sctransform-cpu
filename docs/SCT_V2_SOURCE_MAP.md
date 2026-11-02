@@ -71,9 +71,9 @@ returned object.
 | official argument | v2 behavior confirmed from source | Python contract |
 |---|---|---|
 | `umi` | genes x cells; gene and cell names are operational identifiers | **implemented**, CSR canonicalization, raw integer validation |
-| `cell_attr` | created/validated by `make_cell_attr`; may supply arbitrary requested covariates | **missing** for arbitrary covariates |
-| `latent_var` | default `log_umi`; additional variables enter the design | only `log_umi` **implemented** |
-| `batch_var` | factorized; formula becomes `(latent):batch + batch + 0` | **missing**, independently gated work item |
+| `cell_attr` | created/validated by `make_cell_attr`; may supply arbitrary requested covariates | finite numeric covariates and one string batch vector **implemented** |
+| `latent_var` | default `log_umi`; additional variables enter the design | `log_umi` plus numeric regularized variables **implemented** |
+| `batch_var` | factorized; formula becomes `(latent):batch + batch + 0` | one categorical batch variable **implemented** |
 | `latent_var_nonreg` | fitted after regularization and appended to final design | **missing** |
 | `n_genes` | default 2,000; inverse-density sample when fewer than eligible genes | R 4.5 RNG and density sampler **implemented**, live-R selection gate required |
 | `n_cells` | null becomes 2,000 under v2; uniform sample without replacement | R 4.5 RNG sampler **implemented** |
@@ -183,9 +183,10 @@ naive and MLE theta are excluded from smoothing. The current unbatched Python
 regularizer reproduces this pinned path.
 
 The batch path is materially different: `reg_model_pars` disables the same
-fixed-slope/Poisson shortcut for batch-specific coefficients. It requires a
-coefficient-wise smoothing and design-matrix oracle before it can be marked
-implemented.
+fixed-slope/Poisson shortcut for batch-specific coefficients. The Python path
+reproduces global dispersion smoothing plus batch-specific abundance
+coordinates and coefficient smoothing. Its live oracle compares the complete
+parameter and residual bit patterns rather than only the selected features.
 
 ## Residual and corrected-count contract
 
@@ -234,8 +235,8 @@ of an R list or Seurat assay.
 | inverse-density gene selection | ordered titles against live R | green on Windows and Linux |
 | Poisson equality, clipping, rare genes, zero filtering, extreme library | branch/output identity | green adversarial live-R fixture |
 | return names, shapes, titles and optional fields | structural identity | green for targeted path |
-| numeric covariate | model matrix, coefficients, residuals | missing |
-| categorical batch | factor levels, coefficients, regularization, residuals | missing |
+| numeric covariate | model matrix, coefficients, residuals | green on Windows and Linux |
+| categorical batch | factor levels, coefficients, regularization, residuals | green on Windows and Linux |
 | non-regularized variables | appended design and coefficients | missing |
 | fallback `nb_offset` | parameters and failure behavior | missing |
 
